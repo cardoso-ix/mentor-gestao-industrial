@@ -1,0 +1,9 @@
+[project]
+name = "mentor-gestao-industrial"
+version = "1.0.0"
+description = "Mentor multi-agente para supervisores de manutenção"
+requires-python = ">=3.11,<3.14"
+readme = "README.md"
+
+[tool.streamlit]
+# Documentação: no Cloud, defina manualmente Main file = main.py e Python = 3.12

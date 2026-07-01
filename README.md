@@ -119,21 +119,24 @@ Acesse: http://localhost:8501
 
 **URL:** https://mentor-gestao-industrial.streamlit.app/
 
-> **Importante:** o repositório inclui `.python-version` com **3.12**. O Streamlit Cloud usa Python 3.14 por padrão se esse arquivo não existir — e o CrewAI/ChromaDB **quebram** no 3.14 (`pydantic.v1.errors.ConfigError`).
+> **Leia [STREAMLIT_CLOUD.md](STREAMLIT_CLOUD.md)** se o deploy falhou.
 
-1. Acesse [share.streamlit.io](https://share.streamlit.io/) e conecte o repositório `cardoso-ix/mentor-gestao-industrial`
-2. Branch: `master` · Arquivo principal: `main.py`
-3. Em **Advanced settings**, defina o subdomínio: `mentor-gestao-industrial`
-4. Em **Secrets**, cole o conteúdo de `.streamlit/secrets.toml.example` com suas chaves reais:
+Resumo obrigatório no painel do Streamlit Cloud:
 
-```toml
-GROQ_API_KEY = "sua_chave"
-SERPER_API_KEY = "sua_chave"
-```
+| Campo | Valor |
+|-------|--------|
+| Main file | `main.py` (não `agents/__init__.py`) |
+| Python | **3.12** (não 3.14 — CrewAI não suporta) |
+| Secrets | `GROQ_API_KEY` e `SERPER_API_KEY` |
 
-5. Clique em **Deploy** e aguarde o rebuild (pode levar alguns minutos na primeira vez por causa do modelo de embeddings)
+Se o app já foi criado com Python 3.14, **apague e faça deploy de novo** — a versão do Python não muda só com reboot.
 
-Se o app reiniciar sozinho ao analisar, pode ser limite de memória do plano gratuito (~1 GB). Nesse caso use o deploy Docker na VPS (seção abaixo).
+1. Acesse [share.streamlit.io](https://share.streamlit.io/) e conecte `cardoso-ix/mentor-gestao-industrial`
+2. Branch `master`, arquivo **`main.py`**, Python **3.12** em Advanced settings
+3. Secrets conforme `.streamlit/secrets.toml.example`
+4. Deploy e aguarde o build (primeira vez pode demorar)
+
+Se o app reiniciar ao analisar, pode ser limite de memória do plano gratuito (~1 GB). Use o deploy Docker na VPS (seção abaixo).
 
 ## Deploy na VPS (Docker)
 
