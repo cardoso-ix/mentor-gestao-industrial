@@ -127,17 +127,15 @@ Acesse: http://localhost:8501
 
 ## Demo pública
 
-O Streamlit Cloud **não é confiável** para este projeto (Python 3.14 no servidor, CrewAI incompatível).
-
-**Use o guia [DEPLOY.md](DEPLOY.md)** — recomendado: **Hugging Face Spaces** (Docker + Python 3.11, gratuito).
+**URL:** https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial
 
 | Opção | Quando usar |
 |-------|-------------|
-| [Hugging Face Spaces](DEPLOY.md#opção-1--hugging-face-spaces-recomendado-gratuito) | Demo pública gratuita |
+| [Hugging Face Spaces](https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial) | Demo pública (ativa) |
 | [Docker na VPS](DEPLOY.md#opção-2--vps-com-docker-produção-estável) | Produção estável, mais RAM |
-| [Streamlit Cloud](STREAMLIT_CLOUD.md) | Só se Python 3.12 funcionar no painel |
+| [Streamlit Cloud](STREAMLIT_CLOUD.md) | Não recomendado |
 
-Depois de publicar, atualize o link **Ver demo** no seu portfólio com a URL real.
+Deploy e sincronização: ver [DEPLOY.md](DEPLOY.md).
 
 ## Deploy na VPS (Docker)
 
