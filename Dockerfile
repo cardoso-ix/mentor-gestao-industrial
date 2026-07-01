@@ -25,8 +25,8 @@ COPY . .
 # Cria pastas necessárias
 RUN mkdir -p knowledge_base data/chroma
 
-# Porta padrão do Streamlit
+# 8501 = Docker local/VPS | Hugging Face Spaces injeta PORT=7860
+ENV PORT=8501
 EXPOSE 8501
 
-# Comando de inicialização
-CMD ["streamlit", "run", "main.py", "--server.address=0.0.0.0", "--server.port=8501", "--server.headless=true"]
+CMD ["sh", "-c", "streamlit run main.py --server.address=0.0.0.0 --server.port=${PORT} --server.headless=true --browser.gatherUsageStats=false"]

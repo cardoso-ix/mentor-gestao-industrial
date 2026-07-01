@@ -1,5 +1,7 @@
 # Deploy no Streamlit Cloud — leia antes
 
+> **Não recomendado.** Na prática o Streamlit Cloud tem usado Python 3.14 e quebrado CrewAI/ChromaDB. Prefira **[DEPLOY.md](DEPLOY.md)** (Hugging Face Spaces ou VPS).
+
 Se o app falhou com `pydantic`, `PyO3`, `crewai not found` ou `Python 3.14`, siga **exatamente** estes passos.
 
 ## Erros comuns (vistos nos logs)

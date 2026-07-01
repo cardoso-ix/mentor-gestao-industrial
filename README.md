@@ -1,3 +1,13 @@
+---
+title: Mentor de Gestão Industrial
+emoji: 🏭
+colorFrom: yellow
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Mentor Virtual de Gestão Industrial
 
 Sistema multi-agente que ajuda técnicos e supervisores de **manutenção industrial** a desenvolver habilidades de gestão de pessoas e equipes técnicas.
@@ -115,28 +125,19 @@ streamlit run main.py
 
 Acesse: http://localhost:8501
 
-## Demo pública (Streamlit Cloud)
+## Demo pública
 
-**URL:** https://mentor-gestao-industrial.streamlit.app/
+O Streamlit Cloud **não é confiável** para este projeto (Python 3.14 no servidor, CrewAI incompatível).
 
-> **Leia [STREAMLIT_CLOUD.md](STREAMLIT_CLOUD.md)** se o deploy falhou.
+**Use o guia [DEPLOY.md](DEPLOY.md)** — recomendado: **Hugging Face Spaces** (Docker + Python 3.11, gratuito).
 
-Resumo obrigatório no painel do Streamlit Cloud:
+| Opção | Quando usar |
+|-------|-------------|
+| [Hugging Face Spaces](DEPLOY.md#opção-1--hugging-face-spaces-recomendado-gratuito) | Demo pública gratuita |
+| [Docker na VPS](DEPLOY.md#opção-2--vps-com-docker-produção-estável) | Produção estável, mais RAM |
+| [Streamlit Cloud](STREAMLIT_CLOUD.md) | Só se Python 3.12 funcionar no painel |
 
-| Campo | Valor |
-|-------|--------|
-| Main file | `main.py` (não `agents/__init__.py`) |
-| Python | **3.12** (não 3.14 — CrewAI não suporta) |
-| Secrets | `GROQ_API_KEY` e `SERPER_API_KEY` |
-
-Se o app já foi criado com Python 3.14, **apague e faça deploy de novo** — a versão do Python não muda só com reboot.
-
-1. Acesse [share.streamlit.io](https://share.streamlit.io/) e conecte `cardoso-ix/mentor-gestao-industrial`
-2. Branch `master`, arquivo **`main.py`**, Python **3.12** em Advanced settings
-3. Secrets conforme `.streamlit/secrets.toml.example`
-4. Deploy e aguarde o build (primeira vez pode demorar)
-
-Se o app reiniciar ao analisar, pode ser limite de memória do plano gratuito (~1 GB). Use o deploy Docker na VPS (seção abaixo).
+Depois de publicar, atualize o link **Ver demo** no seu portfólio com a URL real.
 
 ## Deploy na VPS (Docker)
 

@@ -1,0 +1,16 @@
+# Deploy opcional no Render.com (Docker)
+# https://dashboard.render.com → New → Blueprint → conecte este repositório
+
+services:
+  - type: web
+    name: mentor-gestao-industrial
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: PORT
+        value: "8501"
