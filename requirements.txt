@@ -1,6 +1,6 @@
-# Framework multi-agente
-crewai>=0.86.0
-crewai-tools>=0.17.0
+# Framework multi-agente (requer Python 3.11 ou 3.12 — não use 3.14)
+crewai>=0.86.0,<1.0.0
+crewai-tools>=0.17.0,<1.0.0
 
 # LLM (Groq via CrewAI/LiteLLM)
 groq>=0.13.0
@@ -11,15 +11,15 @@ langchain-core>=0.3.0
 langchain-text-splitters>=0.3.0
 
 # Interface web
-streamlit>=1.40.0
+streamlit>=1.40.0,<2.0.0
 
 # Base de conhecimento (RAG)
-chromadb>=0.5.0
-sentence-transformers>=3.3.0
+chromadb>=0.5.0,<0.6.0
+sentence-transformers>=3.3.0,<4.0.0
 pypdf>=5.1.0
 
 # Utilitários
 python-dotenv>=1.0.0
 requests>=2.32.0
-pydantic>=2.0.0
+pydantic>=2.7.0,<2.12.0
 fpdf2>=2.8.0

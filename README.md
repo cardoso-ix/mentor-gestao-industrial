@@ -119,6 +119,8 @@ Acesse: http://localhost:8501
 
 **URL:** https://mentor-gestao-industrial.streamlit.app/
 
+> **Importante:** o repositório inclui `.python-version` com **3.12**. O Streamlit Cloud usa Python 3.14 por padrão se esse arquivo não existir — e o CrewAI/ChromaDB **quebram** no 3.14 (`pydantic.v1.errors.ConfigError`).
+
 1. Acesse [share.streamlit.io](https://share.streamlit.io/) e conecte o repositório `cardoso-ix/mentor-gestao-industrial`
 2. Branch: `master` · Arquivo principal: `main.py`
 3. Em **Advanced settings**, defina o subdomínio: `mentor-gestao-industrial`
@@ -129,7 +131,9 @@ GROQ_API_KEY = "sua_chave"
 SERPER_API_KEY = "sua_chave"
 ```
 
-5. Clique em **Deploy**
+5. Clique em **Deploy** e aguarde o rebuild (pode levar alguns minutos na primeira vez por causa do modelo de embeddings)
+
+Se o app reiniciar sozinho ao analisar, pode ser limite de memória do plano gratuito (~1 GB). Nesse caso use o deploy Docker na VPS (seção abaixo).
 
 ## Deploy na VPS (Docker)
 
