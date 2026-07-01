@@ -628,9 +628,36 @@ label[data-testid="stWidgetLabel"] + div [role="checkbox"] {
     transition: background var(--dur-fast) var(--ease-out-quart), border-color var(--dur-fast) var(--ease-out-quart) !important;
 }
 
-/* Barra de progresso Streamlit */
+/* Barra de progresso Streamlit — cobre (sem verde nativo) */
+div[data-testid="stProgress"] > div {
+    background: var(--color-surface-muted) !important;
+    border-radius: var(--radius-sm) !important;
+    overflow: hidden !important;
+}
 div[data-testid="stProgress"] > div > div {
+    background: linear-gradient(90deg, var(--color-primary-bright), var(--color-primary)) !important;
+    border-radius: var(--radius-sm) !important;
     transition: width var(--dur-moderate) var(--ease-out-quart) !important;
+}
+
+/* Alertas nativos — paleta cobre */
+div[data-testid="stAlert"] {
+    border-radius: var(--radius-sm) !important;
+}
+div[data-testid="stAlert"][data-baseweb="notification"] {
+    background: var(--color-info-bg) !important;
+    border: 1px solid var(--color-complete-border) !important;
+    color: var(--color-info-ink) !important;
+}
+div[data-testid="stAlert"] svg {
+    color: var(--color-primary-deep) !important;
+    fill: var(--color-primary-deep) !important;
+}
+
+/* Checkbox marcado — cobre */
+label[data-testid="stWidgetLabel"] + div [role="checkbox"][aria-checked="true"] {
+    background: var(--color-primary) !important;
+    border-color: var(--color-primary-deep) !important;
 }
 
 /* Motion — keyframes (estado e feedback, sem coreografia de página) */

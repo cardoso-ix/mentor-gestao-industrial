@@ -16,8 +16,25 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 def _ler_chave(nome: str, padrao: str = "") -> str:
-    """Lê variável de ambiente e remove espaços extras."""
-    return os.getenv(nome, padrao).strip()
+    """Lê variável de ambiente, com fallback para secrets do Streamlit Cloud."""
+    val = os.getenv(nome, "").strip()
+    if val:
+        return val
+    try:
+        import streamlit as st
+
+        if nome in st.secrets:
+            return str(st.secrets[nome]).strip()
+    except Exception:
+        pass
+    return padrao
+
+
+def refresh_secrets() -> None:
+    """Recarrega chaves após o Streamlit disponibilizar os secrets."""
+    global GROQ_API_KEY, SERPER_API_KEY
+    GROQ_API_KEY = _ler_chave("GROQ_API_KEY")
+    SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
 
 
 # --- Chaves de API ---

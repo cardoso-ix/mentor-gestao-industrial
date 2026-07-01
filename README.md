@@ -115,6 +115,22 @@ streamlit run main.py
 
 Acesse: http://localhost:8501
 
+## Demo pública (Streamlit Cloud)
+
+**URL:** https://mentor-gestao-industrial.streamlit.app/
+
+1. Acesse [share.streamlit.io](https://share.streamlit.io/) e conecte o repositório `cardoso-ix/mentor-gestao-industrial`
+2. Branch: `master` · Arquivo principal: `main.py`
+3. Em **Advanced settings**, defina o subdomínio: `mentor-gestao-industrial`
+4. Em **Secrets**, cole o conteúdo de `.streamlit/secrets.toml.example` com suas chaves reais:
+
+```toml
+GROQ_API_KEY = "sua_chave"
+SERPER_API_KEY = "sua_chave"
+```
+
+5. Clique em **Deploy**
+
 ## Deploy na VPS (Docker)
 
 ```bash

@@ -2,17 +2,7 @@
 Interface Streamlit do Mentor Virtual de Gestão Industrial.
 """
 
-from datetime import datetime
-
 import streamlit as st
-
-import config
-from ui.rate_limit import pode_analisar, registrar_analise
-from ui.fluxo import renderizar_painel_analise
-from ui.resultado import renderizar_resultado
-from ui.styles import injetar_estilos
-from ui.timeline import renderizar_timeline
-from ui.wizard import renderizar_wizard
 
 st.set_page_config(
     page_title="Mentor de Gestão Industrial",
@@ -28,6 +18,19 @@ st.set_page_config(
         ),
     },
 )
+
+from datetime import datetime
+
+import config
+
+config.refresh_secrets()
+
+from ui.rate_limit import pode_analisar, registrar_analise
+from ui.fluxo import renderizar_painel_analise
+from ui.resultado import renderizar_resultado
+from ui.styles import injetar_estilos
+from ui.timeline import renderizar_timeline
+from ui.wizard import renderizar_wizard
 
 
 def _inicializar_sessao():
@@ -90,7 +93,10 @@ def main():
     _renderizar_hero()
 
     if not config.GROQ_API_KEY or config.GROQ_API_KEY == "sua_chave_groq_aqui":
-        st.error("Chave da Groq não configurada. Edite o arquivo `.env` com sua GROQ_API_KEY.")
+        st.error(
+            "Chave da Groq não configurada. Defina `GROQ_API_KEY` no arquivo `.env` "
+            "ou nos secrets do Streamlit Cloud."
+        )
         return
 
     dados = renderizar_wizard()
