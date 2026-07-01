@@ -1,0 +1,19 @@
+services:
+  mentor-gestao:
+    build: .
+    container_name: mentor-gestao-industrial
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      # PDFs adicionados manualmente pelo usuário
+      - ./knowledge_base:/app/knowledge_base
+      # Índice ChromaDB persiste entre restarts
+      - ./data/chroma:/app/data/chroma
+    restart: unless-stopped
+    # Recomendado: 2-4 GB RAM para embeddings locais
+    deploy:
+      resources:
+        limits:
+          memory: 4G
