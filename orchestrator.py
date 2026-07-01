@@ -8,6 +8,8 @@ Não é um agente CrewAI — é lógica Python que torna o fluxo previsível e f
 from __future__ import annotations
 
 import json
+import re
+import time
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -35,6 +37,60 @@ class ResultadoMentoria:
     contexto_web: str = ""
     agentes_acionados: list[str] = field(default_factory=list)
     erro: str | None = None
+
+
+def _eh_rate_limit(exc: BaseException) -> bool:
+    mensagem = str(exc).lower()
+    return (
+        "rate_limit" in mensagem
+        or "ratelimit" in mensagem
+        or "429" in mensagem
+        or "too many requests" in mensagem
+        or "tokens per minute" in mensagem
+        or "requests per minute" in mensagem
+    )
+
+
+def _extrair_espera_segundos(exc: BaseException) -> float | None:
+    """Tenta ler 'retry after N' da mensagem de erro da Groq/LiteLLM."""
+    match = re.search(r"retry after\s+(\d+(?:\.\d+)?)", str(exc), re.I)
+    if match:
+        return float(match.group(1))
+    match = re.search(r"try again in\s+(\d+(?:\.\d+)?)", str(exc), re.I)
+    if match:
+        return float(match.group(1))
+    return None
+
+
+def _executar_crew_com_retry(crew: Crew, pausar_antes: bool = True):
+    """Executa kickoff com pausa e retentativas em caso de rate limit da Groq."""
+    if pausar_antes and config.GROQ_PAUSE_ENTRE_AGENTES > 0:
+        time.sleep(config.GROQ_PAUSE_ENTRE_AGENTES)
+
+    ultimo_erro: Exception | None = None
+    for tentativa in range(config.GROQ_RATE_LIMIT_RETRIES):
+        try:
+            return crew.kickoff()
+        except Exception as exc:
+            ultimo_erro = exc
+            if not _eh_rate_limit(exc) or tentativa >= config.GROQ_RATE_LIMIT_RETRIES - 1:
+                raise
+            espera = _extrair_espera_segundos(exc) or (
+                config.GROQ_RATE_LIMIT_ESPERA_BASE * (2**tentativa)
+            )
+            time.sleep(min(espera, 60))
+
+    if ultimo_erro:
+        raise ultimo_erro
+    raise RuntimeError("Falha ao executar crew")
+
+
+def _mensagem_rate_limit() -> str:
+    return (
+        "Limite de requisições da API Groq atingido (plano gratuito). "
+        "Aguarde 1–2 minutos sem clicar de novo e tente outra análise. "
+        "Cada análise usa várias chamadas ao modelo."
+    )
 
 
 def _limitar_contexto(texto: str, limite: int = 3500) -> str:
@@ -232,7 +288,7 @@ def executar_mentoria(
             process=Process.sequential,
             verbose=False,
         )
-        saida_analista = crew_analista.kickoff()
+        saida_analista = _executar_crew_com_retry(crew_analista, pausar_antes=False)
         analise = _parsear_analise(saida_analista)
         analise = _aplicar_regras_hibridas(analise)
         resultado.analise = analise
@@ -282,7 +338,7 @@ def executar_mentoria(
                 process=Process.sequential,
                 verbose=False,
             )
-            saida = crew_estrategista.kickoff()
+            saida = _executar_crew_com_retry(crew_estrategista)
             estrategia_texto = _extrair_texto_task(saida)
             resultado.estrategia = estrategia_texto
 
@@ -303,7 +359,7 @@ def executar_mentoria(
                 process=Process.sequential,
                 verbose=False,
             )
-            saida = crew_comunicacao.kickoff()
+            saida = _executar_crew_com_retry(crew_comunicacao)
             comunicacao_texto = _extrair_texto_task(saida)
             resultado.comunicacao = comunicacao_texto
 
@@ -325,7 +381,7 @@ def executar_mentoria(
                 process=Process.sequential,
                 verbose=False,
             )
-            saida = crew_plano.kickoff()
+            saida = _executar_crew_com_retry(crew_plano)
             resultado.plano_acao = _extrair_texto_task(saida)
 
         # Etapa 7: Relatório consolidado
@@ -341,13 +397,9 @@ def executar_mentoria(
         progresso("Concluído!", 1.0)
 
     except Exception as exc:
-        mensagem = str(exc)
-        if "rate_limit" in mensagem.lower() or "429" in mensagem:
-            resultado.erro = (
-                "Limite de requisições da API Groq atingido. "
-                "Aguarde alguns segundos e tente novamente."
-            )
+        if _eh_rate_limit(exc):
+            resultado.erro = _mensagem_rate_limit()
         else:
-            resultado.erro = f"Erro durante a análise: {mensagem}"
+            resultado.erro = f"Erro durante a análise: {exc}"
 
     return resultado

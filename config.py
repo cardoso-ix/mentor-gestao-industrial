@@ -43,7 +43,12 @@ SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
 
 # --- Modelo LLM na Groq ---
 GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-GROQ_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS", "4096"))
+GROQ_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS", "2048"))
+
+# Pausa entre agentes e retentativas (tier gratuito Groq ~30 req/min)
+GROQ_PAUSE_ENTRE_AGENTES = float(os.getenv("GROQ_PAUSE_ENTRE_AGENTES", "2"))
+GROQ_RATE_LIMIT_RETRIES = int(os.getenv("GROQ_RATE_LIMIT_RETRIES", "4"))
+GROQ_RATE_LIMIT_ESPERA_BASE = float(os.getenv("GROQ_RATE_LIMIT_ESPERA_BASE", "8"))
 
 # --- Caminhos de arquivos e pastas ---
 KNOWLEDGE_BASE_DIR = Path(os.getenv("KNOWLEDGE_BASE_DIR", BASE_DIR / "knowledge_base"))
