@@ -1,5 +1,5 @@
 # Framework multi-agente (requer Python 3.11 ou 3.12 — não use 3.14)
-crewai>=0.86.0,<1.0.0
+crewai==1.15.1
 
 # LLM (Groq via CrewAI/LiteLLM)
 groq>=0.13.0

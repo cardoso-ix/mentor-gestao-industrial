@@ -1,10 +1,10 @@
 # Dependências para deploy em nuvem (Hugging Face cpu-basic, ~2 GB RAM)
 # Sem crewai-tools (puxa lancedb/stagehand e não é usado no código)
 
-crewai>=0.86.0,<1.0.0
+crewai==1.15.1
 
 groq>=0.13.0
-litellm>=1.60.0,<1.75.0
+litellm>=1.60.0
 langchain-groq>=0.2.0
 langchain-community>=0.3.0
 langchain-core>=0.3.0

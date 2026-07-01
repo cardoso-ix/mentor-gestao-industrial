@@ -14,8 +14,16 @@ import os
 from typing import Any
 
 from crewai import LLM
-from crewai.llms.cache import CACHE_BREAKPOINT_KEY
-from crewai.utilities.types import LLMMessage
+
+try:
+    from crewai.llms.cache import CACHE_BREAKPOINT_KEY
+except ImportError:
+    CACHE_BREAKPOINT_KEY = "cache_breakpoint"
+
+try:
+    from crewai.utilities.types import LLMMessage
+except ImportError:
+    LLMMessage = dict  # type: ignore[misc,assignment]
 
 import config
 
