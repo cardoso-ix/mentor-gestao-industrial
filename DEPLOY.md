@@ -26,7 +26,7 @@ O Docker fixa **Python 3.11** e evita o problema de versão.
    | `SERPER_API_KEY` | sua chave Serper |
 
 5. Aguarde o build (5–15 min na primeira vez — baixa dependências e o modelo de embeddings).
-6. URL pública: `https://huggingface.co/spaces/SEU_USUARIO/mentor-gestao-industrial`
+6. URL pública: `https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial`
 
 ### Atualizar o portfólio
 
