@@ -1,4 +1,5 @@
-# Framework multi-agente (requer Python 3.11 ou 3.12 — não use 3.14)
+# Framework multi-agente — Python 3.11 ou 3.12 (não use 3.14)
+# Versões alinhadas com o deploy em Hugging Face (ver requirements-hf.txt)
 crewai==1.15.1
 
 # LLM (Groq via CrewAI/LiteLLM)

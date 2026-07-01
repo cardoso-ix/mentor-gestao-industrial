@@ -1,6 +1,6 @@
 # Checklist para testar a demo
 
-Use este roteiro após o deploy no Hugging Face.
+Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](https://github.com/cardoso-ix/mentor-gestao-industrial/blob/master/DOCS.md).
 
 ## Links
 

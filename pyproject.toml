@@ -6,4 +6,4 @@ requires-python = ">=3.11,<3.14"
 readme = "README.md"
 
 [tool.streamlit]
-# Documentação: no Cloud, defina manualmente Main file = main.py e Python = 3.12
+# Documentação: deploy em Hugging Face Spaces — ver DEPLOY.md

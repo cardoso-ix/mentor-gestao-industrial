@@ -14,6 +14,8 @@ Sistema multi-agente que ajuda técnicos e supervisores de **manutenção indust
 
 Quando você descreve uma situação de liderança em linguagem natural, quatro agentes especializados analisam o caso e entregam orientação prática: estratégia de gestão, roteiro de conversa (modelo SBI) e plano de ação com prazos e indicadores.
 
+**Demo** · [Hugging Face](https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial) · [Portfólio](https://cardoso-ix.github.io/Portifolio/) · [Documentação](DOCS.md)
+
 ## Tecnologias
 
 | Componente | Tecnologia |
@@ -24,7 +26,7 @@ Quando você descreve uma situação de liderança em linguagem natural, quatro 
 | Interface | Streamlit |
 | Base de conhecimento | ChromaDB + PDFs locais |
 | Embeddings | sentence-transformers (local, gratuito) |
-| Deploy | Docker + docker-compose |
+| Deploy | Hugging Face Spaces (Docker) · VPS (docker-compose) |
 
 ## Arquitetura dos agentes
 
@@ -51,19 +53,25 @@ Orquestrador (orchestrator.py)
 ## Estrutura do projeto
 
 ```
-Gestor/
-├── agents/              # Um arquivo por sub-agente
-├── knowledge_base/      # Coloque seus PDFs aqui
-├── data/chroma/         # Índice persistido (gerado automaticamente)
-├── tools/               # Ferramentas (busca web Serper)
-├── config.py            # Configurações centralizadas
-├── rag.py               # Ingestão e consulta de PDFs
-├── orchestrator.py      # Orquestrador principal
-├── main.py              # Interface Streamlit
-├── requirements.txt
-├── .env.example
+mentor-gestao-industrial/
+├── agents/                 # Sub-agentes CrewAI (analista, estrategista, etc.)
+├── ui/                     # Componentes Streamlit (wizard, resultado, estilos)
+├── knowledge_base/         # PDFs por categoria (gestao, normas, processos)
+├── data/chroma/            # Índice ChromaDB (gerado automaticamente)
+├── tools/                  # Busca web Serper
+├── .github/workflows/      # Sync automático GitHub → Hugging Face
+├── config.py               # Configurações centralizadas
+├── rag.py                  # Ingestão e consulta RAG
+├── orchestrator.py         # Orquestrador multi-agente
+├── llm_utils.py            # LLM Groq compatível com CrewAI
+├── main.py                 # Interface Streamlit
+├── requirements.txt        # Dependências locais / VPS
+├── requirements-hf.txt     # Dependências otimizadas para Hugging Face
 ├── Dockerfile
-└── docker-compose.yml
+├── docker-compose.yml
+├── DEPLOY.md               # Guia de publicação
+├── TESTE.md                # Checklist de validação
+└── DOCS.md                 # Índice da documentação
 ```
 
 ## Pré-requisitos
@@ -75,15 +83,20 @@ Gestor/
 
 ## Configuração
 
-### 1. Clone ou copie o projeto
+### 1. Clone o repositório
 
 ```bash
-cd Gestor
+git clone https://github.com/cardoso-ix/mentor-gestao-industrial.git
+cd mentor-gestao-industrial
 ```
 
 ### 2. Configure as chaves de API
 
-O arquivo `.env` já foi criado na raiz do projeto. Edite-o e substitua os placeholders:
+Copie o modelo e edite com suas chaves:
+
+```bash
+cp .env.example .env
+```
 
 ```env
 GROQ_API_KEY=gsk_sua_chave_real_aqui
@@ -104,7 +117,7 @@ Coloque arquivos `.pdf` na pasta `knowledge_base/`. Exemplos úteis:
 - Normas de segurança (NR-10, NR-12, etc.)
 - Materiais sobre comunicação e feedback
 
-Os PDFs são indexados automaticamente ao iniciar o sistema.
+Os PDFs são indexados na **primeira análise** (quando você clica em Analisar situação), não na abertura da página.
 
 ## Executar localmente
 
@@ -171,16 +184,17 @@ Acesse: `http://IP_DA_SUA_VPS:8501`
 
 Cada análise é independente — o sistema não mantém histórico de conversas.
 
-## Reindexar PDFs
+## Base de conhecimento (RAG)
 
-- **Automático:** ao iniciar o app, PDFs novos ou alterados são indexados
-- **Manual:** botão "Reindexar base de conhecimento" na barra lateral
+- PDFs ficam em `knowledge_base/` (subpastas: `gestao/`, `normas/`, `processos/`).
+- A indexação roda na primeira análise ou quando um PDF novo/alterado é detectado.
+- O índice persiste em `data/chroma/` entre reinicializações.
 
 ## Limitações e avisos
 
 ### Rate limit da Groq (tier gratuito)
 
-Cada análise faz 3–5 chamadas ao LLM. O tier gratuito tem limite de ~30 requisições/minuto. Se atingir o limite, aguarde alguns segundos e tente novamente.
+Cada análise faz **várias chamadas** ao LLM (Analista + agentes especializados). O plano gratuito limita requisições por minuto. O orquestrador faz **pausa entre agentes** e **retry automático**; se ainda falhar, aguarde 1–2 minutos antes de tentar de novo.
 
 ### App público
 
@@ -204,6 +218,16 @@ O Llama 3.1 70B foi descontinuado na Groq. Este projeto usa o **Llama 3.3 70B Ve
 - Estratégia: liderança situacional para técnico competente mas desmotivado
 - Comunicação: roteiro SBI com frases para conversa 1:1
 - Plano: passos com prazos e indicador "100% OS preenchidas em 2 semanas"
+
+## Documentação
+
+| Documento | Descrição |
+|-----------|-----------|
+| [DOCS.md](DOCS.md) | Índice completo |
+| [DEPLOY.md](DEPLOY.md) | Publicar no Hugging Face ou VPS |
+| [TESTE.md](TESTE.md) | Validar a demo após deploy |
+| [PRODUCT.md](PRODUCT.md) | Propósito e princípios do produto |
+| [DESIGN.md](DESIGN.md) | Paleta e tipografia |
 
 ## Licença
 
