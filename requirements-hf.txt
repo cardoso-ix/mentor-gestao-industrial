@@ -1,23 +1,21 @@
-# Framework multi-agente (requer Python 3.11 ou 3.12 — não use 3.14)
+# Dependências para deploy em nuvem (Hugging Face cpu-basic, ~2 GB RAM)
+# Sem crewai-tools (puxa lancedb/stagehand e não é usado no código)
+
 crewai>=0.86.0,<1.0.0
 
-# LLM (Groq via CrewAI/LiteLLM)
 groq>=0.13.0
-litellm>=1.60.0
+litellm>=1.60.0,<1.75.0
 langchain-groq>=0.2.0
 langchain-community>=0.3.0
 langchain-core>=0.3.0
 langchain-text-splitters>=0.3.0
 
-# Interface web
 streamlit>=1.40.0,<2.0.0
 
-# Base de conhecimento (RAG)
 chromadb>=0.5.0,<0.6.0
 sentence-transformers>=3.3.0,<4.0.0
 pypdf>=5.1.0
 
-# Utilitários
 python-dotenv>=1.0.0
 requests>=2.32.0
 pydantic>=2.7.0,<2.12.0

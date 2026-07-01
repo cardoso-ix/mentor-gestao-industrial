@@ -1,32 +1,35 @@
 # Imagem base Python 3.11 (leve)
 FROM python:3.11-slim
 
-# Evita arquivos .pyc e buffering de stdout
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    HF_HOME=/home/user/.cache/huggingface \
+    TRANSFORMERS_CACHE=/home/user/.cache/huggingface \
+    SENTENCE_TRANSFORMERS_HOME=/home/user/.cache/huggingface \
+    PORT=7860
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd -m -u 1000 user
 
 WORKDIR /app
 
-# Dependências do sistema para sentence-transformers e chromadb
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# PyTorch só CPU — evita ~2 GB de pacotes NVIDIA (mata o cpu-basic do HF)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
 
-# Instala dependências Python
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-hf.txt .
+RUN pip install --no-cache-dir -r requirements-hf.txt
 
-# Pré-baixa o modelo de embeddings no build (evita timeout no primeiro startup)
+RUN mkdir -p /home/user/.cache/huggingface && chown -R user:user /home/user
+
+USER user
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')"
 
-# Copia o código da aplicação
-COPY . .
+COPY --chown=user:user . .
 
-# Cria pastas necessárias
 RUN mkdir -p knowledge_base data/chroma
 
-# 8501 = Docker local/VPS | Hugging Face Spaces injeta PORT=7860
-ENV PORT=8501
-EXPOSE 8501
+EXPOSE 7860
 
 CMD ["sh", "-c", "streamlit run main.py --server.address=0.0.0.0 --server.port=${PORT} --server.headless=true --browser.gatherUsageStats=false"]

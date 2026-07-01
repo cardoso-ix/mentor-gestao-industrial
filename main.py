@@ -95,7 +95,7 @@ def main():
     if not config.GROQ_API_KEY or config.GROQ_API_KEY == "sua_chave_groq_aqui":
         st.error(
             "Chave da Groq não configurada. Defina `GROQ_API_KEY` no arquivo `.env` "
-            "ou nos secrets do Streamlit Cloud."
+            "ou nos secrets do Hugging Face / Streamlit Cloud."
         )
         return
 
