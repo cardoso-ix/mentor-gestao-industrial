@@ -137,6 +137,8 @@ Acesse: http://localhost:8501
 
 Deploy e sincronização: ver [DEPLOY.md](DEPLOY.md).
 
+**Checklist de teste:** [TESTE.md](TESTE.md)
+
 ## Deploy na VPS (Docker)
 
 ```bash

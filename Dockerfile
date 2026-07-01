@@ -6,7 +6,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     HF_HOME=/home/user/.cache/huggingface \
     TRANSFORMERS_CACHE=/home/user/.cache/huggingface \
     SENTENCE_TRANSFORMERS_HOME=/home/user/.cache/huggingface \
-    PORT=7860
+    PORT=7860 \
+    GROQ_MAX_TOKENS=2048 \
+    GROQ_PAUSE_ENTRE_AGENTES=3 \
+    GROQ_RATE_LIMIT_RETRIES=5 \
+    GROQ_RATE_LIMIT_ESPERA_BASE=10
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
