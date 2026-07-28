@@ -8,6 +8,7 @@ com tom de mentor sênior de manutenção industrial.
 from crewai import Agent, Task
 
 from agents.analista import _criar_llm
+from agents.playbooks import montar_bloco_playbook
 from agents.prompts_comuns import INSTRUCOES_COMUNS
 
 
@@ -41,6 +42,10 @@ def criar_task_editor(
     plano_acao: str = "",
 ) -> Task:
     """Cria a tarefa de consolidação do parecer final."""
+    bloco_playbook = montar_bloco_playbook(analise.get("tipo_problema", ""))
+    if bloco_playbook:
+        bloco_playbook = f"\n\n{bloco_playbook}"
+
     return Task(
         description=f"""
 Reescreva as saídas abaixo em UM parecer executivo coerente para o gestor.
@@ -53,6 +58,7 @@ Reescreva as saídas abaixo em UM parecer executivo coerente para o gestor.
 - Complexidade: {analise.get('complexidade', 'N/A')}
 - Resumo: {analise.get('resumo', 'N/A')}
 - Justificativa: {analise.get('justificativa', 'N/A')}
+{bloco_playbook}
 
 ## Estratégia (fonte):
 {estrategia or 'Não gerada.'}

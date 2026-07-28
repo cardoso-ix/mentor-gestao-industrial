@@ -7,6 +7,7 @@ from __future__ import annotations
 import streamlit as st
 
 from ui.fluxo import renderizar_passos_wizard
+from ui.playbooks import renderizar_casos_um_clique
 
 TIPOS_PROBLEMA = {
     "lideranca": {
@@ -343,6 +344,8 @@ def renderizar_wizard() -> dict | None:
 
     st.markdown('<div class="wizard-panel-marker" aria-hidden="true"></div>', unsafe_allow_html=True)
     with st.container():
+        renderizar_casos_um_clique()
+        st.markdown('<div class="wizard-divider" aria-hidden="true"></div>', unsafe_allow_html=True)
         renderizar_passos_wizard(st.session_state.get("tipo_wizard", ""))
 
         tipo = renderizar_selecao_tipo()

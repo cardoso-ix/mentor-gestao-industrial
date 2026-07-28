@@ -8,6 +8,7 @@ usando o modelo SBI (Situação, Comportamento, Impacto).
 from crewai import Agent, Task
 
 from agents.analista import _criar_llm
+from agents.playbooks import montar_bloco_playbook
 from agents.prompts_comuns import INSTRUCOES_COMUNS
 
 
@@ -58,6 +59,10 @@ def criar_task_comunicacao(
     if contexto_rag:
         bloco_rag = f"\n\n## Referências:\n{contexto_rag}"
 
+    bloco_playbook = montar_bloco_playbook(analise.get("tipo_problema", ""))
+    if bloco_playbook:
+        bloco_playbook = f"\n\n{bloco_playbook}"
+
     return Task(
         description=f"""
 Crie um roteiro completo para o gestor conduzir a conversa com o colaborador envolvido.
@@ -68,7 +73,7 @@ Crie um roteiro completo para o gestor conduzir a conversa com o colaborador env
 ## Análise:
 - Tipo: {analise.get('tipo_problema', 'N/A')}
 - Resumo: {analise.get('resumo', 'N/A')}
-{bloco_estrategia}{bloco_rag}
+{bloco_estrategia}{bloco_rag}{bloco_playbook}
 
 Estruture sua resposta com estas seções (título em linha própria, terminando com dois pontos):
 

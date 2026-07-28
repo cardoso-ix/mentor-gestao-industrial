@@ -25,6 +25,7 @@ import config
 
 config.refresh_secrets()
 
+from ui.playbooks import renderizar_playbooks_sidebar
 from ui.rate_limit import pode_analisar, registrar_analise
 from ui.fluxo import renderizar_painel_analise
 from ui.resultado import renderizar_resultado
@@ -40,6 +41,7 @@ def _inicializar_sessao():
         "form_key": 0,
         "timeline_pct": 0.0,
         "timeline_etapa": "",
+        "playbook_ativo": "",
     }
     for chave, valor in defaults.items():
         if chave not in st.session_state:
@@ -72,13 +74,15 @@ def _renderizar_hero():
 
 
 def _renderizar_sidebar():
-    """Barra lateral com progresso da análise."""
+    """Barra lateral com progresso e casos modelo."""
     with st.sidebar:
         st.markdown("### Andamento")
         renderizar_timeline(
             st.session_state.get("timeline_pct", 0),
             st.session_state.get("timeline_etapa", ""),
         )
+        st.divider()
+        renderizar_playbooks_sidebar()
         st.divider()
         st.markdown(
             '<div class="aviso-publico">Uso público — limite de 10 análises por hora.</div>',

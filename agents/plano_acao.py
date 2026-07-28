@@ -8,6 +8,7 @@ e indicadores simples para acompanhamento.
 from crewai import Agent, Task
 
 from agents.analista import _criar_llm
+from agents.playbooks import montar_bloco_playbook
 from agents.prompts_comuns import INSTRUCOES_COMUNS
 
 
@@ -54,6 +55,9 @@ def criar_task_plano_acao(
     bloco_estrategia = f"\n\n## Estratégia:\n{estrategia}" if estrategia else ""
     bloco_comunicacao = f"\n\n## Roteiro de comunicação:\n{comunicacao}" if comunicacao else ""
     bloco_rag = f"\n\n## Referências:\n{contexto_rag}" if contexto_rag else ""
+    bloco_playbook = montar_bloco_playbook(analise.get("tipo_problema", ""))
+    if bloco_playbook:
+        bloco_playbook = f"\n\n{bloco_playbook}"
 
     return Task(
         description=f"""
@@ -66,7 +70,7 @@ Crie um plano de ação prático para o gestor resolver a situação descrita.
 - Tipo: {analise.get('tipo_problema', 'N/A')}
 - Complexidade: {analise.get('complexidade', 'N/A')}
 - Resumo: {analise.get('resumo', 'N/A')}
-{bloco_estrategia}{bloco_comunicacao}{bloco_rag}
+{bloco_estrategia}{bloco_comunicacao}{bloco_rag}{bloco_playbook}
 
 Estruture o plano assim (título em linha própria, terminando com dois pontos):
 
