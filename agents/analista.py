@@ -32,7 +32,7 @@ class ResultadoAnalise(BaseModel):
 
 
 def _criar_llm():
-    """Cria a instância do modelo Groq usada por todos os agentes."""
+    """Cria a instância do modelo OpenRouter (free) usada por todos os agentes."""
     return criar_llm(temperature=0.3)
 
 

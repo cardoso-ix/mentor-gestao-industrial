@@ -13,9 +13,9 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
 ## Antes de testar (importante)
 
 1. Confirme no HF → **Settings → Secrets**:
-   - `GROQ_API_KEY`
+   - `OPENROUTER_API_KEY`
    - `SERPER_API_KEY`
-2. Se apareceu erro de **limite Groq**, espere **pelo menos 1 hora** sem novas análises.
+2. Se apareceu erro de **limite OpenRouter** (modelos free: ~50 req/dia), espere e tente no dia seguinte ou use outra chave.
 3. No Hugging Face, o status do Space deve estar **Running** (não Building/Starting).
 
 ## Passo a passo do teste
@@ -35,7 +35,7 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
 
 - Não clique várias vezes seguidas.
 - Aguarde 1–2 minutos e tente de novo.
-- O app já faz retry automático; em pico de uso da Groq pode falhar mesmo assim.
+- O app já faz retry automático; em pico de uso dos modelos free da OpenRouter pode falhar mesmo assim.
 
 ## Teste local (alternativa)
 

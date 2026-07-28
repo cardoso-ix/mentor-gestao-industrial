@@ -37,7 +37,7 @@
 | CrewAI | 1.15.1 |
 | ChromaDB | ~1.1 |
 | Streamlit | 1.x |
-| LLM | Groq `llama-3.3-70b-versatile` |
+| LLM | OpenRouter Free `meta-llama/llama-3.3-70b-instruct:free` |
 
 ## Sincronização GitHub → Hugging Face
 
@@ -45,4 +45,4 @@ Cada push na branch `master` dispara o workflow [`.github/workflows/sync-to-hub.
 
 Requisito: secret `HF_TOKEN` no repositório GitHub (permissão write no Hugging Face).
 
-Secrets do app no Space HF: `GROQ_API_KEY`, `SERPER_API_KEY`.
+Secrets do app no Space HF: `OPENROUTER_API_KEY`, `SERPER_API_KEY`.

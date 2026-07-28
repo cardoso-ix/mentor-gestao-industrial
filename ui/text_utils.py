@@ -9,12 +9,14 @@ _PADROES_ERRO = (
     r"litellm\.?",
     r"RateLimitError",
     r"GroqException",
+    r"OpenRouterException",
     r"rate_limit",
     r"síntese automática indisponível",
     r"Relatório simplificado",
     r"organization\s+:",
     r"tokens per day",
     r"console\.groq\.com",
+    r"openrouter\.ai",
 )
 
 _MAPA_TIPO = {

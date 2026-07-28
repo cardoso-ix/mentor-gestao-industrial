@@ -52,7 +52,7 @@ def _eh_rate_limit(exc: BaseException) -> bool:
 
 
 def _extrair_espera_segundos(exc: BaseException) -> float | None:
-    """Tenta ler 'retry after N' da mensagem de erro da Groq/LiteLLM."""
+    """Tenta ler 'retry after N' da mensagem de erro da OpenRouter/LiteLLM."""
     match = re.search(r"retry after\s+(\d+(?:\.\d+)?)", str(exc), re.I)
     if match:
         return float(match.group(1))
@@ -63,20 +63,23 @@ def _extrair_espera_segundos(exc: BaseException) -> float | None:
 
 
 def _executar_crew_com_retry(crew: Crew, pausar_antes: bool = True):
-    """Executa kickoff com pausa e retentativas em caso de rate limit da Groq."""
-    if pausar_antes and config.GROQ_PAUSE_ENTRE_AGENTES > 0:
-        time.sleep(config.GROQ_PAUSE_ENTRE_AGENTES)
+    """Executa kickoff com pausa e retentativas em caso de rate limit da OpenRouter."""
+    if pausar_antes and config.OPENROUTER_PAUSE_ENTRE_AGENTES > 0:
+        time.sleep(config.OPENROUTER_PAUSE_ENTRE_AGENTES)
 
     ultimo_erro: Exception | None = None
-    for tentativa in range(config.GROQ_RATE_LIMIT_RETRIES):
+    for tentativa in range(config.OPENROUTER_RATE_LIMIT_RETRIES):
         try:
             return crew.kickoff()
         except Exception as exc:
             ultimo_erro = exc
-            if not _eh_rate_limit(exc) or tentativa >= config.GROQ_RATE_LIMIT_RETRIES - 1:
+            if (
+                not _eh_rate_limit(exc)
+                or tentativa >= config.OPENROUTER_RATE_LIMIT_RETRIES - 1
+            ):
                 raise
             espera = _extrair_espera_segundos(exc) or (
-                config.GROQ_RATE_LIMIT_ESPERA_BASE * (2**tentativa)
+                config.OPENROUTER_RATE_LIMIT_ESPERA_BASE * (2**tentativa)
             )
             time.sleep(min(espera, 60))
 
@@ -87,8 +90,8 @@ def _executar_crew_com_retry(crew: Crew, pausar_antes: bool = True):
 
 def _mensagem_rate_limit() -> str:
     return (
-        "Limite de requisições da API Groq atingido (plano gratuito). "
-        "Aguarde 1–2 minutos sem clicar de novo e tente outra análise. "
+        "Limite de requisições da API OpenRouter atingido (modelos free). "
+        "Sem créditos: cerca de 50 req/dia e 20/min. Aguarde e tente de novo. "
         "Cada análise usa várias chamadas ao modelo."
     )
 
@@ -103,8 +106,8 @@ def _limitar_contexto(texto: str, limite: int = 3500) -> str:
 
 def _validar_chaves() -> str | None:
     """Verifica se as chaves de API obrigatórias estão configuradas."""
-    if not config.GROQ_API_KEY:
-        return "GROQ_API_KEY não configurada. Adicione no arquivo .env"
+    if not config.OPENROUTER_API_KEY:
+        return "OPENROUTER_API_KEY não configurada. Adicione no arquivo .env"
     return None
 
 

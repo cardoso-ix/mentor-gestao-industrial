@@ -92,10 +92,13 @@ def main():
     _renderizar_sidebar()
     _renderizar_hero()
 
-    if not config.GROQ_API_KEY or config.GROQ_API_KEY == "sua_chave_groq_aqui":
+    if (
+        not config.OPENROUTER_API_KEY
+        or config.OPENROUTER_API_KEY == "sua_chave_openrouter_aqui"
+    ):
         st.error(
-            "Chave da Groq não configurada. Defina `GROQ_API_KEY` no arquivo `.env` "
-            "ou nos secrets do Hugging Face / Streamlit Cloud."
+            "Chave da OpenRouter não configurada. Defina `OPENROUTER_API_KEY` no "
+            "arquivo `.env` ou nos secrets do Hugging Face / Streamlit Cloud."
         )
         return
 

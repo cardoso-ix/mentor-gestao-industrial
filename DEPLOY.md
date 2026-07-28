@@ -23,7 +23,7 @@ Em **Settings → Secrets** do Space:
 
 | Nome | Valor |
 |------|--------|
-| `GROQ_API_KEY` | Chave da [Groq](https://console.groq.com) |
+| `OPENROUTER_API_KEY` | Chave da [OpenRouter](https://openrouter.ai/keys) |
 | `SERPER_API_KEY` | Chave da [Serper](https://serper.dev) |
 
 ### Publicar alterações
@@ -72,6 +72,6 @@ Consulte [STREAMLIT_CLOUD.md](STREAMLIT_CLOUD.md) apenas se precisar tentar.
 
 - [x] Demo no Hugging Face publicada
 - [x] Link no portfólio atualizado
-- [ ] Secrets Groq e Serper configurados no Space
+- [ ] Secrets OpenRouter e Serper configurados no Space
 - [ ] Análise de teste concluída — ver [TESTE.md](TESTE.md)
-- [ ] Uso das APIs monitorado em [console.groq.com](https://console.groq.com) e [serper.dev](https://serper.dev)
+- [ ] Uso das APIs monitorado em [openrouter.ai](https://openrouter.ai) e [serper.dev](https://serper.dev)
