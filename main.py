@@ -47,14 +47,24 @@ def _inicializar_sessao():
 
 
 def _renderizar_hero():
-    """Hero full-bleed com a marca em primeiro plano."""
+    """Hero full-bleed com marca dominante e contraste alto."""
     st.markdown(
         '<section class="hero-bleed" aria-label="Apresentação">'
+        '<div class="hero-glow" aria-hidden="true"></div>'
+        '<div class="hero-grid" aria-hidden="true"></div>'
         '<div class="hero-inner">'
-        '<div class="hero-accent-line" aria-hidden="true"></div>'
-        '<p class="hero-brand">Mentor de Gestão Industrial</p>'
+        '<div class="hero-copy">'
+        '<p class="hero-kicker">Manutenção industrial</p>'
+        '<h1 class="hero-brand">Mentor de Gestão Industrial</h1>'
         '<p class="hero-lede">Parecer, conversa e plano acionável para supervisores '
-        "de manutenção decidirem com clareza no chão de fábrica.</p>"
+        "decidirem com clareza no chão de fábrica.</p>"
+        '<p class="hero-cta-hint">Comece pela situação abaixo</p>'
+        "</div>"
+        '<div class="hero-aside" aria-hidden="true">'
+        '<span class="hero-aside__item">Diagnóstico</span>'
+        '<span class="hero-aside__item">Conversa</span>'
+        '<span class="hero-aside__item">Plano</span>'
+        "</div>"
         "</div>"
         "</section>",
         unsafe_allow_html=True,

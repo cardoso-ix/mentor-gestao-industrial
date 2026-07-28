@@ -127,7 +127,7 @@ div[data-testid="stDecoration"] {
 .stApp label { color: var(--color-ink-muted) !important; font-weight: 500 !important; }
 .stApp .stCaption { color: var(--color-ink-muted) !important; }
 
-/* Hero full-bleed */
+/* Hero full-bleed — contraste alto (vence .stApp p/h1) */
 .hero-bleed {
     position: relative;
     left: 50%;
@@ -135,61 +135,126 @@ div[data-testid="stDecoration"] {
     margin-left: -50vw;
     margin-right: -50vw;
     width: 100vw;
-    margin-bottom: var(--space-xl);
+    margin-bottom: 1.75rem;
     overflow: hidden;
+    isolation: isolate;
     background:
-        linear-gradient(135deg, rgba(28, 25, 23, 0.92) 0%, rgba(68, 64, 60, 0.88) 55%, rgba(120, 53, 15, 0.75) 100%),
-        repeating-linear-gradient(
-            -12deg,
-            rgba(255, 255, 255, 0.035) 0px,
-            rgba(255, 255, 255, 0.035) 1px,
-            transparent 1px,
-            transparent 14px
-        ),
-        linear-gradient(160deg, var(--color-hero-from), var(--color-hero-to));
+        linear-gradient(115deg, #0c0a09 0%, #1c1917 42%, #292524 72%, #7c2d12 120%);
     animation: hero-entra var(--dur-moderate) var(--ease-out-expo) both;
+}
+.hero-glow {
+    position: absolute;
+    right: -8%;
+    top: -35%;
+    width: min(58vw, 620px);
+    height: min(58vw, 620px);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.08) 42%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(120deg, transparent 10%, rgba(0,0,0,0.55) 45%, rgba(0,0,0,0.2) 100%);
+    pointer-events: none;
+    z-index: 0;
 }
 .hero-bleed::after {
     content: "";
     position: absolute;
     inset: auto 0 0 0;
-    height: 72px;
+    height: 56px;
     background: linear-gradient(180deg, transparent, var(--color-page-from));
     pointer-events: none;
+    z-index: 2;
 }
 .hero-inner {
     position: relative;
     z-index: 1;
     max-width: 1080px;
     margin: 0 auto;
-    padding: clamp(2.4rem, 5vw, 3.6rem) 1.5rem 3.2rem;
+    padding: clamp(2.6rem, 6vw, 4.2rem) 1.5rem clamp(3rem, 6vw, 4.4rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: end;
 }
-.hero-brand {
+.hero-copy { max-width: 34rem; }
+.stApp .hero-bleed .hero-kicker,
+.hero-bleed .hero-kicker {
+    color: #fdba74 !important;
+    font-size: 0.8rem !important;
+    font-weight: 650 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    margin: 0 0 0.85rem 0 !important;
+    max-width: none !important;
+}
+.stApp .hero-bleed .hero-brand,
+.hero-bleed .hero-brand,
+.stApp h1.hero-brand {
     font-family: var(--font-display) !important;
     color: #ffffff !important;
-    font-size: clamp(2rem, 4.8vw, 3.15rem) !important;
+    font-size: clamp(2.35rem, 5.4vw, 3.55rem) !important;
     font-weight: 700 !important;
-    letter-spacing: -0.035em !important;
-    line-height: 1.05 !important;
-    margin: 0 0 0.85rem 0 !important;
-    max-width: 16ch !important;
+    letter-spacing: -0.04em !important;
+    line-height: 0.98 !important;
+    margin: 0 0 1rem 0 !important;
+    max-width: 11ch !important;
     text-wrap: balance;
 }
-.hero-lede {
-    color: var(--color-hero-subtitle) !important;
-    font-size: clamp(1rem, 1.5vw, 1.12rem) !important;
+.stApp .hero-bleed .hero-lede,
+.hero-bleed .hero-lede {
+    color: #e7e5e4 !important;
+    font-size: clamp(1.02rem, 1.6vw, 1.18rem) !important;
     line-height: 1.55 !important;
-    margin: 0 !important;
-    max-width: 42ch !important;
+    margin: 0 0 1.35rem 0 !important;
+    max-width: 36ch !important;
     font-weight: 400 !important;
 }
-.hero-accent-line {
-    width: 56px;
-    height: 3px;
-    background: var(--color-primary-bright);
-    border-radius: 2px;
-    margin: 0 0 1.1rem 0;
+.stApp .hero-bleed .hero-cta-hint,
+.hero-bleed .hero-cta-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #ffffff !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    opacity: 0.92;
 }
+.hero-cta-hint::after {
+    content: "↓";
+    color: #f59e0b;
+    font-size: 1rem;
+    animation: hint-bounce 1.6s var(--ease-out) infinite;
+}
+.hero-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    justify-content: flex-end;
+    padding-bottom: 0.25rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.14);
+    padding-left: 1.35rem;
+}
+.hero-aside__item {
+    font-family: var(--font-display);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+.hero-aside__item:nth-child(1) { color: #ffffff; }
+.hero-aside__item:nth-child(2) { color: rgba(255, 255, 255, 0.72); }
+.hero-aside__item:nth-child(3) { color: #fdba74; }
 
 /* Compatibilidade com markup antigo */
 .hero-container {
@@ -202,6 +267,7 @@ div[data-testid="stDecoration"] {
 .hero-container .hero-title { display: none; }
 .hero-container .hero-eyebrow { display: none; }
 .hero-container .hero-subtitle { display: none; }
+.hero-accent-line { display: none; }
 
 /* Fluxo — passos do wizard (trilho moderno) */
 .fluxo-passos {
@@ -280,10 +346,10 @@ div[data-testid="stDecoration"] {
 .wizard-secao-titulo {
     font-family: var(--font-display) !important;
     color: var(--color-ink) !important;
-    font-size: 1.05rem !important;
+    font-size: 1.15rem !important;
     font-weight: 650 !important;
     letter-spacing: -0.02em !important;
-    margin: 1.35rem 0 0.85rem 0 !important;
+    margin: 1.6rem 0 0.95rem 0 !important;
     padding: 0 !important;
     border: none !important;
 }
@@ -693,6 +759,10 @@ label[data-testid="stWidgetLabel"] + div [role="checkbox"][aria-checked="true"] 
     from { opacity: 0.86; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+@keyframes hint-bounce {
+    0%, 100% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(3px); opacity: 0.75; }
+}
 @keyframes resultado-entra {
     from { opacity: 0.9; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -719,8 +789,29 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
 
 @media (max-width: 768px) {
     .fluxo-passos { grid-template-columns: 1fr; }
-    .hero-inner { padding: 2rem 1.15rem 2.6rem; }
-    .hero-brand { max-width: 12ch !important; }
+    .hero-inner {
+        grid-template-columns: 1fr;
+        padding: 2.1rem 1.15rem 2.8rem;
+        gap: 1.5rem;
+    }
+    .stApp .hero-bleed .hero-brand,
+    .hero-bleed .hero-brand,
+    .stApp h1.hero-brand {
+        max-width: 12ch !important;
+        font-size: clamp(2.1rem, 11vw, 2.7rem) !important;
+    }
+    .hero-aside {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        padding-left: 0;
+        padding-top: 1rem;
+    }
+    .hero-aside__item {
+        font-size: 1.05rem;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
