@@ -119,15 +119,20 @@ def renderizar_resultado(resultado):
                 unsafe_allow_html=True,
             )
 
-        visao = montar_visao_geral_profissional(
-            analise,
-            resultado.plano_acao or "",
-            resultado.estrategia or "",
+        parecer = sanitizar_para_exibicao(
+            getattr(resultado, "relatorio_consolidado", "") or ""
         )
-        with st.expander("Visão geral", expanded=True):
-            for paragrafo in visao.split("\n\n"):
-                if paragrafo.strip():
-                    st.write(paragrafo.strip())
+        if not parecer:
+            parecer = montar_visao_geral_profissional(
+                analise,
+                resultado.plano_acao or "",
+                resultado.estrategia or "",
+            )
+        with st.expander("Parecer executivo", expanded=True):
+            if parecer:
+                _renderizar_blocos(parecer)
+            else:
+                st.write("Parecer indisponível para este caso.")
 
         _renderizar_exportacao(resultado)
 

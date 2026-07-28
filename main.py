@@ -52,8 +52,8 @@ def _renderizar_hero():
         '<div class="hero-container">'
         '<p class="hero-eyebrow">Ferramenta de apoio · Manutenção industrial</p>'
         '<h1 class="hero-title">Mentor de Gestão Industrial</h1>'
-        '<p class="hero-subtitle">Diagnóstico estruturado, roteiro de conversa e plano de ação '
-        "para supervisores que precisam decidir com clareza no chão de fábrica.</p>"
+        '<p class="hero-subtitle">Parecer de mentor sênior: diagnóstico, conversa e plano '
+        "acionável para supervisores de manutenção decidirem com clareza no chão de fábrica.</p>"
         "</div>",
         unsafe_allow_html=True,
     )

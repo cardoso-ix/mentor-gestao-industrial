@@ -8,7 +8,7 @@ e indicadores simples para acompanhamento.
 from crewai import Agent, Task
 
 from agents.analista import _criar_llm
-from agents.prompts_comuns import REGRAS_QUALIDADE
+from agents.prompts_comuns import INSTRUCOES_COMUNS
 
 
 def criar_agente_plano_acao() -> Agent:
@@ -20,11 +20,11 @@ def criar_agente_plano_acao() -> Agent:
             "com passos claros, prazos realistas e indicadores simples de acompanhamento."
         ),
         backstory=(
-            "Você é especialista em execução e acompanhamento de planos de melhoria "
-            "em manutenção industrial. Sabe que gestores de chão de fábrica não têm "
-            "tempo para planos complexos — precisam de ações objetivas que caibam "
-            "entre uma parada programada e outra. Seus planos são realistas para "
-            "equipes de 5 a 30 técnicos, com prazos de 24 horas a 30 dias."
+            "Você transforma orientação de gestão em plano executável de manutenção. "
+            "Gestores de chão de fábrica não têm tempo para plano complexo: precisam "
+            "de passos objetivos entre uma parada e outra, com prazo, responsável e "
+            "indicador simples. Seus planos cabem em equipes de 5 a 30 técnicos, "
+            "de 24 horas a 30 dias."
         ),
         llm=_criar_llm(),
         verbose=False,
@@ -88,7 +88,7 @@ Riscos e mitigação:
 Check-in de acompanhamento:
 Quando e como o gestor deve revisar o progresso.
 
-{REGRAS_QUALIDADE}
+{INSTRUCOES_COMUNS}
 """,
         expected_output=(
             "Plano de ação com passos numerados, prazos, responsáveis e indicadores"

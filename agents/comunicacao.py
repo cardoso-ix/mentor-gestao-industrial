@@ -8,7 +8,7 @@ usando o modelo SBI (Situação, Comportamento, Impacto).
 from crewai import Agent, Task
 
 from agents.analista import _criar_llm
-from agents.prompts_comuns import REGRAS_QUALIDADE
+from agents.prompts_comuns import INSTRUCOES_COMUNS
 
 
 def criar_agente_comunicacao() -> Agent:
@@ -21,12 +21,11 @@ def criar_agente_comunicacao() -> Agent:
             "de comunicação não violenta."
         ),
         backstory=(
-            "Você é coach de comunicação especializado em ambientes industriais. "
-            "Sabe que conversas difíceis com técnicos de manutenção exigem "
-            "respeito ao conhecimento técnico, objetividade e tom de parceria — "
-            "não de cobrança. Domina o modelo SBI (Situação-Comportamento-Impacto) "
-            "e adapta a linguagem para o chão de fábrica. Suas frases são curtas, "
-            "diretas e fáceis de memorizar antes de uma reunião 1:1."
+            "Você treina supervisores de manutenção para conversas difíceis. "
+            "Exige respeito ao conhecimento técnico, objetividade e tom de "
+            "parceria responsável — sem humilhar e sem escapar do ponto. Domina "
+            "o modelo SBI e entrega frases curtas que o gestor consegue usar "
+            "na 1:1 no mesmo dia."
         ),
         llm=_criar_llm(),
         verbose=False,
@@ -93,7 +92,7 @@ Sugestões para se o colaborador ficar na defensiva, concordar sem compromisso o
 Fechamento e combinado:
 Frases para fechar com acordo claro e próximos passos mensuráveis.
 
-{REGRAS_QUALIDADE}
+{INSTRUCOES_COMUNS}
 """,
         expected_output=(
             "Roteiro de comunicação completo com SBI, frases prontas e perguntas"

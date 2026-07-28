@@ -47,7 +47,7 @@ Orquestrador (orchestrator.py)
        ├── 3. Especialista em Comunicação (conforme necessidade)
        ├── 4. Gerador de Plano de Ação (conforme necessidade)
        │
-       └── Relatório consolidado
+       └── 5. Editor de Parecer Executivo (consolidação final)
 ```
 
 ## Estrutura do projeto
