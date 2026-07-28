@@ -8,7 +8,7 @@ adaptadas ao contexto de equipes técnicas de manutenção industrial.
 from crewai import Agent, Task
 
 from agents.analista import _criar_llm
-from agents.prompts_comuns import REGRAS_QUALIDADE
+from agents.prompts_comuns import INSTRUCOES_COMUNS
 
 
 def criar_agente_estrategista() -> Agent:
@@ -21,13 +21,12 @@ def criar_agente_estrategista() -> Agent:
             "de manutenção industrial."
         ),
         backstory=(
-            "Você é especialista em gestão de pessoas em ambientes industriais. "
-            "Domina liderança situacional (Hersey-Blanchard), gestão por competências "
-            "e Comunicação Não Violenta (CNV). Trabalhou em plantas de manutenção "
-            "com equipes de elétrica, mecânica, caldeiraria e PCM. Sabe que técnicos "
-            "valorizam clareza, respeito ao conhecimento técnico e soluções práticas — "
-            "não discursos motivacionais vazios. Sempre contextualiza suas sugestões "
-            "com vocabulário de manutenção: OS, PCM, paradas, MTBF, contratadas, turnos."
+            "Você é mentor de gestão em plantas industriais. Domina liderança "
+            "situacional, gestão por competências e comunicação direta no chão de "
+            "fábrica. Já liderou equipes de elétrica, mecânica, caldeiraria e PCM. "
+            "Técnicos valorizam clareza e respeito ao conhecimento técnico — não "
+            "discurso motivacional. Suas recomendações cabem na rotina entre OS, "
+            "parada e reunião de turno."
         ),
         llm=_criar_llm(),
         verbose=False,
@@ -87,7 +86,7 @@ Liste 3 a 5 ações em ordem de prioridade, específicas para o caso.
 Armadilhas a evitar:
 Aponte 2 a 3 erros comuns que gestores de manutenção cometem neste tipo de situação.
 
-{REGRAS_QUALIDADE}
+{INSTRUCOES_COMUNS}
 """,
         expected_output=(
             "Estratégia de gestão estruturada com diagnóstico, abordagem, passos e armadilhas"

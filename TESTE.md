@@ -27,10 +27,11 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
    > Um técnico experiente se recusa a preencher a ordem de serviço após as intervenções. Outros técnicos começaram a copiar o comportamento.
 
 3. Clique em **Analisar situação** **uma vez** e aguarde (1–3 min).
-4. Verifique:
-   - Barra de progresso avança
-   - **Relatório consolidado** no topo sem frase cortada no meio
-   - Abas **Análise**, **Estratégia**, **Comunicação**, **Plano de Ação** com conteúdo
+4. Preencha também o **Contexto da planta** (turno, clima, histórico, indicador), se souber.
+5. Verifique:
+   - Barra de progresso avança (inclui “Redigindo parecer executivo”)
+   - **Parecer executivo** no topo, com tom de mentor sênior e sem frase cortada
+   - Abas **Diagnóstico**, **Estratégia**, **Conversa**, **Plano** com conteúdo
    - Sem caixa vermelha de erro
 
 ## Se der erro de rate limit

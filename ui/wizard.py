@@ -50,6 +50,13 @@ PERGUNTAS_POR_TIPO = {
     ],
 }
 
+LABELS_CONTEXTO_PLANTA = {
+    "planta_turno": "Planta / área / turno",
+    "clima_equipe": "Clima da equipe",
+    "historico_colaborador": "Histórico do colaborador",
+    "indicador_meta": "Indicador ou meta afetada",
+}
+
 
 def _inicializar_wizard():
     """Inicializa estado do wizard."""
@@ -59,6 +66,7 @@ def _inicializar_wizard():
         "tamanho_wizard": "",
         "urgencia_wizard": "",
         "wizard_respostas": {},
+        "contexto_planta": {},
         "modo_wizard": True,
     }
     for chave, valor in defaults.items():
@@ -114,8 +122,60 @@ def renderizar_perguntas_guiadas(tipo: str) -> dict[str, str]:
     return respostas
 
 
-def montar_situacao_do_wizard(tipo: str, respostas: dict[str, str], situacao_livre: str) -> str:
-    """Monta texto final da situação combinando wizard + texto livre."""
+def renderizar_contexto_planta() -> dict[str, str]:
+    """Coleta contexto industrial que melhora a precisão do mentor."""
+    st.markdown(
+        '<p class="wizard-secao-titulo">Contexto da planta</p>',
+        unsafe_allow_html=True,
+    )
+    ctx = dict(st.session_state.get("contexto_planta", {}))
+
+    col1, col2 = st.columns(2)
+    with col1:
+        ctx["planta_turno"] = st.text_input(
+            "Planta, área e turno",
+            value=ctx.get("planta_turno", ""),
+            placeholder="Ex.: manutenção elétrica, turno B",
+            key="ctx_planta_turno",
+        )
+        ctx["historico_colaborador"] = st.text_input(
+            "Histórico do colaborador principal",
+            value=ctx.get("historico_colaborador", ""),
+            placeholder="Ex.: sênior, bom tecnicamente, já foi orientado 2x",
+            key="ctx_historico_colaborador",
+        )
+    with col2:
+        clima_opcoes = [
+            "",
+            "Tranquilo",
+            "Tenso",
+            "Há pressão de produção",
+            "Há atuação sindical / clima delicado",
+        ]
+        ctx["clima_equipe"] = st.selectbox(
+            "Clima da equipe",
+            clima_opcoes,
+            index=_indice_select(clima_opcoes, ctx.get("clima_equipe", "")),
+            key="ctx_clima_equipe",
+        )
+        ctx["indicador_meta"] = st.text_input(
+            "Indicador ou meta afetada",
+            value=ctx.get("indicador_meta", ""),
+            placeholder="Ex.: % OS preenchidas, MTTR, retrabalho",
+            key="ctx_indicador_meta",
+        )
+
+    st.session_state.contexto_planta = ctx
+    return ctx
+
+
+def montar_situacao_do_wizard(
+    tipo: str,
+    respostas: dict[str, str],
+    situacao_livre: str,
+    contexto_planta: dict[str, str] | None = None,
+) -> str:
+    """Monta texto final da situação combinando wizard + texto livre + contexto."""
     partes = []
 
     if tipo and tipo in TIPOS_PROBLEMA:
@@ -124,6 +184,11 @@ def montar_situacao_do_wizard(tipo: str, respostas: dict[str, str], situacao_liv
 
     if situacao_livre.strip():
         partes.append(situacao_livre.strip())
+
+    for chave, valor in (contexto_planta or {}).items():
+        if valor and str(valor).strip():
+            label = LABELS_CONTEXTO_PLANTA.get(chave, chave.replace("_", " ").capitalize())
+            partes.append(f"{label}: {str(valor).strip()}")
 
     for chave, valor in respostas.items():
         if valor and valor.strip():
@@ -163,7 +228,10 @@ def renderizar_formulario_contexto() -> tuple[str, str, str]:
         "Descreva o que está acontecendo",
         value=st.session_state.get("situacao_wizard", ""),
         height=140,
-        placeholder="Quem está envolvido, o que já foi tentado e qual resultado você espera...",
+        placeholder=(
+            "Quem está envolvido, o que já foi tentado e qual resultado você espera. "
+            "Cite fatos concretos (OS, turno, datas, conversas)."
+        ),
         key=f"situacao_wizard_{st.session_state.get('form_key', 0)}",
     )
 
@@ -199,8 +267,11 @@ def renderizar_wizard() -> dict | None:
             )
         respostas = renderizar_perguntas_guiadas(tipo) if tipo else {}
         tamanho, urgencia, situacao_livre = renderizar_formulario_contexto()
+        contexto_planta = renderizar_contexto_planta()
 
-        situacao_final = montar_situacao_do_wizard(tipo, respostas, situacao_livre)
+        situacao_final = montar_situacao_do_wizard(
+            tipo, respostas, situacao_livre, contexto_planta
+        )
 
         col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
@@ -219,6 +290,7 @@ def renderizar_wizard() -> dict | None:
                 "tamanho_equipe": tamanho,
                 "urgencia": urgencia,
                 "tipo_hint": tipo,
+                "contexto_planta": contexto_planta,
                 "categoria_rag": _mapa_categoria_rag(tipo),
             }
     return None
@@ -246,5 +318,6 @@ def _limpar_wizard():
     st.session_state.tamanho_wizard = ""
     st.session_state.urgencia_wizard = ""
     st.session_state.wizard_respostas = {}
+    st.session_state.contexto_planta = {}
     st.session_state.playbook_ativo = ""
     st.session_state.checklist_plano = {}

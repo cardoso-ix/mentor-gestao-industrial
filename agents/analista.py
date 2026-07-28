@@ -8,7 +8,7 @@ avaliar a complexidade e definir quais outros agentes devem ser acionados.
 from crewai import Agent, Task
 from pydantic import BaseModel, Field
 
-from agents.prompts_comuns import REGRAS_QUALIDADE
+from agents.prompts_comuns import INSTRUCOES_COMUNS
 from llm_utils import criar_llm
 
 
@@ -52,12 +52,11 @@ def criar_agente_analista() -> Agent:
             "quais especialistas devem ser acionados."
         ),
         backstory=(
-            "Você é um consultor sênior com 20 anos de experiência em manutenção "
+            "Você é mentor sênior com 20 anos de experiência em manutenção "
             "industrial (elétrica, mecânica, instrumentação e PCM). Já foi técnico, "
-            "supervisor e gerente de manutenção. Conhece profundamente os desafios "
-            "de quem sai do chão de fábrica para liderar equipes técnicas. "
-            "Sua função é fazer o diagnóstico inicial antes que os especialistas "
-            "entrem em ação."
+            "supervisor e gerente de manutenção. Conhece os desafios de quem sai do "
+            "chão de fábrica para liderar equipes técnicas. Faz diagnóstico preciso, "
+            "sem rodeio, antes que os especialistas entrem em ação."
         ),
         llm=_criar_llm(),
         verbose=False,
@@ -87,9 +86,6 @@ def criar_task_analista(
     if urgencia:
         contexto_extra += f"\nUrgência: {urgencia}"
 
-    if urgencia:
-        contexto_extra += f"\nUrgência: {urgencia}"
-
     bloco_rag = ""
     if contexto_rag:
         bloco_rag = f"\n\nReferências internas (use apenas se forem relevantes ao caso):\n{contexto_rag}"
@@ -103,7 +99,7 @@ Analise a seguinte situação relatada por um gestor de manutenção industrial:
 ---
 {contexto_extra}{bloco_rag}
 
-{REGRAS_QUALIDADE}
+{INSTRUCOES_COMUNS}
 
 Com base nessa situação, você deve:
 

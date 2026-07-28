@@ -18,6 +18,7 @@ from crewai import Crew, Process, Task
 import config
 from agents.analista import criar_agente_analista, criar_task_analista
 from agents.comunicacao import criar_agente_comunicacao, criar_task_comunicacao
+from agents.editor import criar_agente_editor, criar_task_editor
 from agents.estrategista import criar_agente_estrategista, criar_task_estrategista
 from agents.plano_acao import criar_agente_plano_acao, criar_task_plano_acao
 from rag import consultar_base, garantir_base_indexada
@@ -220,6 +221,36 @@ def _montar_relatorio_local(
     return montar_visao_geral_profissional(analise, plano_acao, estrategia)
 
 
+def _gerar_relatorio_com_editor(
+    situacao: str,
+    analise: dict,
+    estrategia: str,
+    comunicacao: str,
+    plano_acao: str,
+) -> str:
+    """Gera parecer executivo via agente editor (LLM)."""
+    agente = criar_agente_editor()
+    task = criar_task_editor(
+        agente,
+        situacao=situacao,
+        analise=analise,
+        estrategia=_limitar_contexto(estrategia, 2500),
+        comunicacao=_limitar_contexto(comunicacao, 2500),
+        plano_acao=_limitar_contexto(plano_acao, 2500),
+    )
+    crew = Crew(
+        agents=[agente],
+        tasks=[task],
+        process=Process.sequential,
+        verbose=False,
+    )
+    saida = _executar_crew_com_retry(crew)
+    texto = _extrair_texto_task(saida).strip()
+    if not texto or len(texto) < 80:
+        raise ValueError("Parecer do editor veio vazio ou incompleto")
+    return texto
+
+
 def _gerar_relatorio_consolidado(
     situacao: str,
     analise: dict,
@@ -227,8 +258,16 @@ def _gerar_relatorio_consolidado(
     comunicacao: str,
     plano_acao: str,
 ) -> str:
-    """Gera relatório consolidado local (sem LLM extra — mais leve e estável)."""
-    return _montar_relatorio_local(analise, estrategia, comunicacao, plano_acao)
+    """
+    Gera parecer consolidado com editor LLM.
+    Em falha/rate limit, usa síntese local como fallback.
+    """
+    try:
+        return _gerar_relatorio_com_editor(
+            situacao, analise, estrategia, comunicacao, plano_acao
+        )
+    except Exception:
+        return _montar_relatorio_local(analise, estrategia, comunicacao, plano_acao)
 
 
 def executar_mentoria(
@@ -387,8 +426,8 @@ def executar_mentoria(
             saida = _executar_crew_com_retry(crew_plano)
             resultado.plano_acao = _extrair_texto_task(saida)
 
-        # Etapa 7: Relatório consolidado
-        progresso("Gerando relatório consolidado...", 0.95)
+        # Etapa 7: Parecer executivo consolidado (editor LLM + fallback local)
+        progresso("Redigindo parecer executivo...", 0.92)
         resultado.relatorio_consolidado = _gerar_relatorio_consolidado(
             situacao,
             analise,
@@ -396,6 +435,8 @@ def executar_mentoria(
             resultado.comunicacao,
             resultado.plano_acao,
         )
+        if "editor" not in resultado.agentes_acionados:
+            resultado.agentes_acionados = list(resultado.agentes_acionados) + ["editor"]
 
         progresso("Concluído!", 1.0)
 
