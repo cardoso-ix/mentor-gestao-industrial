@@ -47,14 +47,16 @@ def _inicializar_sessao():
 
 
 def _renderizar_hero():
-    """Renderiza seção hero no topo da página."""
+    """Hero full-bleed com a marca em primeiro plano."""
     st.markdown(
-        '<div class="hero-container">'
-        '<p class="hero-eyebrow">Ferramenta de apoio · Manutenção industrial</p>'
-        '<h1 class="hero-title">Mentor de Gestão Industrial</h1>'
-        '<p class="hero-subtitle">Parecer de mentor sênior: diagnóstico, conversa e plano '
-        "acionável para supervisores de manutenção decidirem com clareza no chão de fábrica.</p>"
-        "</div>",
+        '<section class="hero-bleed" aria-label="Apresentação">'
+        '<div class="hero-inner">'
+        '<div class="hero-accent-line" aria-hidden="true"></div>'
+        '<p class="hero-brand">Mentor de Gestão Industrial</p>'
+        '<p class="hero-lede">Parecer, conversa e plano acionável para supervisores '
+        "de manutenção decidirem com clareza no chão de fábrica.</p>"
+        "</div>"
+        "</section>",
         unsafe_allow_html=True,
     )
 
