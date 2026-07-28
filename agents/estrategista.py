@@ -8,6 +8,7 @@ adaptadas ao contexto de equipes técnicas de manutenção industrial.
 from crewai import Agent, Task
 
 from agents.analista import _criar_llm
+from agents.playbooks import montar_bloco_playbook
 from agents.prompts_comuns import INSTRUCOES_COMUNS
 
 
@@ -59,6 +60,10 @@ def criar_task_estrategista(
     if contexto_web:
         bloco_web = f"\n\n## Informações da busca web:\n{contexto_web}"
 
+    bloco_playbook = montar_bloco_playbook(analise.get("tipo_problema", ""))
+    if bloco_playbook:
+        bloco_playbook = f"\n\n{bloco_playbook}"
+
     return Task(
         description=f"""
 Com base na situação e na análise já realizada, elabore uma estratégia de gestão prática.
@@ -70,7 +75,7 @@ Com base na situação e na análise já realizada, elabore uma estratégia de g
 - Tipo: {analise.get('tipo_problema', 'N/A')}
 - Complexidade: {analise.get('complexidade', 'N/A')}
 - Resumo: {analise.get('resumo', 'N/A')}
-{bloco_rag}{bloco_web}
+{bloco_rag}{bloco_web}{bloco_playbook}
 
 Elabore sua resposta com estas seções (título em linha própria, terminando com dois pontos):
 

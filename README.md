@@ -46,6 +46,7 @@ Orquestrador (orchestrator.py)
        ├── 2. Estrategista de Gestão (conforme necessidade)
        ├── 3. Especialista em Comunicação (conforme necessidade)
        ├── 4. Gerador de Plano de Ação (conforme necessidade)
+       │      (playbooks por tipo guiam a estrutura, sem custo extra)
        │
        └── 5. Editor de Parecer Executivo (consolidação final)
 ```

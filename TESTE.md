@@ -22,10 +22,10 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
 ## Passo a passo do teste
 
 1. Abra a demo (ou rode local: `streamlit run main.py`) e aguarde a tela inicial carregar.
-2. Conte a situação **com suas palavras** (pode usar o botão de exemplo do tipo).
+2. (Opcional) Clique em um caso de **Experimente em 1 clique**, ou conte a situação com suas palavras.
 3. Ajuste a urgência. Detalhes opcionais só se quiser.
 4. Clique em **Gerar orientação** **uma vez** e aguarde (1–3 min).
-5. Preencha também o **Contexto da planta** (turno, clima, histórico, indicador), se souber — está em “Detalhes opcionais”.
+5. Detalhes de planta ficam em “Detalhes opcionais”, se quiser enriquecer.
 6. Verifique:
    - Barra de progresso avança (inclui “Redigindo e validando parecer”)
    - **Parecer executivo** no topo, com tom de mentor sênior e sem frase cortada
