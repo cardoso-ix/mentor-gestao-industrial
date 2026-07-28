@@ -76,7 +76,7 @@ def _renderizar_exportacao(resultado):
     try:
         pdf_bytes = gerar_pdf_relatorio(resultado)
         st.download_button(
-            "Baixar resumo em PDF",
+            "Baixar resumo executivo (PDF)",
             data=pdf_bytes,
             file_name="mentor_gestao_resumo.pdf",
             mime="application/pdf",
