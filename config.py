@@ -42,9 +42,10 @@ OPENROUTER_API_KEY = _ler_chave("OPENROUTER_API_KEY")
 SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
 
 # --- Modelo LLM na OpenRouter (variante free — $0/token) ---
-# Alternativas: openrouter/free | google/gemma-4-31b-it:free | qwen/qwen3-next-80b-a3b-instruct:free
+# Alternativas: openrouter/free | google/gemma-4-31b-it:free | openai/gpt-oss-20b:free
+# Nota: a lista :free muda com frequência; confira em https://openrouter.ai/models
 OPENROUTER_MODEL = os.getenv(
-    "OPENROUTER_MODEL", "meta-llama/llama-3.3-70b-instruct:free"
+    "OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free"
 )
 OPENROUTER_MAX_TOKENS = int(os.getenv("OPENROUTER_MAX_TOKENS", "2048"))
 

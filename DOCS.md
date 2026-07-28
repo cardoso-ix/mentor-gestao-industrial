@@ -37,7 +37,7 @@
 | CrewAI | 1.15.1 |
 | ChromaDB | ~1.1 |
 | Streamlit | 1.x |
-| LLM | OpenRouter Free `meta-llama/llama-3.3-70b-instruct:free` |
+| LLM | OpenRouter Free `google/gemma-4-26b-a4b-it:free` |
 
 ## Sincronização GitHub → Hugging Face
 

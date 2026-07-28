@@ -21,7 +21,7 @@ Quando você descreve uma situação de liderança em linguagem natural, quatro 
 | Componente | Tecnologia |
 |------------|------------|
 | Orquestração multi-agente | CrewAI |
-| LLM | OpenRouter Free — `meta-llama/llama-3.3-70b-instruct:free` |
+| LLM | OpenRouter Free — `google/gemma-4-26b-a4b-it:free` |
 | Busca web | Serper API (processo e segurança) |
 | Interface | Streamlit |
 | Base de conhecimento | ChromaDB + PDFs locais |
@@ -101,7 +101,7 @@ cp .env.example .env
 ```env
 OPENROUTER_API_KEY=sk-or-sua_chave_real_aqui
 SERPER_API_KEY=sua_chave_serper_real_aqui
-OPENROUTER_MODEL=meta-llama/llama-3.3-70b-instruct:free
+OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
 ```
 
 **Onde obter as chaves:**
@@ -206,7 +206,7 @@ A primeira indexação de muitos PDFs pode demorar alguns minutos. Indexações 
 
 ### Modelo LLM
 
-O projeto usa o **Llama 3.3 70B Instruct** na variante free da OpenRouter (`:free`). Para o router automático de modelos gratuitos, defina `OPENROUTER_MODEL=openrouter/free`.
+O projeto usa o **Gemma 4 26B** na variante free da OpenRouter (`google/gemma-4-26b-a4b-it:free`). A lista de modelos `:free` muda com frequência. Para o router automático, defina `OPENROUTER_MODEL=openrouter/free`.
 
 ## Exemplo de uso
 
