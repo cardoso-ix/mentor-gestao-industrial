@@ -38,7 +38,8 @@ def renderizar_painel_analise(percentual: float, etapa: str) -> None:
         "</div>",
         unsafe_allow_html=True,
     )
-    st.progress(percentual, text=etapa_txt)
+    # Sem `text=` — o rótulo já aparece no painel; o texto nativo sobrepõe a barra.
+    st.progress(min(max(percentual, 0.0), 1.0))
     renderizar_timeline_compacta(percentual, etapa)
 
 
