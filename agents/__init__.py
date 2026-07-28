@@ -7,6 +7,7 @@ from agents.comunicacao import criar_agente_comunicacao, criar_task_comunicacao
 from agents.editor import criar_agente_editor, criar_task_editor
 from agents.estrategista import criar_agente_estrategista, criar_task_estrategista
 from agents.plano_acao import criar_agente_plano_acao, criar_task_plano_acao
+from agents.qualidade import avaliar_parecer, criar_agente_revisor, criar_task_revisao_qualidade
 
 __all__ = [
     "criar_agente_analista",
@@ -19,4 +20,7 @@ __all__ = [
     "criar_task_plano_acao",
     "criar_agente_editor",
     "criar_task_editor",
+    "avaliar_parecer",
+    "criar_agente_revisor",
+    "criar_task_revisao_qualidade",
 ]

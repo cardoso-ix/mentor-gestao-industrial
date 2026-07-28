@@ -1,5 +1,5 @@
 """
-Wizard — coleta guiada de contexto por tipo de problema.
+Wizard — coleta guiada, humanizada e de preenchimento rápido.
 """
 
 from __future__ import annotations
@@ -9,52 +9,94 @@ import streamlit as st
 from ui.fluxo import renderizar_passos_wizard
 
 TIPOS_PROBLEMA = {
-    "lideranca": {"label": "Liderança", "desc": "Autoridade, motivação, transição técnico→gestor"},
-    "comunicacao": {"label": "Comunicação", "desc": "Alinhamento, feedback, informação"},
-    "conflito": {"label": "Conflito", "desc": "Desentendimentos, resistência, atrito"},
-    "desempenho": {"label": "Desempenho", "desc": "Produtividade, qualidade, cumprimento"},
-    "processo": {"label": "Processo", "desc": "OS, PCM, procedimentos, fluxos"},
-    "seguranca": {"label": "Segurança", "desc": "EPI, NR, lockout, permissão de trabalho"},
+    "lideranca": {
+        "label": "Liderança",
+        "desc": "Autoridade, motivação ou transição de técnico para gestor",
+        "exemplo": (
+            "Meu técnico mais experiente da elétrica não aceita orientação na frente "
+            "da equipe. Já conversei duas vezes e o clima no turno B piorou."
+        ),
+    },
+    "comunicacao": {
+        "label": "Comunicação",
+        "desc": "Alinhamento, feedback ou informação que não chega",
+        "exemplo": (
+            "As passagens de turno estão incompletas. O turno seguinte perde tempo "
+            "retrabalhando e a equipe reclama que ninguém avisa o status das OS."
+        ),
+    },
+    "conflito": {
+        "label": "Conflito",
+        "desc": "Atrito entre pessoas ou resistência na equipe",
+        "exemplo": (
+            "Dois mecânicos estão em atrito desde a última parada. Um acusa o outro "
+            "de deixar serviço pela metade e isso já atrasou duas intervenções."
+        ),
+    },
+    "desempenho": {
+        "label": "Desempenho",
+        "desc": "Produtividade, qualidade ou tarefa que não é cumprida",
+        "exemplo": (
+            "Um técnico sênior se recusa a preencher a OS depois das intervenções. "
+            "Diz que é perda de tempo e outros começaram a copiar."
+        ),
+    },
+    "processo": {
+        "label": "Processo",
+        "desc": "OS, PCM, procedimento ou fluxo que não é seguido",
+        "exemplo": (
+            "A equipe pula a liberação formal antes de iniciar serviço. Já orientei "
+            "no quadro, mas o padrão não pegou e o PCM perde rastreabilidade."
+        ),
+    },
+    "seguranca": {
+        "label": "Segurança",
+        "desc": "EPI, NR, lockout ou permissão de trabalho",
+        "exemplo": (
+            "Um eletricista insiste em entrar em painel sem LOTO completo. Alega "
+            "pressa da produção. Quase-acidente na semana passada."
+        ),
+    },
 }
 
 PERGUNTAS_POR_TIPO = {
     "lideranca": [
-        ("Quem está envolvido?", "envolvidos"),
-        ("O que você já tentou?", "tentativas"),
-        ("Qual o impacto na equipe?", "impacto"),
+        ("Quem está no centro disso?", "envolvidos", "Ex.: João, técnico sênior do turno B"),
+        ("O que você já tentou?", "tentativas", "Ex.: conversei 2 vezes; falei no toolbox"),
+        ("Como isso afeta a equipe?", "impacto", "Ex.: outros copiam; clima ficou tenso"),
     ],
     "comunicacao": [
-        ("Qual informação não está chegando?", "info_faltando"),
-        ("Quem precisa se alinhar?", "envolvidos"),
-        ("O que acontece quando você tenta comunicar?", "tentativas"),
+        ("O que não está chegando?", "info_faltando", "Ex.: status da OS na passagem de turno"),
+        ("Quem precisa se alinhar?", "envolvidos", "Ex.: turnos A e B; PCM e área"),
+        ("O que acontece quando você tenta alinhar?", "tentativas", "Ex.: concordam e depois voltam ao padrão"),
     ],
     "conflito": [
-        ("Quem são as partes do conflito?", "envolvidos"),
-        ("Desde quando isso ocorre?", "duracao"),
-        ("O que já foi tentado?", "tentativas"),
+        ("Quem está envolvido?", "envolvidos", "Ex.: Carlos e André, mecânica"),
+        ("Isso vem de quando?", "duracao", "Ex.: desde a parada do dia 12"),
+        ("O que já foi tentado?", "tentativas", "Ex.: medição informal; troca de dupla"),
     ],
     "desempenho": [
-        ("Qual comportamento específico preocupa?", "comportamento"),
-        ("Há mudança recente (cargo, turno, equipe)?", "contexto"),
-        ("Qual o impacto operacional?", "impacto"),
+        ("Qual comportamento te preocupa?", "comportamento", "Ex.: não preenche OS ao finalizar"),
+        ("Teve mudança recente?", "contexto", "Ex.: novo supervisor; troca de turno"),
+        ("Qual impacto na operação?", "impacto", "Ex.: perde histórico; MTTR sobe"),
     ],
     "processo": [
-        ("Qual procedimento não está sendo seguido?", "procedimento"),
-        ("Por que a equipe resiste?", "motivo"),
-        ("Qual o risco operacional?", "impacto"),
+        ("Qual procedimento está falhando?", "procedimento", "Ex.: liberação / preenchimento de OS"),
+        ("Por que a equipe evita seguir?", "motivo", "Ex.: acham burocrático; pressão de produção"),
+        ("Qual risco isso gera?", "impacto", "Ex.: retrabalho; falha de rastreabilidade"),
     ],
     "seguranca": [
-        ("Qual norma ou regra está em risco?", "norma"),
-        ("O que o colaborador alega?", "motivo"),
-        ("Houve incidente ou quase-acidente?", "incidente"),
+        ("Qual regra ou norma está em risco?", "norma", "Ex.: LOTO / NR-10 / EPI"),
+        ("O que a pessoa alega?", "motivo", "Ex.: produção pressionando prazo"),
+        ("Já houve incidente ou quase-acidente?", "incidente", "Ex.: sim, semana passada no painel 3"),
     ],
 }
 
 LABELS_CONTEXTO_PLANTA = {
-    "planta_turno": "Planta / área / turno",
-    "clima_equipe": "Clima da equipe",
-    "historico_colaborador": "Histórico do colaborador",
-    "indicador_meta": "Indicador ou meta afetada",
+    "planta_turno": "Onde isso acontece (área/turno)",
+    "clima_equipe": "Como está o clima",
+    "historico_colaborador": "Como é a pessoa envolvida",
+    "indicador_meta": "O que está sendo prejudicado",
 }
 
 
@@ -75,8 +117,12 @@ def _inicializar_wizard():
 
 
 def renderizar_selecao_tipo() -> str:
-    """Renderiza grid de seleção do tipo de problema. Retorna tipo selecionado."""
-    st.markdown('<p class="wizard-secao-titulo">Tipo de situação</p>', unsafe_allow_html=True)
+    """Renderiza grid de seleção do tipo de problema."""
+    st.markdown(
+        '<p class="wizard-secao-titulo">1. Qual é o tipo da situação?</p>',
+        unsafe_allow_html=True,
+    )
+    st.caption("Escolha o que mais se parece com o seu caso — pode ajustar depois.")
     cols = st.columns(3)
     tipo_atual = st.session_state.get("tipo_wizard", "")
 
@@ -89,6 +135,7 @@ def renderizar_selecao_tipo() -> str:
                 key=f"tipo_{tipo_id}",
                 use_container_width=True,
                 type=tipo_btn,
+                help=info["desc"],
             ):
                 st.session_state.tipo_wizard = tipo_id
                 st.session_state.wizard_respostas = {}
@@ -104,44 +151,38 @@ def renderizar_selecao_tipo() -> str:
 
 
 def renderizar_perguntas_guiadas(tipo: str) -> dict[str, str]:
-    """Renderiza perguntas do wizard para o tipo selecionado."""
+    """Perguntas opcionais, em linguagem simples."""
     if not tipo or tipo not in PERGUNTAS_POR_TIPO:
         return {}
 
-    st.markdown('<p class="wizard-secao-titulo">Detalhes importantes</p>', unsafe_allow_html=True)
     respostas = dict(st.session_state.get("wizard_respostas", {}))
-
-    for pergunta, chave in PERGUNTAS_POR_TIPO[tipo]:
+    for pergunta, chave, placeholder in PERGUNTAS_POR_TIPO[tipo]:
         respostas[chave] = st.text_input(
             pergunta,
             value=respostas.get(chave, ""),
+            placeholder=placeholder,
             key=f"wizard_{tipo}_{chave}",
         )
-
     st.session_state.wizard_respostas = respostas
     return respostas
 
 
 def renderizar_contexto_planta() -> dict[str, str]:
-    """Coleta contexto industrial que melhora a precisão do mentor."""
-    st.markdown(
-        '<p class="wizard-secao-titulo">Contexto da planta</p>',
-        unsafe_allow_html=True,
-    )
+    """Contexto opcional da planta, em perguntas humanas."""
     ctx = dict(st.session_state.get("contexto_planta", {}))
 
     col1, col2 = st.columns(2)
     with col1:
         ctx["planta_turno"] = st.text_input(
-            "Planta, área e turno",
+            LABELS_CONTEXTO_PLANTA["planta_turno"],
             value=ctx.get("planta_turno", ""),
-            placeholder="Ex.: manutenção elétrica, turno B",
+            placeholder="Ex.: elétrica, turno B",
             key="ctx_planta_turno",
         )
         ctx["historico_colaborador"] = st.text_input(
-            "Histórico do colaborador principal",
+            LABELS_CONTEXTO_PLANTA["historico_colaborador"],
             value=ctx.get("historico_colaborador", ""),
-            placeholder="Ex.: sênior, bom tecnicamente, já foi orientado 2x",
+            placeholder="Ex.: sênior, bom tecnicamente, já orientei 2x",
             key="ctx_historico_colaborador",
         )
     with col2:
@@ -150,16 +191,16 @@ def renderizar_contexto_planta() -> dict[str, str]:
             "Tranquilo",
             "Tenso",
             "Há pressão de produção",
-            "Há atuação sindical / clima delicado",
+            "Clima delicado / sindicato",
         ]
         ctx["clima_equipe"] = st.selectbox(
-            "Clima da equipe",
+            LABELS_CONTEXTO_PLANTA["clima_equipe"],
             clima_opcoes,
             index=_indice_select(clima_opcoes, ctx.get("clima_equipe", "")),
             key="ctx_clima_equipe",
         )
         ctx["indicador_meta"] = st.text_input(
-            "Indicador ou meta afetada",
+            LABELS_CONTEXTO_PLANTA["indicador_meta"],
             value=ctx.get("indicador_meta", ""),
             placeholder="Ex.: % OS preenchidas, MTTR, retrabalho",
             key="ctx_indicador_meta",
@@ -175,12 +216,11 @@ def montar_situacao_do_wizard(
     situacao_livre: str,
     contexto_planta: dict[str, str] | None = None,
 ) -> str:
-    """Monta texto final da situação combinando wizard + texto livre + contexto."""
+    """Monta texto final da situação combinando narrativa + detalhes opcionais."""
     partes = []
 
     if tipo and tipo in TIPOS_PROBLEMA:
-        info = TIPOS_PROBLEMA[tipo]
-        partes.append(f"[Tipo: {info['label']}]")
+        partes.append(f"[Tipo: {TIPOS_PROBLEMA[tipo]['label']}]")
 
     if situacao_livre.strip():
         partes.append(situacao_livre.strip())
@@ -190,22 +230,94 @@ def montar_situacao_do_wizard(
             label = LABELS_CONTEXTO_PLANTA.get(chave, chave.replace("_", " ").capitalize())
             partes.append(f"{label}: {str(valor).strip()}")
 
+    labels_resposta = {
+        "envolvidos": "Envolvidos",
+        "tentativas": "O que já foi tentado",
+        "impacto": "Impacto",
+        "info_faltando": "Informação que não chega",
+        "duracao": "Desde quando",
+        "comportamento": "Comportamento observado",
+        "contexto": "Contexto recente",
+        "procedimento": "Procedimento",
+        "motivo": "Motivo alegado",
+        "norma": "Norma/regra",
+        "incidente": "Incidente/quase-acidente",
+    }
     for chave, valor in respostas.items():
         if valor and valor.strip():
-            label = chave.replace("_", " ").capitalize()
+            label = labels_resposta.get(chave, chave.replace("_", " ").capitalize())
             partes.append(f"{label}: {valor.strip()}")
 
     return "\n\n".join(partes)
 
 
-def renderizar_formulario_contexto() -> tuple[str, str, str]:
-    """Renderiza campos de equipe, urgência e descrição livre."""
-    st.markdown('<p class="wizard-secao-titulo">Contexto da equipe</p>', unsafe_allow_html=True)
+def renderizar_narrativa_principal(tipo: str) -> str:
+    """Campo principal: contar o caso com as próprias palavras."""
+    st.markdown(
+        '<p class="wizard-secao-titulo">2. Conte o que está acontecendo</p>',
+        unsafe_allow_html=True,
+    )
+    st.caption(
+        "Pode escrever como fala no dia a dia. Quanto mais concreto (nomes, OS, turno, o que já tentou), melhor a orientação."
+    )
 
+    placeholder = (
+        TIPOS_PROBLEMA.get(tipo, {}).get("exemplo")
+        or "Ex.: um técnico sênior não preenche OS e outros começaram a copiar..."
+    )
+
+    col_a, col_b = st.columns([1, 1])
+    with col_a:
+        if tipo and st.button("Usar um exemplo deste tipo", use_container_width=True):
+            exemplo = TIPOS_PROBLEMA[tipo]["exemplo"]
+            st.session_state[f"situacao_wizard_{st.session_state.get('form_key', 0)}"] = exemplo
+            st.session_state.situacao_wizard = exemplo
+            st.rerun()
+    with col_b:
+        st.caption("O exemplo só ajuda a começar — edite com o seu caso real.")
+
+    situacao_livre = st.text_area(
+        "Sua situação",
+        value=st.session_state.get("situacao_wizard", ""),
+        height=160,
+        placeholder=placeholder,
+        label_visibility="collapsed",
+        key=f"situacao_wizard_{st.session_state.get('form_key', 0)}",
+    )
+    st.session_state.situacao_wizard = situacao_livre
+    return situacao_livre
+
+
+def renderizar_urgencia_equipe() -> tuple[str, str]:
+    """Campos rápidos de urgência e tamanho."""
+    st.markdown(
+        '<p class="wizard-secao-titulo">3. Quão urgente é?</p>',
+        unsafe_allow_html=True,
+    )
     col1, col2 = st.columns(2)
     with col1:
+        urgencia = st.selectbox(
+            "Urgência",
+            [
+                "",
+                "Baixa — posso esperar",
+                "Média — resolver esta semana",
+                "Alta — preciso agir hoje",
+            ],
+            index=_indice_select(
+                [
+                    "",
+                    "Baixa — posso esperar",
+                    "Média — resolver esta semana",
+                    "Alta — preciso agir hoje",
+                ],
+                st.session_state.get("urgencia_wizard", ""),
+            ),
+            key="select_urgencia",
+        )
+    with col2:
         tamanho = st.selectbox(
-            "Tamanho da equipe",
+            "Tamanho da equipe (opcional)",
             ["", "2-5 técnicos", "6-10 técnicos", "11-20 técnicos", "Mais de 20"],
             index=_indice_select(
                 ["", "2-5 técnicos", "6-10 técnicos", "11-20 técnicos", "Mais de 20"],
@@ -213,33 +325,10 @@ def renderizar_formulario_contexto() -> tuple[str, str, str]:
             ),
             key="select_tamanho",
         )
-    with col2:
-        urgencia = st.selectbox(
-            "Urgência",
-            ["", "Baixa — posso esperar", "Média — resolver esta semana", "Alta — preciso agir hoje"],
-            index=_indice_select(
-                ["", "Baixa — posso esperar", "Média — resolver esta semana", "Alta — preciso agir hoje"],
-                st.session_state.get("urgencia_wizard", ""),
-            ),
-            key="select_urgencia",
-        )
-
-    situacao_livre = st.text_area(
-        "Descreva o que está acontecendo",
-        value=st.session_state.get("situacao_wizard", ""),
-        height=140,
-        placeholder=(
-            "Quem está envolvido, o que já foi tentado e qual resultado você espera. "
-            "Cite fatos concretos (OS, turno, datas, conversas)."
-        ),
-        key=f"situacao_wizard_{st.session_state.get('form_key', 0)}",
-    )
-
-    return tamanho, urgencia, situacao_livre
+    return tamanho, urgencia
 
 
 def _indice_select(opcoes: list[str], valor: str) -> int:
-    """Retorna índice da opção na lista ou 0."""
     try:
         return opcoes.index(valor)
     except ValueError:
@@ -248,10 +337,7 @@ def _indice_select(opcoes: list[str], valor: str) -> int:
 
 def renderizar_wizard() -> dict | None:
     """
-    Renderiza wizard completo.
-
-    Returns:
-        Dict com dados do formulário se usuário clicar em analisar, senão None.
+    Wizard humanizado: tipo → narrativa → urgência → detalhes opcionais.
     """
     _inicializar_wizard()
 
@@ -262,28 +348,48 @@ def renderizar_wizard() -> dict | None:
         tipo = renderizar_selecao_tipo()
         if not tipo:
             st.markdown(
-                '<div class="wizard-hint">Selecione um tipo de situação acima para liberar as perguntas guiadas.</div>',
+                '<div class="wizard-hint">Escolha um tipo acima para começar. '
+                "Depois é só contar o caso com suas palavras.</div>",
                 unsafe_allow_html=True,
             )
-        respostas = renderizar_perguntas_guiadas(tipo) if tipo else {}
-        tamanho, urgencia, situacao_livre = renderizar_formulario_contexto()
-        contexto_planta = renderizar_contexto_planta()
+
+        situacao_livre = renderizar_narrativa_principal(tipo)
+        tamanho, urgencia = renderizar_urgencia_equipe()
+
+        respostas: dict[str, str] = {}
+        contexto_planta: dict[str, str] = {}
+        with st.expander("Detalhes opcionais (deixam a orientação mais precisa)", expanded=False):
+            st.caption("Nada aqui é obrigatório. Preencha só o que souber.")
+            if tipo:
+                st.markdown("**Alguns detalhes do caso**")
+                respostas = renderizar_perguntas_guiadas(tipo)
+            st.markdown("**Contexto da planta**")
+            contexto_planta = renderizar_contexto_planta()
 
         situacao_final = montar_situacao_do_wizard(
             tipo, respostas, situacao_livre, contexto_planta
         )
 
+        st.markdown('<div class="wizard-acoes-hint">Pronto? Gere a orientação.</div>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
-            analisar = st.button("Gerar orientação", type="primary", use_container_width=True)
+            analisar = st.button(
+                "Gerar orientação",
+                type="primary",
+                use_container_width=True,
+                disabled=not bool(tipo and situacao_livre.strip()),
+            )
         with col2:
             if st.button("Limpar formulário", use_container_width=True):
                 _limpar_wizard()
                 st.rerun()
 
         if analisar:
-            if not situacao_final.strip():
-                st.warning("Descreva a situação antes de continuar.")
+            if not tipo:
+                st.warning("Escolha o tipo da situação para continuar.")
+                return None
+            if not situacao_livre.strip():
+                st.warning("Conte com suas palavras o que está acontecendo.")
                 return None
             return {
                 "situacao": situacao_final,
@@ -297,7 +403,6 @@ def renderizar_wizard() -> dict | None:
 
 
 def _mapa_categoria_rag(tipo: str) -> str:
-    """Mapeia tipo de problema para categoria da base de conhecimento."""
     mapa = {
         "seguranca": "normas",
         "processo": "processos",
@@ -310,7 +415,6 @@ def _mapa_categoria_rag(tipo: str) -> str:
 
 
 def _limpar_wizard():
-    """Limpa estado do wizard e resultado."""
     st.session_state.resultado = None
     st.session_state.form_key = st.session_state.get("form_key", 0) + 1
     st.session_state.tipo_wizard = ""

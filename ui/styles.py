@@ -363,6 +363,12 @@ div[data-testid="stDecoration"] {
     color: var(--color-ink-body);
     margin: 0.55rem 0 1.1rem;
 }
+.wizard-acoes-hint {
+    margin: 1.25rem 0 0.65rem;
+    font-size: 0.92rem;
+    color: var(--color-ink-muted);
+    font-weight: 500;
+}
 .wizard-hint {
     background: var(--color-surface);
     border: 1px dashed var(--color-border);
