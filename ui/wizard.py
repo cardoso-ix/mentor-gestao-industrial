@@ -9,12 +9,12 @@ import streamlit as st
 from ui.fluxo import renderizar_passos_wizard
 
 TIPOS_PROBLEMA = {
-    "lideranca": {"label": "Liderança", "icone": "👔", "desc": "Autoridade, motivação, transição técnico→gestor"},
-    "comunicacao": {"label": "Comunicação", "icone": "💬", "desc": "Alinhamento, feedback, informação"},
-    "conflito": {"label": "Conflito", "icone": "⚡", "desc": "Desentendimentos, resistência, atrito"},
-    "desempenho": {"label": "Desempenho", "icone": "📊", "desc": "Produtividade, qualidade, cumprimento"},
-    "processo": {"label": "Processo", "icone": "⚙️", "desc": "OS, PCM, procedimentos, fluxos"},
-    "seguranca": {"label": "Segurança", "icone": "🦺", "desc": "EPI, NR, lockout, permissão de trabalho"},
+    "lideranca": {"label": "Liderança", "desc": "Autoridade, motivação, transição técnico→gestor"},
+    "comunicacao": {"label": "Comunicação", "desc": "Alinhamento, feedback, informação"},
+    "conflito": {"label": "Conflito", "desc": "Desentendimentos, resistência, atrito"},
+    "desempenho": {"label": "Desempenho", "desc": "Produtividade, qualidade, cumprimento"},
+    "processo": {"label": "Processo", "desc": "OS, PCM, procedimentos, fluxos"},
+    "seguranca": {"label": "Segurança", "desc": "EPI, NR, lockout, permissão de trabalho"},
 }
 
 PERGUNTAS_POR_TIPO = {
@@ -85,7 +85,7 @@ def renderizar_selecao_tipo() -> str:
             selecionado = tipo_atual == tipo_id
             tipo_btn = "primary" if selecionado else "secondary"
             if st.button(
-                f"{info['icone']} {info['label']}",
+                info["label"],
                 key=f"tipo_{tipo_id}",
                 use_container_width=True,
                 type=tipo_btn,
@@ -256,7 +256,7 @@ def renderizar_wizard() -> dict | None:
     _inicializar_wizard()
 
     st.markdown('<div class="wizard-panel-marker" aria-hidden="true"></div>', unsafe_allow_html=True)
-    with st.container(border=True):
+    with st.container():
         renderizar_passos_wizard(st.session_state.get("tipo_wizard", ""))
 
         tipo = renderizar_selecao_tipo()

@@ -2,143 +2,89 @@
 name: Mentor de Gestão Industrial
 description: Ferramenta de mentoria para supervisores de manutenção industrial
 colors:
-  primary: "#e67e22"
-  primary-bright: "#eb8f3a"
+  primary: "#d97706"
+  primary-bright: "#f59e0b"
   primary-deep: "#b45309"
-  primary-light: "#f8f3ed"
-  primary-border: "#e5d0b8"
-  ink: "#0f172a"
-  ink-secondary: "#1e293b"
-  ink-body: "#334155"
-  ink-muted: "#5c6b7a"
-  ink-caption: "#8a9baa"
+  primary-light: "#fff7ed"
+  primary-border: "#fdba74"
+  ink: "#0c0a09"
+  ink-secondary: "#1c1917"
+  ink-body: "#44403c"
+  ink-muted: "#78716c"
+  ink-caption: "#a8a29e"
   surface: "#ffffff"
-  surface-subtle: "#f7f9fb"
-  surface-muted: "#eef2f6"
-  border: "#d8e0e8"
-  hero-from: "#4a2f1a"
-  hero-to: "#7a4520"
-  hero-muted: "#e8c9a8"
-  hero-subtitle: "#f5e6d8"
-  complete-bg: "#faefe3"
-  complete-ink: "#7a4520"
-  complete-border: "#e5c49a"
-  confirm-bg: "#faefe3"
-  confirm-ink: "#9a4a18"
-  confirm-border: "#e5c49a"
-  warning-bg: "#faf3eb"
-  warning-ink: "#92400e"
-  active-bg: "#fdf4ea"
-  active-ink: "#9a3412"
-  tipo-lideranca: "#6b4423"
-  tipo-comunicacao: "#7a4e28"
-  tipo-conflito: "#a84832"
-  tipo-desempenho: "#c76a2a"
-  tipo-processo: "#8b5a32"
-  tipo-seguranca: "#8b3a32"
+  surface-subtle: "#f5f5f4"
+  surface-muted: "#e7e5e4"
+  border: "#d6d3d1"
+  page-from: "#fafaf9"
+  page-to: "#f5f5f4"
+  hero-from: "#1c1917"
+  hero-to: "#44403c"
+  hero-muted: "#fdba74"
+  hero-subtitle: "#e7e5e4"
 typography:
+  display:
+    fontFamily: "Space Grotesk, sans-serif"
+    fontWeight: 700
   body:
-    fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif"
+    fontFamily: "DM Sans, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
-    lineHeight: 1.55
+    lineHeight: 1.6
   heading-hero:
-    fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif"
-    fontSize: "clamp(1.5rem, 3vw, 2rem)"
+    fontFamily: "Space Grotesk, sans-serif"
+    fontSize: "clamp(2rem, 4.8vw, 3.15rem)"
     fontWeight: 700
-    lineHeight: 1.2
-  label-caps:
-    fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif"
-    fontSize: "0.78rem"
-    fontWeight: 500
-    lineHeight: 1.4
-    letterSpacing: "0.04em"
-  metric-value:
-    fontFamily: "system-ui, -apple-system, 'Segoe UI', sans-serif"
-    fontSize: "1.3rem"
-    fontWeight: 700
-    lineHeight: 1.2
+    lineHeight: 1.05
 rounded:
-  sm: "8px"
+  sm: "6px"
   md: "10px"
-  lg: "12px"
-  xl: "16px"
+  lg: "14px"
+  xl: "20px"
 spacing:
-  xs: "0.45rem"
+  xs: "0.5rem"
   sm: "0.85rem"
   md: "1.25rem"
-  lg: "1.5rem"
-  xl: "2rem"
-components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "#ffffff"
-    rounded: "{rounded.sm}"
-    padding: "0.75rem 1.25rem"
-  hero-container:
-    backgroundColor: "{colors.hero-from}"
-    textColor: "#ffffff"
-    rounded: "{rounded.xl}"
-    padding: "{spacing.xl} 2.5rem"
-  metric-card:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.lg}"
-    padding: "{spacing.md} 1.25rem"
-  proximo-passo-card:
-    backgroundColor: "{colors.primary-light}"
-    textColor: "{colors.ink-secondary}"
-    rounded: "{rounded.lg}"
-    padding: "1.1rem 1.25rem"
+  lg: "1.75rem"
+  xl: "2.5rem"
 ---
 
 ## Overview
 
-Interface de produto (Streamlit) com tema claro, acento laranja industrial e hero em azul-marinho. Layout centrado (max-width ~1000px), wizard em etapas e painel de resultados em abas. Visual profissional para ambiente de planta — não marketing, não chatbot.
+Interface Streamlit com direção **industrial moderna**: tipografia expressiva, neutros frios, acento cobre e hero full-bleed. Menos caixas, mais hierarquia tipográfica. Continua ferramenta de planta — não landing de marketing genérica.
 
 ## Colors
 
-Paleta **restrained** unificada na família **cobre/laranja**: fundos quentes claros, hero em bronze profundo (`#4a2f1a` → `#7a4520`), laranja `#e67e22` para CTA e ênfase. Sem azul marinho — toda a interface conversa com o laranja.
+- Base: stone frio (`#fafaf9` → `#f5f5f4`)
+- Texto: quase preto (`#0c0a09`) e corpo `#44403c`
+- Acento/CTA: cobre `#d97706`
+- Hero: grafite `#1c1917` → `#44403c` com trama diagonal sutil
 
-Cores semânticas por tipo de problema (liderança, conflito, etc.) usadas no topo dos cards de métrica (`border-top: 3px`), nunca como faixa lateral grossa.
-
-Contraste mínimo: texto corpo `#334155` sobre `#ffffff` ou `#f8fafc` (≥4.5:1).
+Evitar roxo, neon, cream+terracota clássico de templates de IA.
 
 ## Typography
 
-Família do sistema (`system-ui`, Segoe UI). Sem fontes externas.
+- Display/marca: **Space Grotesk**
+- Corpo/UI: **DM Sans**
+- Marca no hero é o sinal dominante; subtítulo curto, sem competir
 
-- Títulos hero: clamp até 2rem, peso 700
-- Corpo: 1rem, line-height 1.55
-- Labels de métrica: uppercase pequeno com letter-spacing 0.04em
-- Evitar hero/display acima de 2rem neste produto (ferramenta, não landing)
+## Layout principles
 
-## Elevation
-
-Sombras sutis: cards com `0 1px 6px rgba(15, 23, 42, 0.06)`; hero com `0 8px 28px rgba(15, 45, 74, 0.18)`. Sem glassmorphism. Bordas `1px solid #e2e8f0` para separação de superfícies.
-
-## Components
-
-- **Hero**: gradiente azul, benefícios em chips semitransparentes
-- **Wizard**: grid 3 colunas de tipos, formulário em etapas numeradas
-- **Métricas**: 3 cards (Tema, Nível, Especialistas)
-- **Próximo passo**: card laranja claro com borda de destaque
-- **Abas**: Diagnóstico, Estratégia, Conversa, Plano
-- **Sidebar**: oculta por padrão, revela no hover (andamento da análise)
-- **Botão primário**: gradiente laranja `#f08a2e` → `#e67e22`
+- Hero full-bleed com atmosfera (gradiente + trama), não flat
+- Wizard sem card pesado; seções por tipografia
+- Métricas como meta strip (sem cards)
+- Prioridade 24h como destaque tipográfico com filete lateral
+- Motion sutil: entrada do hero, revelação do resultado, pulso da etapa ativa
 
 ## Do's and Don'ts
 
 **Do**
-- Manter fundo claro e texto escuro legível
-- Usar laranja só para CTA e destaques de prioridade
-- Preservar hierarquia wizard → progresso → resultado
-- Escrever rótulos em português brasileiro formal
+- Manter marca no hero em tamanho display
+- Usar cobre só em CTA e ênfase
+- Preservar fluxo wizard → progresso → parecer
 
 **Don't**
-- Dark mode agressivo ou neon estilo gamer
-- Gradient text, glassmorphism decorativo, hero-metrics template
-- Cards idênticos em grid infinito sem hierarquia
-- Eyebrows uppercase em todas as seções
-- Faixas `border-left` grossas como único diferencial visual de card (anti-padrão Impeccable)
-- Fontes externas que atrasem a abertura sem ganho claro
+- Dark mode agressivo
+- Grid infinito de cards
+- Emojis como decoração de categoria
+- Sombras em múltiplas camadas / glow

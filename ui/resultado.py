@@ -6,7 +6,6 @@ import streamlit as st
 
 from ui.export_utils import extrair_passos_plano, gerar_pdf_relatorio
 from ui.i18n import rotulo_complexidade, rotulo_tipo
-from ui.styles import classe_tipo_problema, cor_tipo_problema
 from ui.text_utils import (
     escapar_html,
     extrair_proximo_passo,
@@ -22,20 +21,18 @@ def _renderizar_metricas(analise: dict, num_agentes: int):
     tipo_raw = analise.get("tipo_problema", "")
     tipo = rotulo_tipo(tipo_raw)
     complexidade = rotulo_complexidade(analise.get("complexidade", ""))
-    classe = classe_tipo_problema(tipo_raw)
-    cor = cor_tipo_problema(tipo_raw)
 
-    cols = st.columns(3)
-    for col, (titulo, valor) in zip(
-        cols,
-        [("Tema", tipo), ("Nível", complexidade), ("Especialistas", str(num_agentes))],
-    ):
-        with col:
-            st.markdown(
-                f'<div class="metric-card {classe}" style="--metric-accent:{cor};">'
-                f"<h4>{titulo}</h4><p>{valor}</p></div>",
-                unsafe_allow_html=True,
-            )
+    st.markdown(
+        '<div class="resultado-meta" role="group" aria-label="Resumo do caso">'
+        f'<div class="resultado-meta__item"><p class="resultado-meta__label">Tema</p>'
+        f'<p class="resultado-meta__value">{escapar_html(tipo)}</p></div>'
+        f'<div class="resultado-meta__item"><p class="resultado-meta__label">Nível</p>'
+        f'<p class="resultado-meta__value">{escapar_html(complexidade)}</p></div>'
+        f'<div class="resultado-meta__item"><p class="resultado-meta__label">Especialistas</p>'
+        f'<p class="resultado-meta__value">{num_agentes}</p></div>'
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
 
 def _renderizar_blocos(texto: str):
@@ -102,10 +99,9 @@ def renderizar_resultado(resultado):
     with st.container(border=True):
         st.markdown(
             '<div class="resultado-shell__header">'
-            '<p class="resultado-shell__titulo">Orientação gerada</p>'
-            f'<span class="resultado-shell__meta">{num_agentes} especialistas consultados</span>'
-            "</div>"
-            '<div class="resultado-banner">Pronta para consulta e exportação.</div>',
+            '<p class="resultado-shell__titulo">Parecer pronto</p>'
+            f'<span class="resultado-shell__meta">{num_agentes} especialistas</span>'
+            "</div>",
             unsafe_allow_html=True,
         )
         _renderizar_metricas(analise, num_agentes)
