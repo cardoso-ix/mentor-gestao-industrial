@@ -14,7 +14,7 @@ def renderizar_passos_wizard(tipo_selecionado: str) -> None:
     else:
         estados = ("active", "pending", "pending")
 
-    labels = ("Tipo de situação", "Detalhes", "Contexto operacional")
+    labels = ("Tipo", "Seu relato", "Detalhes opcionais")
     partes = ['<div class="fluxo-passos" role="list">']
     for i, (estado, label) in enumerate(zip(estados, labels), start=1):
         partes.append(

@@ -22,17 +22,16 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
 ## Passo a passo do teste
 
 1. Abra a demo (ou rode local: `streamlit run main.py`) e aguarde a tela inicial carregar.
-2. Cole uma situação curta, por exemplo:
-
-   > Um técnico experiente se recusa a preencher a ordem de serviço após as intervenções. Outros técnicos começaram a copiar o comportamento.
-
-3. Clique em **Analisar situação** **uma vez** e aguarde (1–3 min).
-4. Preencha também o **Contexto da planta** (turno, clima, histórico, indicador), se souber.
-5. Verifique:
-   - Barra de progresso avança (inclui “Redigindo parecer executivo”)
+2. Conte a situação **com suas palavras** (pode usar o botão de exemplo do tipo).
+3. Ajuste a urgência. Detalhes opcionais só se quiser.
+4. Clique em **Gerar orientação** **uma vez** e aguarde (1–3 min).
+5. Preencha também o **Contexto da planta** (turno, clima, histórico, indicador), se souber — está em “Detalhes opcionais”.
+6. Verifique:
+   - Barra de progresso avança (inclui “Redigindo e validando parecer”)
    - **Parecer executivo** no topo, com tom de mentor sênior e sem frase cortada
    - Abas **Diagnóstico**, **Estratégia**, **Conversa**, **Plano** com conteúdo
    - Sem caixa vermelha de erro
+   - PDF com passo a passo completo
 
 ## Se der erro de rate limit
 

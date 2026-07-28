@@ -19,6 +19,7 @@ import config
 from agents.analista import criar_agente_analista, criar_task_analista
 from agents.comunicacao import criar_agente_comunicacao, criar_task_comunicacao
 from agents.editor import criar_agente_editor, criar_task_editor
+from agents.qualidade import avaliar_parecer, criar_agente_revisor, criar_task_revisao_qualidade
 from agents.estrategista import criar_agente_estrategista, criar_task_estrategista
 from agents.plano_acao import criar_agente_plano_acao, criar_task_plano_acao
 from rag import consultar_base, garantir_base_indexada
@@ -221,6 +222,38 @@ def _montar_relatorio_local(
     return montar_visao_geral_profissional(analise, plano_acao, estrategia)
 
 
+def _revisar_parecer_se_preciso(situacao: str, parecer: str) -> str:
+    """Aplica checklist de qualidade e, se falhar, tenta uma reescrita focada."""
+    avaliacao = avaliar_parecer(parecer, situacao)
+    if avaliacao.ok:
+        return parecer
+
+    try:
+        agente = criar_agente_revisor()
+        task = criar_task_revisao_qualidade(
+            agente,
+            situacao=situacao,
+            parecer_atual=_limitar_contexto(parecer, 3500),
+            falhas=avaliacao.falhas,
+        )
+        crew = Crew(
+            agents=[agente],
+            tasks=[task],
+            process=Process.sequential,
+            verbose=False,
+        )
+        saida = _executar_crew_com_retry(crew)
+        revisado = _extrair_texto_task(saida).strip()
+        if revisado and len(revisado) >= 120:
+            # Aceita se melhorou ou pelo menos manteve estrutura útil
+            nova = avaliar_parecer(revisado, situacao)
+            if nova.ok or len(nova.falhas) <= len(avaliacao.falhas):
+                return revisado
+    except Exception:
+        pass
+    return parecer
+
+
 def _gerar_relatorio_com_editor(
     situacao: str,
     analise: dict,
@@ -248,7 +281,7 @@ def _gerar_relatorio_com_editor(
     texto = _extrair_texto_task(saida).strip()
     if not texto or len(texto) < 80:
         raise ValueError("Parecer do editor veio vazio ou incompleto")
-    return texto
+    return _revisar_parecer_se_preciso(situacao, texto)
 
 
 def _gerar_relatorio_consolidado(
@@ -426,8 +459,8 @@ def executar_mentoria(
             saida = _executar_crew_com_retry(crew_plano)
             resultado.plano_acao = _extrair_texto_task(saida)
 
-        # Etapa 7: Parecer executivo consolidado (editor LLM + fallback local)
-        progresso("Redigindo parecer executivo...", 0.92)
+        # Etapa 7: Parecer executivo consolidado (editor + checklist de qualidade)
+        progresso("Redigindo e validando parecer...", 0.92)
         resultado.relatorio_consolidado = _gerar_relatorio_consolidado(
             situacao,
             analise,
