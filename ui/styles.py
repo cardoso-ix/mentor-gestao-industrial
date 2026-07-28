@@ -737,16 +737,28 @@ div[data-testid="stExpander"]:focus-within {
     box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.16) !important;
 }
 
+/* Barra de progresso Streamlit — só o trilho (sem texto sobreposto) */
+div[data-testid="stProgress"] {
+    margin: 0.35rem 0 0.85rem 0 !important;
+}
 div[data-testid="stProgress"] > div {
     background: var(--color-surface-muted) !important;
     border-radius: 999px !important;
     overflow: hidden !important;
-    height: 0.45rem !important;
+    height: 0.5rem !important;
+    min-height: 0.5rem !important;
 }
 div[data-testid="stProgress"] > div > div {
     background: linear-gradient(90deg, var(--color-primary-bright), var(--color-primary)) !important;
     border-radius: 999px !important;
     transition: width var(--dur-moderate) var(--ease-out-quart) !important;
+    min-height: 0.5rem !important;
+}
+/* Esconde rótulo nativo se alguma versão do Streamlit ainda injetar texto na barra */
+div[data-testid="stProgress"] p,
+div[data-testid="stProgress"] [data-testid="stMarkdownContainer"],
+div[data-testid="stProgress"] span[class*="progress"] {
+    display: none !important;
 }
 
 div[data-testid="stAlert"] { border-radius: var(--radius-md) !important; }
