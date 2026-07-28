@@ -32,23 +32,31 @@ def _ler_chave(nome: str, padrao: str = "") -> str:
 
 def refresh_secrets() -> None:
     """Recarrega chaves após o Streamlit disponibilizar os secrets."""
-    global GROQ_API_KEY, SERPER_API_KEY
-    GROQ_API_KEY = _ler_chave("GROQ_API_KEY")
+    global OPENROUTER_API_KEY, SERPER_API_KEY
+    OPENROUTER_API_KEY = _ler_chave("OPENROUTER_API_KEY")
     SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
 
 
 # --- Chaves de API ---
-GROQ_API_KEY = _ler_chave("GROQ_API_KEY")
+OPENROUTER_API_KEY = _ler_chave("OPENROUTER_API_KEY")
 SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
 
-# --- Modelo LLM na Groq ---
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-GROQ_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS", "2048"))
+# --- Modelo LLM na OpenRouter (variante free — $0/token) ---
+# Alternativas: openrouter/free | google/gemma-4-31b-it:free | openai/gpt-oss-20b:free
+# Nota: a lista :free muda com frequência; confira em https://openrouter.ai/models
+OPENROUTER_MODEL = os.getenv(
+    "OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free"
+)
+OPENROUTER_MAX_TOKENS = int(os.getenv("OPENROUTER_MAX_TOKENS", "2048"))
 
-# Pausa entre agentes e retentativas (tier gratuito Groq ~30 req/min)
-GROQ_PAUSE_ENTRE_AGENTES = float(os.getenv("GROQ_PAUSE_ENTRE_AGENTES", "2"))
-GROQ_RATE_LIMIT_RETRIES = int(os.getenv("GROQ_RATE_LIMIT_RETRIES", "4"))
-GROQ_RATE_LIMIT_ESPERA_BASE = float(os.getenv("GROQ_RATE_LIMIT_ESPERA_BASE", "8"))
+# Pausa entre agentes e retentativas (OpenRouter free: 20 req/min, 50 req/dia sem créditos)
+OPENROUTER_PAUSE_ENTRE_AGENTES = float(
+    os.getenv("OPENROUTER_PAUSE_ENTRE_AGENTES", "3")
+)
+OPENROUTER_RATE_LIMIT_RETRIES = int(os.getenv("OPENROUTER_RATE_LIMIT_RETRIES", "4"))
+OPENROUTER_RATE_LIMIT_ESPERA_BASE = float(
+    os.getenv("OPENROUTER_RATE_LIMIT_ESPERA_BASE", "10")
+)
 
 # --- Caminhos de arquivos e pastas ---
 KNOWLEDGE_BASE_DIR = Path(os.getenv("KNOWLEDGE_BASE_DIR", BASE_DIR / "knowledge_base"))

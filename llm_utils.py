@@ -1,11 +1,12 @@
 """
 Factory do LLM compatível com a versão atual do CrewAI.
 
-O CrewAI não aceita mais ChatGroq (LangChain) diretamente no parâmetro llm.
-Usamos crewai.LLM com o prefixo groq/ (via LiteLLM).
+O CrewAI não aceita mais wrappers LangChain diretamente no parâmetro llm.
+Usamos crewai.LLM com o prefixo openrouter/ (via LiteLLM).
 
 Correção: CrewAI marca mensagens com cache_breakpoint (recurso Anthropic).
-A API Groq rejeita esse campo — GroqLLM remove antes de cada chamada.
+Vários provedores da OpenRouter rejeitam esse campo — OpenRouterLLM remove
+antes de cada chamada.
 """
 
 from __future__ import annotations
@@ -28,14 +29,14 @@ except ImportError:
 import config
 
 
-class GroqLLM(LLM):
-    """LLM Groq que remove campos incompatíveis injetados pelo CrewAI."""
+class OpenRouterLLM(LLM):
+    """LLM OpenRouter que remove campos incompatíveis injetados pelo CrewAI."""
 
     @staticmethod
     def _remover_cache_breakpoint(
         messages: str | list[LLMMessage],
     ) -> str | list[LLMMessage]:
-        """Remove cache_breakpoint das mensagens (não suportado pela Groq)."""
+        """Remove cache_breakpoint das mensagens (não suportado pela maioria dos free models)."""
         if isinstance(messages, str):
             return messages
 
@@ -55,7 +56,7 @@ class GroqLLM(LLM):
         tools: list | None = None,
         skip_file_processing: bool = False,
     ) -> dict[str, Any]:
-        """Prepara parâmetros da chamada removendo campos rejeitados pela Groq."""
+        """Prepara parâmetros da chamada removendo campos rejeitados pela OpenRouter."""
         return super()._prepare_completion_params(
             self._remover_cache_breakpoint(messages),
             tools=tools,
@@ -63,29 +64,32 @@ class GroqLLM(LLM):
         )
 
 
-def criar_llm(temperature: float = 0.3) -> GroqLLM:
+def criar_llm(temperature: float = 0.3) -> OpenRouterLLM:
     """
-    Cria instância do LLM Groq para uso nos agentes CrewAI.
+    Cria instância do LLM OpenRouter (modelo free) para uso nos agentes CrewAI.
 
     Args:
         temperature: Criatividade das respostas (0.0 = mais determinístico).
 
     Returns:
-        Instância GroqLLM configurada para Groq.
+        Instância OpenRouterLLM configurada para OpenRouter.
     """
-    if not config.GROQ_API_KEY or config.GROQ_API_KEY == "sua_chave_groq_aqui":
-        raise ValueError("GROQ_API_KEY não configurada no arquivo .env")
+    if (
+        not config.OPENROUTER_API_KEY
+        or config.OPENROUTER_API_KEY == "sua_chave_openrouter_aqui"
+    ):
+        raise ValueError("OPENROUTER_API_KEY não configurada no arquivo .env")
 
-    # LiteLLM/Groq também lê GROQ_API_KEY do ambiente
-    os.environ["GROQ_API_KEY"] = config.GROQ_API_KEY
+    # LiteLLM lê OPENROUTER_API_KEY do ambiente
+    os.environ["OPENROUTER_API_KEY"] = config.OPENROUTER_API_KEY
 
-    modelo = config.GROQ_MODEL
-    if not modelo.startswith("groq/"):
-        modelo = f"groq/{modelo}"
+    modelo = config.OPENROUTER_MODEL
+    if not modelo.startswith("openrouter/"):
+        modelo = f"openrouter/{modelo}"
 
-    return GroqLLM(
+    return OpenRouterLLM(
         model=modelo,
-        api_key=config.GROQ_API_KEY,
+        api_key=config.OPENROUTER_API_KEY,
         temperature=temperature,
-        max_tokens=config.GROQ_MAX_TOKENS,
+        max_tokens=config.OPENROUTER_MAX_TOKENS,
     )

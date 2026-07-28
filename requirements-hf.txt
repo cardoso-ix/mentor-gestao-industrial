@@ -3,9 +3,7 @@
 
 crewai==1.15.1
 
-groq>=0.13.0
 litellm>=1.60.0
-langchain-groq>=0.2.0
 langchain-community>=0.3.0
 langchain-core>=0.3.0
 langchain-text-splitters>=0.3.0

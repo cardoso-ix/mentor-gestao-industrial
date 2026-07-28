@@ -2,10 +2,8 @@
 # Versões alinhadas com o deploy em Hugging Face (ver requirements-hf.txt)
 crewai==1.15.1
 
-# LLM (Groq via CrewAI/LiteLLM)
-groq>=0.13.0
+# LLM (OpenRouter via CrewAI/LiteLLM)
 litellm>=1.60.0
-langchain-groq>=0.2.0
 langchain-community>=0.3.0
 langchain-core>=0.3.0
 langchain-text-splitters>=0.3.0

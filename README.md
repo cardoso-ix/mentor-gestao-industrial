@@ -21,7 +21,7 @@ Quando você descreve uma situação de liderança em linguagem natural, quatro 
 | Componente | Tecnologia |
 |------------|------------|
 | Orquestração multi-agente | CrewAI |
-| LLM | Groq — `llama-3.3-70b-versatile` (gratuito) |
+| LLM | OpenRouter Free — `google/gemma-4-26b-a4b-it:free` |
 | Busca web | Serper API (processo e segurança) |
 | Interface | Streamlit |
 | Base de conhecimento | ChromaDB + PDFs locais |
@@ -63,7 +63,7 @@ mentor-gestao-industrial/
 ├── config.py               # Configurações centralizadas
 ├── rag.py                  # Ingestão e consulta RAG
 ├── orchestrator.py         # Orquestrador multi-agente
-├── llm_utils.py            # LLM Groq compatível com CrewAI
+├── llm_utils.py            # LLM OpenRouter compatível com CrewAI
 ├── main.py                 # Interface Streamlit
 ├── requirements.txt        # Dependências locais / VPS
 ├── requirements-hf.txt     # Dependências otimizadas para Hugging Face
@@ -77,7 +77,7 @@ mentor-gestao-industrial/
 ## Pré-requisitos
 
 - **Python 3.11 ou 3.12** (desenvolvimento local — o CrewAI ainda não suporta Python 3.14)
-- Conta na [Groq](https://console.groq.com) (API key gratuita)
+- Conta na [OpenRouter](https://openrouter.ai/keys) (API key; modelos `:free` sem custo por token)
 - Conta na [Serper](https://serper.dev) (busca web — plano gratuito disponível)
 - Docker e Docker Compose (deploy na VPS — **recomendado também no Windows** se você tiver Python 3.14)
 
@@ -99,13 +99,13 @@ cp .env.example .env
 ```
 
 ```env
-GROQ_API_KEY=gsk_sua_chave_real_aqui
+OPENROUTER_API_KEY=sk-or-sua_chave_real_aqui
 SERPER_API_KEY=sua_chave_serper_real_aqui
-GROQ_MODEL=llama-3.3-70b-versatile
+OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
 ```
 
 **Onde obter as chaves:**
-- Groq: https://console.groq.com → API Keys → Create API Key
+- OpenRouter: https://openrouter.ai/keys → Create API Key
 - Serper: https://serper.dev → Dashboard → API Key
 
 ### 3. Adicione PDFs à base de conhecimento
@@ -192,13 +192,13 @@ Cada análise é independente — o sistema não mantém histórico de conversas
 
 ## Limitações e avisos
 
-### Rate limit da Groq (tier gratuito)
+### Rate limit da OpenRouter (modelos free)
 
-Cada análise faz **várias chamadas** ao LLM (Analista + agentes especializados). O plano gratuito limita requisições por minuto. O orquestrador faz **pausa entre agentes** e **retry automático**; se ainda falhar, aguarde 1–2 minutos antes de tentar de novo.
+Cada análise faz **várias chamadas** ao LLM (Analista + agentes especializados). Nos modelos `:free`: **20 req/min** e **50 req/dia** sem créditos (sobe para **1.000/dia** após comprar ≥ US$ 10 em créditos). O orquestrador faz **pausa entre agentes** e **retry automático**; se ainda falhar, aguarde e tente de novo.
 
 ### App público
 
-Por padrão o sistema não tem autenticação. Qualquer pessoa com o link pode usar suas APIs. Monitore o uso nas dashboards da Groq e Serper.
+Por padrão o sistema não tem autenticação. Qualquer pessoa com o link pode usar suas APIs. Monitore o uso nas dashboards da OpenRouter e Serper.
 
 ### Embeddings locais
 
@@ -206,7 +206,7 @@ A primeira indexação de muitos PDFs pode demorar alguns minutos. Indexações 
 
 ### Modelo LLM
 
-O Llama 3.1 70B foi descontinuado na Groq. Este projeto usa o **Llama 3.3 70B Versatile**, substituto oficial com qualidade igual ou superior.
+O projeto usa o **Gemma 4 26B** na variante free da OpenRouter (`google/gemma-4-26b-a4b-it:free`). A lista de modelos `:free` muda com frequência. Para o router automático, defina `OPENROUTER_MODEL=openrouter/free`.
 
 ## Exemplo de uso
 

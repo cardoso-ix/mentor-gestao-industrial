@@ -9,12 +9,14 @@ _PADROES_ERRO = (
     r"litellm\.?",
     r"RateLimitError",
     r"GroqException",
+    r"OpenRouterException",
     r"rate_limit",
     r"síntese automática indisponível",
     r"Relatório simplificado",
     r"organization\s+:",
     r"tokens per day",
     r"console\.groq\.com",
+    r"openrouter\.ai",
 )
 
 _MAPA_TIPO = {
@@ -137,6 +139,50 @@ def formatar_em_blocos(texto: str) -> list[dict[str, str]]:
     return blocos
 
 
+def truncar_em_frase(texto: str, limite: int) -> str:
+    """Corta texto no limite sem partir palavra nem frase no meio."""
+    texto = (texto or "").strip()
+    if not texto or len(texto) <= limite:
+        return texto
+
+    janela = texto[:limite]
+    melhor = -1
+    for sep in (". ", "! ", "? ", ".\n", "!\n", "?\n"):
+        idx = janela.rfind(sep)
+        if idx > melhor and idx >= 60:
+            melhor = idx
+    if melhor >= 0:
+        return janela[: melhor + 1].strip()
+
+    corte = janela.rsplit(" ", 1)[0].rstrip(".,;:")
+    return (corte or janela.rstrip()) + "..."
+
+
+def _primeiro_paragrafo_util(texto: str) -> str:
+    """Pega o primeiro parágrafo substantivo (pula títulos curtos)."""
+    for linha in limpar_markdown(texto or "").split("\n"):
+        linha = linha.strip()
+        if not linha or linha.endswith(":"):
+            continue
+        if len(linha) <= 40:
+            continue
+        if linha.startswith("- ") and len(linha) < 60:
+            continue
+        return linha
+    return limpar_markdown(texto or "").strip()
+
+
+def _formatar_prioridade(passo: str) -> str:
+    """Normaliza o 1º passo do plano para a síntese executiva."""
+    acao = limpar_markdown(passo or "")
+    if not acao:
+        return ""
+    acao = re.sub(r"\s*—\s*-\s*O que fazer:\s*", ": ", acao, flags=re.I)
+    acao = re.sub(r"\s*-\s*O que fazer:\s*", ": ", acao, flags=re.I)
+    acao = re.sub(r"\s{2,}", " ", acao).strip()
+    return truncar_em_frase(acao, 420)
+
+
 def montar_visao_geral_profissional(
     analise: dict,
     plano_acao: str = "",
@@ -157,13 +203,9 @@ def montar_visao_geral_profissional(
     comp = (analise or {}).get("complexidade", "média")
     partes.append(f"Classificação: {tipo} — complexidade {comp}.")
 
-    trecho_estrategia = limpar_markdown(estrategia or "")
-    if trecho_estrategia:
-        linhas = [l.strip() for l in trecho_estrategia.split("\n") if l.strip()]
-        for linha in linhas:
-            if len(linha) > 40 and not linha.endswith(":"):
-                partes.append(linha[:500])
-                break
+    trecho = _primeiro_paragrafo_util(estrategia or "")
+    if trecho:
+        partes.append(truncar_em_frase(trecho, 900))
 
     justificativa = limpar_markdown((analise or {}).get("justificativa", ""))
     if justificativa and len(justificativa) > 20:
@@ -171,9 +213,9 @@ def montar_visao_geral_profissional(
 
     passos = extrair_passos_plano(plano_acao or "")
     if passos:
-        acao = limpar_markdown(passos[0])
-        if acao:
-            partes.append(f"Prioridade imediata: {acao}")
+        prioridade = _formatar_prioridade(passos[0])
+        if prioridade:
+            partes.append(f"Prioridade imediata: {prioridade}")
 
     return "\n\n".join(partes)
 
@@ -183,14 +225,14 @@ def extrair_proximo_passo(resultado) -> str:
 
     passos = extrair_passos_plano(getattr(resultado, "plano_acao", "") or "")
     if passos:
-        candidato = limpar_markdown(passos[0])
+        candidato = _formatar_prioridade(passos[0])
         if candidato and not contem_erro_tecnico(candidato):
-            return candidato[:320]
+            return truncar_em_frase(candidato, 320)
 
     analise = getattr(resultado, "analise", None) or {}
     resumo = limpar_markdown(analise.get("resumo", ""))
     if resumo and not contem_erro_tecnico(resumo):
-        return resumo[:320]
+        return truncar_em_frase(resumo, 320)
 
     return ""
 

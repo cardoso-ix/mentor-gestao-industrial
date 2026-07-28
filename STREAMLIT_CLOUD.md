@@ -31,7 +31,7 @@
 4. Em **Secrets**:
 
 ```toml
-GROQ_API_KEY = "sua_chave_groq"
+OPENROUTER_API_KEY = "sua_chave_openrouter"
 SERPER_API_KEY = "sua_chave_serper"
 ```
 

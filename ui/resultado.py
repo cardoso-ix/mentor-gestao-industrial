@@ -14,6 +14,7 @@ from ui.text_utils import (
     limpar_markdown,
     montar_visao_geral_profissional,
     sanitizar_para_exibicao,
+    truncar_em_frase,
 )
 
 
@@ -66,7 +67,7 @@ def _renderizar_checklist(plano_texto: str):
 
     for i, passo in enumerate(passos):
         chave = f"passo_{i}"
-        texto = limpar_markdown(passo)[:250]
+        texto = truncar_em_frase(limpar_markdown(passo), 250)
         st.session_state.checklist_plano[chave] = st.checkbox(
             texto,
             value=st.session_state.checklist_plano.get(chave, False),
