@@ -16,15 +16,30 @@ BASE_DIR = Path(__file__).resolve().parent
 
 
 def _ler_chave(nome: str, padrao: str = "") -> str:
-    """Lê variável de ambiente, com fallback para secrets do Streamlit Cloud."""
+    """Lê variável de ambiente, com fallback para secrets do Streamlit/HF."""
     val = os.getenv(nome, "").strip()
     if val:
         return val
+    # Alias genérico usado em alguns deploys
+    if nome in {"OPENCODE_GO_API_KEY", "OPENROUTER_API_KEY"}:
+        alt = os.getenv("LLM_API_KEY", "").strip()
+        if alt:
+            return alt
     try:
         import streamlit as st
 
         if nome in st.secrets:
             return str(st.secrets[nome]).strip()
+        # secrets aninhados / tipagem HF às vezes expõem via atributo
+        try:
+            if hasattr(st.secrets, nome):
+                return str(getattr(st.secrets, nome)).strip()
+        except Exception:
+            pass
+        if nome in {"OPENCODE_GO_API_KEY", "OPENROUTER_API_KEY"}:
+            for alias in ("LLM_API_KEY", "OPENCODE_GO_API_KEY", "OPENROUTER_API_KEY"):
+                if alias in st.secrets and str(st.secrets[alias]).strip():
+                    return str(st.secrets[alias]).strip()
     except Exception:
         pass
     return padrao
@@ -33,10 +48,30 @@ def _ler_chave(nome: str, padrao: str = "") -> str:
 def refresh_secrets() -> None:
     """Recarrega chaves após o Streamlit disponibilizar os secrets."""
     global OPENCODE_GO_API_KEY, OPENROUTER_API_KEY, SERPER_API_KEY, LLM_API_KEY
+    global LLM_PROVIDER, LLM_MODEL, LLM_BASE_URL
+    # Re-lê provider (pode vir de secret/env no HF)
+    LLM_PROVIDER = os.getenv("LLM_PROVIDER", LLM_PROVIDER or "opencode_go").strip().lower()
     OPENCODE_GO_API_KEY = _ler_chave("OPENCODE_GO_API_KEY")
     OPENROUTER_API_KEY = _ler_chave("OPENROUTER_API_KEY")
     SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
     LLM_API_KEY = _resolver_llm_api_key()
+    if LLM_PROVIDER == "opencode_go":
+        LLM_MODEL = os.getenv("OPENCODE_GO_MODEL", OPENCODE_GO_MODEL)
+        LLM_BASE_URL = os.getenv(
+            "OPENCODE_GO_BASE_URL", OPENCODE_GO_BASE_URL
+        ).rstrip("/")
+    else:
+        LLM_MODEL = os.getenv("OPENROUTER_MODEL", OPENROUTER_MODEL)
+        LLM_BASE_URL = ""
+    # Espelha no ambiente para LiteLLM/CrewAI
+    if LLM_API_KEY:
+        os.environ["OPENAI_API_KEY"] = LLM_API_KEY
+        if LLM_PROVIDER == "opencode_go":
+            os.environ["OPENAI_API_BASE"] = LLM_BASE_URL
+            os.environ["OPENAI_BASE_URL"] = LLM_BASE_URL
+            os.environ["OPENCODE_GO_API_KEY"] = LLM_API_KEY
+        else:
+            os.environ["OPENROUTER_API_KEY"] = LLM_API_KEY
 
 
 def _resolver_llm_api_key() -> str:

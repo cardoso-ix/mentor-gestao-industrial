@@ -118,6 +118,32 @@ def _mensagem_regiao_china(exc: BaseException) -> str | None:
     )
 
 
+def _mensagem_auth(exc: BaseException) -> str | None:
+    """Detecta falha de autenticação (401 / Missing Authentication header)."""
+    texto = str(exc)
+    baixo = texto.lower()
+    if not (
+        "401" in baixo
+        or "missing authentication header" in baixo
+        or "authenticationerror" in baixo
+        or "unauthorized" in baixo
+        or "incorrect api key" in baixo
+        or "invalid api key" in baixo
+    ):
+        return None
+    if config.LLM_PROVIDER == "opencode_go":
+        return (
+            "Falha de autenticação no OpenCode Go (401). "
+            "Confirme o secret `OPENCODE_GO_API_KEY` no `.env` ou no Hugging Face "
+            "(Settings → Secrets), reinicie o Space e tente de novo. "
+            "Não use chave da OpenRouter neste modo."
+        )
+    return (
+        "Falha de autenticação na OpenRouter (401). "
+        "Confirme o secret `OPENROUTER_API_KEY` ou alterne para "
+        "`LLM_PROVIDER=opencode_go` com `OPENCODE_GO_API_KEY`."
+    )
+
 def _limitar_contexto(texto: str, limite: int = 3500) -> str:
     """Evita estourar contexto entre agentes sem cortar no meio de palavra."""
     if not texto or len(texto) <= limite:
@@ -355,6 +381,7 @@ def executar_mentoria(
             callback_progresso(etapa, pct)
 
     # Validação inicial
+    config.refresh_secrets()
     erro_config = _validar_chaves()
     if erro_config:
         resultado.erro = erro_config
@@ -502,8 +529,10 @@ def executar_mentoria(
         if _eh_rate_limit(exc):
             resultado.erro = _mensagem_rate_limit()
         else:
-            resultado.erro = _mensagem_regiao_china(exc) or (
-                f"Erro durante a análise: {exc}"
+            resultado.erro = (
+                _mensagem_regiao_china(exc)
+                or _mensagem_auth(exc)
+                or f"Erro durante a análise: {exc}"
             )
 
     return resultado
