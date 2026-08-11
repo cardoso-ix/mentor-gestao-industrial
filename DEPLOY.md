@@ -76,7 +76,9 @@ Consulte [STREAMLIT_CLOUD.md](STREAMLIT_CLOUD.md) apenas se precisar tentar.
 
 - [x] Demo no Hugging Face publicada
 - [x] Link no portfólio atualizado
-- [ ] Secrets OpenCode Go e Serper configurados no Space
-- [ ] Opt-in "Enable models hosted in China" ativado no OpenCode (DeepSeek)
+- [ ] Secrets OpenCode Go (`OPENCODE_GO_API_KEY`) e Serper configurados no Space
+- [ ] Opt-in **Enable models hosted in China** ativado no OpenCode (DeepSeek V4 Flash)
 - [ ] Análise de teste concluída — ver [TESTE.md](TESTE.md)
 - [ ] Uso das APIs monitorado em [opencode.ai](https://opencode.ai) e [serper.dev](https://serper.dev)
+
+> Remova secrets antigos `OPENROUTER_API_KEY` / `GROQ_API_KEY` do Space se ainda existirem, para evitar confusão.

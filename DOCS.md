@@ -45,4 +45,19 @@ Cada push na branch `master` dispara o workflow [`.github/workflows/sync-to-hub.
 
 Requisito: secret `HF_TOKEN` no repositório GitHub (permissão write no Hugging Face).
 
-Secrets do app no Space HF: `OPENCODE_GO_API_KEY`, `SERPER_API_KEY` (e opt-in China no painel OpenCode).
+Secrets do app no Space HF:
+
+| Secret | Obrigatório | Notas |
+|--------|-------------|--------|
+| `OPENCODE_GO_API_KEY` | Sim | Chave do plano Go em https://opencode.ai |
+| `SERPER_API_KEY` | Recomendado | Busca web em casos de processo/segurança |
+| `LLM_PROVIDER` | Não | Padrão: `opencode_go` |
+| `OPENCODE_GO_MODEL` | Não | Padrão: `deepseek-v4-flash` |
+
+No painel OpenCode (Workspace → Go), ative **Enable models hosted in China** para o DeepSeek V4 Flash.
+
+## LLM e geração de relatórios
+
+Os agentes (analista, estrategista, comunicação, plano e editor) usam **DeepSeek V4 Flash** via **OpenCode Go** (`https://opencode.ai/zen/go/v1`).
+
+Caminho legado: `LLM_PROVIDER=openrouter` + `OPENROUTER_API_KEY`.

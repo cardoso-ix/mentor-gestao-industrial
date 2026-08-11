@@ -32,7 +32,7 @@ class ResultadoAnalise(BaseModel):
 
 
 def _criar_llm():
-    """Cria a instância do modelo OpenRouter (free) usada por todos os agentes."""
+    """Cria a instância do LLM (OpenCode Go / DeepSeek por padrão) usada pelos agentes."""
     return criar_llm(temperature=0.3)
 
 
@@ -128,11 +128,19 @@ Com base nessa situação, você deve:
 
 5. JUSTIFICAR suas decisões em uma frase
 
-Responda EXCLUSIVAMENTE no formato JSON estruturado solicitado.
+Responda EXCLUSIVAMENTE com um único objeto JSON válido (sem markdown, sem texto fora do JSON),
+com exatamente estas chaves:
+{{
+  "tipo_problema": "lideranca|comunicacao|conflito|desempenho|processo|seguranca",
+  "complexidade": "baixa|media|alta",
+  "resumo": "2-3 frases",
+  "agentes": ["estrategista", "comunicacao", "plano_acao"],
+  "busca_web": false,
+  "justificativa": "uma frase"
+}}
 """,
         expected_output=(
-            "JSON com campos: tipo_problema, complexidade, resumo, agentes, busca_web, justificativa"
+            "JSON puro com campos: tipo_problema, complexidade, resumo, agentes, busca_web, justificativa"
         ),
         agent=agente,
-        output_json=ResultadoAnalise,
     )

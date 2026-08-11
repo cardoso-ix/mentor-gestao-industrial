@@ -8,8 +8,12 @@ services:
     plan: free
     healthCheckPath: /
     envVars:
-      - key: OPENROUTER_API_KEY
+      - key: LLM_PROVIDER
+        value: opencode_go
+      - key: OPENCODE_GO_API_KEY
         sync: false
+      - key: OPENCODE_GO_MODEL
+        value: deepseek-v4-flash
       - key: SERPER_API_KEY
         sync: false
       - key: PORT

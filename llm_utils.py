@@ -9,6 +9,10 @@ Usamos crewai.LLM (LiteLLM por baixo).
 
 Correção: CrewAI marca mensagens com cache_breakpoint (recurso Anthropic).
 Vários provedores rejeitam esse campo — MentorLLM remove antes de cada chamada.
+
+Correção OpenCode Go / DeepSeek: thinking mode não aceita tool_choice.
+Patchamos litellm.completion para desligar thinking e limpar tools forçados
+pelo instructor/structured output do CrewAI.
 """
 
 from __future__ import annotations
@@ -29,6 +33,48 @@ except ImportError:
     LLMMessage = dict  # type: ignore[misc,assignment]
 
 import config
+
+_LITELLM_PATCH_APLICADO = False
+
+
+def _aplicar_patch_litellm_opencode() -> None:
+    """Garante api_base + thinking disabled em todas as chamadas LiteLLM (inclui instructor)."""
+    global _LITELLM_PATCH_APLICADO
+    if _LITELLM_PATCH_APLICADO or config.LLM_PROVIDER != "opencode_go":
+        return
+    try:
+        import litellm
+    except ImportError:
+        return
+
+    if getattr(litellm.completion, "_mentor_opencode_patched", False):
+        _LITELLM_PATCH_APLICADO = True
+        return
+
+    original = litellm.completion
+
+    def completion_patched(*args: Any, **kwargs: Any):
+        kwargs = dict(kwargs)
+        base = (
+            kwargs.get("api_base")
+            or kwargs.get("base_url")
+            or config.LLM_BASE_URL
+            or os.environ.get("OPENAI_API_BASE")
+        )
+        if base:
+            kwargs["api_base"] = base
+            kwargs["base_url"] = base
+        kwargs["thinking"] = {"type": "disabled"}
+        # Structured output via tools/tool_choice quebra o DeepSeek em thinking mode.
+        # Neste produto os agentes geram texto/JSON no conteúdo — não usamos tools.
+        if kwargs.get("tools") or kwargs.get("tool_choice"):
+            kwargs.pop("tools", None)
+            kwargs.pop("tool_choice", None)
+        return original(*args, **kwargs)
+
+    completion_patched._mentor_opencode_patched = True  # type: ignore[attr-defined]
+    litellm.completion = completion_patched
+    _LITELLM_PATCH_APLICADO = True
 
 
 class MentorLLM(LLM):
@@ -59,11 +105,25 @@ class MentorLLM(LLM):
         skip_file_processing: bool = False,
     ) -> dict[str, Any]:
         """Prepara parâmetros da chamada removendo campos rejeitados pelo provedor."""
-        return super()._prepare_completion_params(
+        params = super()._prepare_completion_params(
             self._remover_cache_breakpoint(messages),
             tools=tools,
             skip_file_processing=skip_file_processing,
         )
+        # LiteLLM usa api_base; CrewAI às vezes só envia base_url — alinhar os dois.
+        base = params.get("api_base") or params.get("base_url") or getattr(
+            self, "api_base", None
+        ) or getattr(self, "base_url", None)
+        if base:
+            params["api_base"] = base
+            params["base_url"] = base
+
+        if config.LLM_PROVIDER == "opencode_go":
+            params["thinking"] = {"type": "disabled"}
+            params.pop("tools", None)
+            params.pop("tool_choice", None)
+
+        return params
 
 
 # Alias legado
@@ -116,14 +176,19 @@ def criar_llm(temperature: float = 0.3) -> MentorLLM:
     api_key = config.LLM_API_KEY
 
     if provedor == "opencode_go":
-        # LiteLLM/openai-compatible lê OPENAI_API_KEY quando model=openai/...
+        # LiteLLM/openai-compatible: chave + base do OpenCode Go (não a API da OpenAI)
         os.environ["OPENAI_API_KEY"] = api_key
+        os.environ["OPENAI_API_BASE"] = config.LLM_BASE_URL
+        os.environ["OPENAI_BASE_URL"] = config.LLM_BASE_URL
+        _aplicar_patch_litellm_opencode()
         return MentorLLM(
             model=_modelo_opencode_go(config.LLM_MODEL),
             api_key=api_key,
             base_url=config.LLM_BASE_URL,
+            api_base=config.LLM_BASE_URL,
             temperature=temperature,
             max_tokens=config.LLM_MAX_TOKENS,
+            additional_params={"thinking": {"type": "disabled"}},
         )
 
     # OpenRouter (legado)

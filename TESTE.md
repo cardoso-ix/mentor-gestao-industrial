@@ -43,9 +43,12 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
 
 ## Teste local (alternativa)
 
-```powershell
-cd Gestor
-.\venv\Scripts\streamlit.exe run main.py
+```bash
+cp .env.example .env   # preencha OPENCODE_GO_API_KEY
+pip install -r requirements.txt
+streamlit run main.py
 ```
 
 Acesse http://localhost:8501 — usa sua chave do `.env` sem competir com visitantes da demo pública.
+
+**Esperado:** análise completa em cerca de 1–3 minutos, com parecer + abas preenchidas e sem erro vermelho.
