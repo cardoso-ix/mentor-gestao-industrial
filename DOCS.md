@@ -37,7 +37,7 @@
 | CrewAI | 1.15.1 |
 | ChromaDB | ~1.1 |
 | Streamlit | 1.x |
-| LLM | OpenRouter Free `google/gemma-4-26b-a4b-it:free` |
+| LLM | OpenCode Go — DeepSeek V4 Flash (`deepseek-v4-flash`) |
 
 ## Sincronização GitHub → Hugging Face
 
@@ -45,4 +45,4 @@ Cada push na branch `master` dispara o workflow [`.github/workflows/sync-to-hub.
 
 Requisito: secret `HF_TOKEN` no repositório GitHub (permissão write no Hugging Face).
 
-Secrets do app no Space HF: `OPENROUTER_API_KEY`, `SERPER_API_KEY`.
+Secrets do app no Space HF: `OPENCODE_GO_API_KEY`, `SERPER_API_KEY` (e opt-in China no painel OpenCode).

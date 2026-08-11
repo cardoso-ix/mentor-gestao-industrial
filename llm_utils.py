@@ -1,12 +1,14 @@
 """
 Factory do LLM compatível com a versão atual do CrewAI.
 
+Provedor padrão: OpenCode Go (DeepSeek V4 Flash) via endpoint OpenAI-compatible.
+Alternativa: OpenRouter (modelos :free) via prefixo openrouter/.
+
 O CrewAI não aceita mais wrappers LangChain diretamente no parâmetro llm.
-Usamos crewai.LLM com o prefixo openrouter/ (via LiteLLM).
+Usamos crewai.LLM (LiteLLM por baixo).
 
 Correção: CrewAI marca mensagens com cache_breakpoint (recurso Anthropic).
-Vários provedores da OpenRouter rejeitam esse campo — OpenRouterLLM remove
-antes de cada chamada.
+Vários provedores rejeitam esse campo — MentorLLM remove antes de cada chamada.
 """
 
 from __future__ import annotations
@@ -29,14 +31,14 @@ except ImportError:
 import config
 
 
-class OpenRouterLLM(LLM):
-    """LLM OpenRouter que remove campos incompatíveis injetados pelo CrewAI."""
+class MentorLLM(LLM):
+    """LLM que remove campos incompatíveis injetados pelo CrewAI."""
 
     @staticmethod
     def _remover_cache_breakpoint(
         messages: str | list[LLMMessage],
     ) -> str | list[LLMMessage]:
-        """Remove cache_breakpoint das mensagens (não suportado pela maioria dos free models)."""
+        """Remove cache_breakpoint das mensagens (não suportado por vários provedores)."""
         if isinstance(messages, str):
             return messages
 
@@ -56,7 +58,7 @@ class OpenRouterLLM(LLM):
         tools: list | None = None,
         skip_file_processing: bool = False,
     ) -> dict[str, Any]:
-        """Prepara parâmetros da chamada removendo campos rejeitados pela OpenRouter."""
+        """Prepara parâmetros da chamada removendo campos rejeitados pelo provedor."""
         return super()._prepare_completion_params(
             self._remover_cache_breakpoint(messages),
             tools=tools,
@@ -64,32 +66,71 @@ class OpenRouterLLM(LLM):
         )
 
 
-def criar_llm(temperature: float = 0.3) -> OpenRouterLLM:
+# Alias legado
+OpenRouterLLM = MentorLLM
+
+
+def _modelo_opencode_go(modelo: str) -> str:
+    """Normaliza o ID do modelo para o provedor OpenAI-compatible do CrewAI/LiteLLM."""
+    modelo = (modelo or "").strip()
+    if not modelo:
+        modelo = "deepseek-v4-flash"
+    # Prefixo opencode-go/ é do config do app OpenCode; na API REST o id é limpo
+    if modelo.startswith("opencode-go/"):
+        modelo = modelo.split("/", 1)[1]
+    if not modelo.startswith("openai/"):
+        modelo = f"openai/{modelo}"
+    return modelo
+
+
+def _modelo_openrouter(modelo: str) -> str:
+    """Normaliza o ID do modelo para o roteamento OpenRouter via LiteLLM."""
+    modelo = (modelo or "").strip()
+    if not modelo:
+        modelo = "google/gemma-4-26b-a4b-it:free"
+    if not modelo.startswith("openrouter/"):
+        modelo = f"openrouter/{modelo}"
+    return modelo
+
+
+def criar_llm(temperature: float = 0.3) -> MentorLLM:
     """
-    Cria instância do LLM OpenRouter (modelo free) para uso nos agentes CrewAI.
+    Cria instância do LLM para uso nos agentes CrewAI.
+
+    Por padrão usa OpenCode Go + DeepSeek V4 Flash.
+    Defina LLM_PROVIDER=openrouter para o caminho legado.
 
     Args:
         temperature: Criatividade das respostas (0.0 = mais determinístico).
 
     Returns:
-        Instância OpenRouterLLM configurada para OpenRouter.
+        Instância MentorLLM configurada.
     """
-    if (
-        not config.OPENROUTER_API_KEY
-        or config.OPENROUTER_API_KEY == "sua_chave_openrouter_aqui"
-    ):
-        raise ValueError("OPENROUTER_API_KEY não configurada no arquivo .env")
+    if not config.llm_configurado():
+        raise ValueError(
+            "Chave do LLM não configurada. Defina OPENCODE_GO_API_KEY "
+            "(ou OPENROUTER_API_KEY) no arquivo .env"
+        )
 
-    # LiteLLM lê OPENROUTER_API_KEY do ambiente
-    os.environ["OPENROUTER_API_KEY"] = config.OPENROUTER_API_KEY
+    provedor = config.LLM_PROVIDER
+    api_key = config.LLM_API_KEY
 
-    modelo = config.OPENROUTER_MODEL
-    if not modelo.startswith("openrouter/"):
-        modelo = f"openrouter/{modelo}"
+    if provedor == "opencode_go":
+        # LiteLLM/openai-compatible lê OPENAI_API_KEY quando model=openai/...
+        os.environ["OPENAI_API_KEY"] = api_key
+        return MentorLLM(
+            model=_modelo_opencode_go(config.LLM_MODEL),
+            api_key=api_key,
+            base_url=config.LLM_BASE_URL,
+            temperature=temperature,
+            max_tokens=config.LLM_MAX_TOKENS,
+        )
 
-    return OpenRouterLLM(
-        model=modelo,
-        api_key=config.OPENROUTER_API_KEY,
+    # OpenRouter (legado)
+    os.environ["OPENROUTER_API_KEY"] = api_key
+    return MentorLLM(
+        model=_modelo_openrouter(config.LLM_MODEL),
+        api_key=api_key,
         temperature=temperature,
-        max_tokens=config.OPENROUTER_MAX_TOKENS,
+        max_tokens=config.LLM_MAX_TOKENS,
     )

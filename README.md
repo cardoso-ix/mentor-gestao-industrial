@@ -21,7 +21,7 @@ Quando você descreve uma situação de liderança em linguagem natural, quatro 
 | Componente | Tecnologia |
 |------------|------------|
 | Orquestração multi-agente | CrewAI |
-| LLM | OpenRouter Free — `google/gemma-4-26b-a4b-it:free` |
+| LLM | OpenCode Go — DeepSeek V4 Flash (`deepseek-v4-flash`) |
 | Busca web | Serper API (processo e segurança) |
 | Interface | Streamlit |
 | Base de conhecimento | ChromaDB + PDFs locais |
@@ -64,7 +64,7 @@ mentor-gestao-industrial/
 ├── config.py               # Configurações centralizadas
 ├── rag.py                  # Ingestão e consulta RAG
 ├── orchestrator.py         # Orquestrador multi-agente
-├── llm_utils.py            # LLM OpenRouter compatível com CrewAI
+├── llm_utils.py            # LLM OpenCode Go / OpenRouter compatível com CrewAI
 ├── main.py                 # Interface Streamlit
 ├── requirements.txt        # Dependências locais / VPS
 ├── requirements-hf.txt     # Dependências otimizadas para Hugging Face
@@ -78,7 +78,7 @@ mentor-gestao-industrial/
 ## Pré-requisitos
 
 - **Python 3.11 ou 3.12** (desenvolvimento local — o CrewAI ainda não suporta Python 3.14)
-- Conta na [OpenRouter](https://openrouter.ai/keys) (API key; modelos `:free` sem custo por token)
+- Conta na [OpenCode Go](https://opencode.ai) (API key do plano Go — DeepSeek V4 Flash)
 - Conta na [Serper](https://serper.dev) (busca web — plano gratuito disponível)
 - Docker e Docker Compose (deploy na VPS — **recomendado também no Windows** se você tiver Python 3.14)
 
@@ -100,14 +100,19 @@ cp .env.example .env
 ```
 
 ```env
-OPENROUTER_API_KEY=sk-or-sua_chave_real_aqui
+LLM_PROVIDER=opencode_go
+OPENCODE_GO_API_KEY=sua_chave_opencode_go_aqui
+OPENCODE_GO_MODEL=deepseek-v4-flash
 SERPER_API_KEY=sua_chave_serper_real_aqui
-OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
 ```
 
 **Onde obter as chaves:**
-- OpenRouter: https://openrouter.ai/keys → Create API Key
+- OpenCode Go: https://opencode.ai → Workspace → Go / API Keys
 - Serper: https://serper.dev → Dashboard → API Key
+
+**Opt-in China (obrigatório para DeepSeek V4 Flash no Go):** no painel do OpenCode, ative **Enable models hosted in China** em Workspace → Go. Sem isso a API responde `RegionError` (HTTP 403).
+
+> Alternativa legada: `LLM_PROVIDER=openrouter` + `OPENROUTER_API_KEY` (modelos `:free`).
 
 ### 3. Adicione PDFs à base de conhecimento
 
@@ -193,13 +198,13 @@ Cada análise é independente — o sistema não mantém histórico de conversas
 
 ## Limitações e avisos
 
-### Rate limit da OpenRouter (modelos free)
+### Cota do OpenCode Go
 
-Cada análise faz **várias chamadas** ao LLM (Analista + agentes especializados). Nos modelos `:free`: **20 req/min** e **50 req/dia** sem créditos (sobe para **1.000/dia** após comprar ≥ US$ 10 em créditos). O orquestrador faz **pausa entre agentes** e **retry automático**; se ainda falhar, aguarde e tente de novo.
+Cada análise faz **várias chamadas** ao LLM (Analista + agentes especializados). O plano Go tem limites em valor de uso (janela de 5h / semana / mês). O orquestrador faz **pausa entre agentes** e **retry automático**; se ainda falhar, aguarde e tente de novo.
 
 ### App público
 
-Por padrão o sistema não tem autenticação. Qualquer pessoa com o link pode usar suas APIs. Monitore o uso nas dashboards da OpenRouter e Serper.
+Por padrão o sistema não tem autenticação. Qualquer pessoa com o link pode usar suas APIs. Monitore o uso no painel do OpenCode e da Serper.
 
 ### Embeddings locais
 
@@ -207,7 +212,7 @@ A primeira indexação de muitos PDFs pode demorar alguns minutos. Indexações 
 
 ### Modelo LLM
 
-O projeto usa o **Gemma 4 26B** na variante free da OpenRouter (`google/gemma-4-26b-a4b-it:free`). A lista de modelos `:free` muda com frequência. Para o router automático, defina `OPENROUTER_MODEL=openrouter/free`.
+O projeto usa **DeepSeek V4 Flash** via **OpenCode Go** (`deepseek-v4-flash`). Para o caminho legado OpenRouter, defina `LLM_PROVIDER=openrouter` e um modelo `:free`.
 
 ## Exemplo de uso
 

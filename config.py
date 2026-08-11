@@ -32,31 +32,100 @@ def _ler_chave(nome: str, padrao: str = "") -> str:
 
 def refresh_secrets() -> None:
     """Recarrega chaves após o Streamlit disponibilizar os secrets."""
-    global OPENROUTER_API_KEY, SERPER_API_KEY
+    global OPENCODE_GO_API_KEY, OPENROUTER_API_KEY, SERPER_API_KEY, LLM_API_KEY
+    OPENCODE_GO_API_KEY = _ler_chave("OPENCODE_GO_API_KEY")
     OPENROUTER_API_KEY = _ler_chave("OPENROUTER_API_KEY")
     SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
+    LLM_API_KEY = _resolver_llm_api_key()
 
+
+def _resolver_llm_api_key() -> str:
+    """Resolve a chave do provedor LLM ativo (OpenCode Go ou OpenRouter)."""
+    if LLM_PROVIDER == "opencode_go":
+        return (
+            OPENCODE_GO_API_KEY
+            or OPENROUTER_API_KEY  # compat: chave antiga/reaproveitada
+        )
+    return OPENROUTER_API_KEY or OPENCODE_GO_API_KEY
+
+
+# --- Provedor LLM ---
+# Padrão: OpenCode Go + DeepSeek V4 Flash (relatórios dos agentes)
+# Alternativa: openrouter (modelos :free)
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "opencode_go").strip().lower()
 
 # --- Chaves de API ---
+OPENCODE_GO_API_KEY = _ler_chave("OPENCODE_GO_API_KEY")
 OPENROUTER_API_KEY = _ler_chave("OPENROUTER_API_KEY")
 SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
 
-# --- Modelo LLM na OpenRouter (variante free — $0/token) ---
-# Alternativas: openrouter/free | google/gemma-4-31b-it:free | openai/gpt-oss-20b:free
-# Nota: a lista :free muda com frequência; confira em https://openrouter.ai/models
+# --- OpenCode Go (DeepSeek V4 Flash) ---
+OPENCODE_GO_BASE_URL = os.getenv(
+    "OPENCODE_GO_BASE_URL", "https://opencode.ai/zen/go/v1"
+).rstrip("/")
+OPENCODE_GO_MODEL = os.getenv("OPENCODE_GO_MODEL", "deepseek-v4-flash")
+
+# --- OpenRouter (legado / fallback) ---
 OPENROUTER_MODEL = os.getenv(
     "OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free"
 )
-OPENROUTER_MAX_TOKENS = int(os.getenv("OPENROUTER_MAX_TOKENS", "2048"))
 
-# Pausa entre agentes e retentativas (OpenRouter free: 20 req/min, 50 req/dia sem créditos)
-OPENROUTER_PAUSE_ENTRE_AGENTES = float(
-    os.getenv("OPENROUTER_PAUSE_ENTRE_AGENTES", "3")
+# Tokens e ritmo entre agentes
+LLM_MAX_TOKENS = int(
+    os.getenv(
+        "LLM_MAX_TOKENS",
+        os.getenv("OPENROUTER_MAX_TOKENS", "2048"),
+    )
 )
-OPENROUTER_RATE_LIMIT_RETRIES = int(os.getenv("OPENROUTER_RATE_LIMIT_RETRIES", "4"))
-OPENROUTER_RATE_LIMIT_ESPERA_BASE = float(
-    os.getenv("OPENROUTER_RATE_LIMIT_ESPERA_BASE", "10")
+# OpenCode Go tem cota bem maior que o free da OpenRouter — pausa menor por padrão
+_PAUSE_PADRAO = "1" if LLM_PROVIDER == "opencode_go" else "3"
+LLM_PAUSE_ENTRE_AGENTES = float(
+    os.getenv(
+        "LLM_PAUSE_ENTRE_AGENTES",
+        os.getenv("OPENROUTER_PAUSE_ENTRE_AGENTES", _PAUSE_PADRAO),
+    )
 )
+LLM_RATE_LIMIT_RETRIES = int(
+    os.getenv(
+        "LLM_RATE_LIMIT_RETRIES",
+        os.getenv("OPENROUTER_RATE_LIMIT_RETRIES", "4"),
+    )
+)
+LLM_RATE_LIMIT_ESPERA_BASE = float(
+    os.getenv(
+        "LLM_RATE_LIMIT_ESPERA_BASE",
+        os.getenv("OPENROUTER_RATE_LIMIT_ESPERA_BASE", "10"),
+    )
+)
+
+# Aliases legados (código antigo / docs)
+OPENROUTER_MAX_TOKENS = LLM_MAX_TOKENS
+OPENROUTER_PAUSE_ENTRE_AGENTES = LLM_PAUSE_ENTRE_AGENTES
+OPENROUTER_RATE_LIMIT_RETRIES = LLM_RATE_LIMIT_RETRIES
+OPENROUTER_RATE_LIMIT_ESPERA_BASE = LLM_RATE_LIMIT_ESPERA_BASE
+
+LLM_API_KEY = _resolver_llm_api_key()
+
+if LLM_PROVIDER == "opencode_go":
+    LLM_MODEL = OPENCODE_GO_MODEL
+    LLM_BASE_URL = OPENCODE_GO_BASE_URL
+else:
+    LLM_MODEL = OPENROUTER_MODEL
+    LLM_BASE_URL = ""
+
+# Placeholders que NÃO devem ser tratados como chave válida
+_PLACEHOLDERS_CHAVE = {
+    "",
+    "sua_chave_openrouter_aqui",
+    "sua_chave_opencode_go_aqui",
+    "sk-or-sua_chave_real_aqui",
+}
+
+
+def llm_configurado() -> bool:
+    """True se há chave válida para o provedor LLM ativo."""
+    return bool(LLM_API_KEY) and LLM_API_KEY not in _PLACEHOLDERS_CHAVE
+
 
 # --- Caminhos de arquivos e pastas ---
 KNOWLEDGE_BASE_DIR = Path(os.getenv("KNOWLEDGE_BASE_DIR", BASE_DIR / "knowledge_base"))

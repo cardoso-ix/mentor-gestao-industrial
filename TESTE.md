@@ -13,11 +13,13 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
 ## Antes de testar (importante)
 
 1. Confirme no HF → **Settings → Secrets** (ou no `.env` local):
-   - `OPENROUTER_API_KEY`
+   - `OPENCODE_GO_API_KEY`
    - `SERPER_API_KEY` (opcional se o caso não pedir busca web)
-   - `OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free` (padrão)
-2. Se apareceu erro de **limite OpenRouter** (modelos free: ~50 req/dia), espere e tente no dia seguinte ou use outra chave.
+   - `OPENCODE_GO_MODEL=deepseek-v4-flash` (padrão)
+   - Opt-in **Enable models hosted in China** no painel OpenCode (Workspace → Go)
+2. Se apareceu erro de **cota OpenCode Go**, espere a janela de uso e tente de novo.
 3. No Hugging Face, o status do Space deve estar **Running** (não Building/Starting).
+4. Se aparecer `RegionError` / China opt-in, ative o toggle no OpenCode e rode de novo.
 
 ## Passo a passo do teste
 
@@ -33,11 +35,11 @@ Use este roteiro após o deploy no Hugging Face. Índice completo: [DOCS.md](htt
    - Sem caixa vermelha de erro
    - PDF com passo a passo completo
 
-## Se der erro de rate limit
+## Se der erro de rate limit / cota
 
 - Não clique várias vezes seguidas.
 - Aguarde 1–2 minutos e tente de novo.
-- O app já faz retry automático; em pico de uso dos modelos free da OpenRouter pode falhar mesmo assim.
+- O app já faz retry automático; se a cota do OpenCode Go (5h/semana/mês) esgotar, espere a janela liberar.
 
 ## Teste local (alternativa)
 

@@ -23,8 +23,12 @@ Em **Settings → Secrets** do Space:
 
 | Nome | Valor |
 |------|--------|
-| `OPENROUTER_API_KEY` | Chave da [OpenRouter](https://openrouter.ai/keys) |
+| `OPENCODE_GO_API_KEY` | Chave do [OpenCode Go](https://opencode.ai) |
+| `OPENCODE_GO_MODEL` | `deepseek-v4-flash` (opcional; já é o padrão) |
+| `LLM_PROVIDER` | `opencode_go` (opcional; já é o padrão) |
 | `SERPER_API_KEY` | Chave da [Serper](https://serper.dev) |
+
+No painel OpenCode, ative **Enable models hosted in China** para o DeepSeek V4 Flash.
 
 ### Publicar alterações
 
@@ -72,6 +76,7 @@ Consulte [STREAMLIT_CLOUD.md](STREAMLIT_CLOUD.md) apenas se precisar tentar.
 
 - [x] Demo no Hugging Face publicada
 - [x] Link no portfólio atualizado
-- [ ] Secrets OpenRouter e Serper configurados no Space
+- [ ] Secrets OpenCode Go e Serper configurados no Space
+- [ ] Opt-in "Enable models hosted in China" ativado no OpenCode (DeepSeek)
 - [ ] Análise de teste concluída — ver [TESTE.md](TESTE.md)
-- [ ] Uso das APIs monitorado em [openrouter.ai](https://openrouter.ai) e [serper.dev](https://serper.dev)
+- [ ] Uso das APIs monitorado em [opencode.ai](https://opencode.ai) e [serper.dev](https://serper.dev)

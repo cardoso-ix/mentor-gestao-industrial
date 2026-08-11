@@ -31,7 +31,9 @@
 4. Em **Secrets**:
 
 ```toml
-OPENROUTER_API_KEY = "sua_chave_openrouter"
+LLM_PROVIDER = "opencode_go"
+OPENCODE_GO_API_KEY = "sua_chave_opencode_go"
+OPENCODE_GO_MODEL = "deepseek-v4-flash"
 SERPER_API_KEY = "sua_chave_serper"
 ```
 

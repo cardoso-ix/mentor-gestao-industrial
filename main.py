@@ -108,14 +108,17 @@ def main():
     _renderizar_sidebar()
     _renderizar_hero()
 
-    if (
-        not config.OPENROUTER_API_KEY
-        or config.OPENROUTER_API_KEY == "sua_chave_openrouter_aqui"
-    ):
-        st.error(
-            "Chave da OpenRouter não configurada. Defina `OPENROUTER_API_KEY` no "
-            "arquivo `.env` ou nos secrets do Hugging Face / Streamlit Cloud."
-        )
+    if not config.llm_configurado():
+        if config.LLM_PROVIDER == "opencode_go":
+            st.error(
+                "Chave do OpenCode Go não configurada. Defina `OPENCODE_GO_API_KEY` "
+                "no arquivo `.env` ou nos secrets do Hugging Face / Streamlit Cloud."
+            )
+        else:
+            st.error(
+                "Chave da OpenRouter não configurada. Defina `OPENROUTER_API_KEY` no "
+                "arquivo `.env` ou nos secrets do Hugging Face / Streamlit Cloud."
+            )
         return
 
     dados = renderizar_wizard()

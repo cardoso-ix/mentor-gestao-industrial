@@ -91,10 +91,30 @@ def _executar_crew_com_retry(crew: Crew, pausar_antes: bool = True):
 
 
 def _mensagem_rate_limit() -> str:
+    if config.LLM_PROVIDER == "opencode_go":
+        return (
+            "Limite de uso da API OpenCode Go atingido. "
+            "Aguarde a janela de cota (5h / semana / mês) e tente de novo. "
+            "Cada análise usa várias chamadas ao modelo."
+        )
     return (
         "Limite de requisições da API OpenRouter atingido (modelos free). "
         "Sem créditos: cerca de 50 req/dia e 20/min. Aguarde e tente de novo. "
         "Cada análise usa várias chamadas ao modelo."
+    )
+
+
+def _mensagem_regiao_china(exc: BaseException) -> str | None:
+    """Detecta opt-in de modelos hospedados na China (DeepSeek no OpenCode Go)."""
+    texto = str(exc)
+    baixo = texto.lower()
+    if "regionerror" not in baixo and "hosted in china" not in baixo:
+        return None
+    return (
+        "O modelo DeepSeek V4 Flash no OpenCode Go exige opt-in para "
+        "modelos hospedados na China. No painel do OpenCode, ative "
+        "\"Enable models hosted in China\" e tente novamente. "
+        "Link típico: https://opencode.ai (Workspace → Go)."
     )
 
 
@@ -108,7 +128,12 @@ def _limitar_contexto(texto: str, limite: int = 3500) -> str:
 
 def _validar_chaves() -> str | None:
     """Verifica se as chaves de API obrigatórias estão configuradas."""
-    if not config.OPENROUTER_API_KEY:
+    if not config.llm_configurado():
+        if config.LLM_PROVIDER == "opencode_go":
+            return (
+                "OPENCODE_GO_API_KEY não configurada. "
+                "Adicione no arquivo .env (ou nos secrets do Hugging Face)."
+            )
         return "OPENROUTER_API_KEY não configurada. Adicione no arquivo .env"
     return None
 
@@ -477,6 +502,8 @@ def executar_mentoria(
         if _eh_rate_limit(exc):
             resultado.erro = _mensagem_rate_limit()
         else:
-            resultado.erro = f"Erro durante a análise: {exc}"
+            resultado.erro = _mensagem_regiao_china(exc) or (
+                f"Erro durante a análise: {exc}"
+            )
 
     return resultado

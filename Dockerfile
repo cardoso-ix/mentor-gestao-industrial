@@ -7,10 +7,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     TRANSFORMERS_CACHE=/home/user/.cache/huggingface \
     SENTENCE_TRANSFORMERS_HOME=/home/user/.cache/huggingface \
     PORT=7860 \
-    GROQ_MAX_TOKENS=2048 \
-    GROQ_PAUSE_ENTRE_AGENTES=3 \
-    GROQ_RATE_LIMIT_RETRIES=5 \
-    GROQ_RATE_LIMIT_ESPERA_BASE=10
+    LLM_PROVIDER=opencode_go \
+    OPENCODE_GO_MODEL=deepseek-v4-flash \
+    OPENCODE_GO_BASE_URL=https://opencode.ai/zen/go/v1 \
+    LLM_MAX_TOKENS=2048 \
+    LLM_PAUSE_ENTRE_AGENTES=1 \
+    LLM_RATE_LIMIT_RETRIES=5 \
+    LLM_RATE_LIMIT_ESPERA_BASE=10
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
