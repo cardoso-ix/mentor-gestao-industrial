@@ -123,7 +123,7 @@ Coloque arquivos `.pdf` na pasta `knowledge_base/`. Exemplos úteis:
 - Normas de segurança (NR-10, NR-12, etc.)
 - Materiais sobre comunicação e feedback
 
-Os PDFs são indexados na **primeira análise** (quando você clica em Analisar situação), não na abertura da página.
+Os PDFs são indexados na **primeira análise** (quando você clica em **Gerar orientação**), não na abertura da página.
 
 ## Executar localmente
 
@@ -181,12 +181,12 @@ Acesse: `http://IP_DA_SUA_VPS:8501`
 
 ## Como usar
 
-1. Descreva a situação que está enfrentando com sua equipe de manutenção
-2. Opcionalmente informe tamanho da equipe e urgência
-3. Clique em **Analisar situação**
-4. Leia o **Relatório Consolidado** no topo
-5. Explore as abas: Análise | Estratégia | Comunicação | Plano de Ação
-6. Use **Nova situação** para analisar outro caso
+1. (Opcional) Escolha um caso em **Experimente em 1 clique**, ou selecione o tipo da situação
+2. Conte o caso com suas palavras e ajuste a urgência
+3. Clique em **Gerar orientação** (aguarde 1–3 min)
+4. Leia o **Parecer executivo** no topo
+5. Explore as abas: **Diagnóstico** | **Estratégia** | **Conversa** | **Plano**
+6. Use **Limpar formulário** para analisar outro caso
 
 Cada análise é independente — o sistema não mantém histórico de conversas.
 

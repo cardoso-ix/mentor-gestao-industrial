@@ -24,11 +24,13 @@ Em **Settings → Secrets** do Space:
 | Nome | Valor |
 |------|--------|
 | `OPENCODE_GO_API_KEY` | Chave do [OpenCode Go](https://opencode.ai) |
+| `SERPER_API_KEY` | Chave da [Serper](https://serper.dev) |
 | `OPENCODE_GO_MODEL` | `deepseek-v4-flash` (opcional; já é o padrão) |
 | `LLM_PROVIDER` | `opencode_go` (opcional; já é o padrão) |
-| `SERPER_API_KEY` | Chave da [Serper](https://serper.dev) |
 
 No painel OpenCode, ative **Enable models hosted in China** para o DeepSeek V4 Flash.
+
+Remova secrets antigos (`OPENROUTER_API_KEY`, `GROQ_API_KEY`) para evitar confusão.
 
 ### Publicar alterações
 
@@ -39,6 +41,8 @@ git push origin master
 O workflow **Sync to Hugging Face Hub** envia o código ao Space. Build leva 5–15 min na primeira vez.
 
 Sincronização manual: [Actions → Run workflow](https://github.com/cardoso-ix/mentor-gestao-industrial/actions/workflows/sync-to-hub.yml).
+
+Depois do sync: no Space, use **Factory reboot** se a análise ainda falhar com secrets antigos em cache.
 
 ### Portfólio
 
@@ -55,7 +59,7 @@ Para produção com mais RAM e controle total.
 ```bash
 git clone https://github.com/cardoso-ix/mentor-gestao-industrial.git
 cd mentor-gestao-industrial
-cp .env.example .env   # edite com as chaves
+cp .env.example .env   # edite OPENCODE_GO_API_KEY e SERPER_API_KEY
 docker compose up -d --build
 docker compose logs -f
 ```
@@ -80,5 +84,3 @@ Consulte [STREAMLIT_CLOUD.md](STREAMLIT_CLOUD.md) apenas se precisar tentar.
 - [ ] Opt-in **Enable models hosted in China** ativado no OpenCode (DeepSeek V4 Flash)
 - [ ] Análise de teste concluída — ver [TESTE.md](TESTE.md)
 - [ ] Uso das APIs monitorado em [opencode.ai](https://opencode.ai) e [serper.dev](https://serper.dev)
-
-> Remova secrets antigos `OPENROUTER_API_KEY` / `GROQ_API_KEY` do Space se ainda existirem, para evitar confusão.
