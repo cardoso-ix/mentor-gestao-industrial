@@ -22,6 +22,8 @@ REGRAS OBRIGATÓRIAS DE QUALIDADE:
 - Use listas com hífen (-) para itens; não use #, **, ### nem outros símbolos markdown.
 - Complete todas as frases; não interrompa parágrafos no meio.
 - Entregue orientação acionável: prazo, responsável e critério de sucesso sempre que pedir uma ação.
+- Seja objetivo: priorize o essencial. Evite seções longas, repetições e explicações óbvias.
+- Prefira 1 parágrafo curto + lista objetiva a textos extensos.
 """
 
 INSTRUCOES_COMUNS = f"{TOM_MENTOR_SENIOR}\n{REGRAS_QUALIDADE}"

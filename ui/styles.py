@@ -389,9 +389,9 @@ div[data-testid="stDecoration"] {
 .resultado-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem 1.5rem;
-    padding: 0.35rem 0 1.1rem;
-    margin-bottom: 0.5rem;
+    gap: 0.6rem 1.25rem;
+    padding: 0.2rem 0 0.85rem;
+    margin-bottom: 0.35rem;
     border-bottom: 1px solid var(--color-border);
     animation: painel-progresso-entra var(--dur-normal) var(--ease-out-quart) both;
 }
@@ -454,10 +454,10 @@ div[data-testid="stDecoration"] {
 .resultado-shell-marker + div[data-testid="stVerticalBlockBorderWrapper"] {
     background: var(--color-surface) !important;
     border: 1px solid var(--color-border) !important;
-    border-radius: var(--radius-xl) !important;
-    padding: clamp(1.25rem, 2.5vw, 1.85rem) !important;
-    margin-top: var(--space-md) !important;
-    margin-bottom: var(--space-md) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: clamp(1rem, 2vw, 1.45rem) !important;
+    margin-top: var(--space-sm) !important;
+    margin-bottom: var(--space-sm) !important;
     box-shadow: var(--shadow-sm) !important;
     animation: resultado-entra var(--dur-moderate) var(--ease-out-expo) both;
 }
@@ -466,13 +466,13 @@ div[data-testid="stDecoration"] {
     flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: var(--space-md);
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
 }
 .resultado-shell__titulo {
     font-family: var(--font-display) !important;
     color: var(--color-ink) !important;
-    font-size: clamp(1.25rem, 2vw, 1.5rem) !important;
+    font-size: clamp(1.15rem, 1.8vw, 1.35rem) !important;
     font-weight: 700 !important;
     letter-spacing: -0.03em !important;
     margin: 0 !important;
@@ -556,10 +556,10 @@ div[data-testid="stDecoration"] {
     border: none;
     border-left: 3px solid var(--color-primary);
     border-radius: 0;
-    padding: 0.15rem 0 0.15rem 1rem;
-    margin: 1.1rem 0 1.35rem;
+    padding: 0.1rem 0 0.1rem 0.9rem;
+    margin: 0.85rem 0 1rem;
     color: var(--color-ink-secondary);
-    line-height: 1.55;
+    line-height: 1.5;
     box-shadow: none;
 }
 .proximo-passo-card:hover { box-shadow: none; }

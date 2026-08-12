@@ -1,4 +1,4 @@
-"""Utilitários de exportação PDF resumido com passo a passo completo."""
+"""Exportação PDF — briefing executivo profissional e objetivo."""
 
 from __future__ import annotations
 
@@ -6,16 +6,15 @@ import io
 import re
 import unicodedata
 from datetime import datetime
-from typing import Any
 
 from ui.text_utils import contem_erro_tecnico, extrair_proximo_passo, limpar_markdown, truncar_em_frase
 
-LIMITE_RESUMO = 520
-LIMITE_PROXIMO_PASSO = 280
-LIMITE_PASSO_TITULO = 90
-LIMITE_PASSO_ACAO = 220
-MAX_PASSOS_PDF = 8
-MAX_BULLETS_CONVERSA = 5
+LIMITE_RESUMO = 340
+LIMITE_PROXIMO = 220
+LIMITE_PASSO_TITULO = 70
+LIMITE_PASSO_ACAO = 130
+MAX_PASSOS_PDF = 5
+MAX_BULLETS = 4
 
 
 def _texto_pdf(texto: str) -> str:
@@ -31,17 +30,14 @@ def _texto_pdf(texto: str) -> str:
         .replace("\u2022", "-")
         .replace("\u2014", "-")
         .replace("\u2013", "-")
+        .replace("\u201c", '"')
+        .replace("\u201d", '"')
+        .replace("\u2019", "'")
     )
 
 
 def _truncar(texto: str, limite: int) -> str:
-    if not texto:
-        return ""
-    texto = texto.strip()
-    if len(texto) <= limite:
-        return texto
-    corte = texto[:limite].rsplit(" ", 1)[0]
-    return (corte or texto[:limite]).rstrip(".,;:") + "..."
+    return truncar_em_frase((texto or "").strip(), limite)
 
 
 def _limpar_rotulo_passo(texto: str) -> str:
@@ -53,11 +49,7 @@ def _limpar_rotulo_passo(texto: str) -> str:
 
 
 def extrair_passos_detalhados(texto_plano: str) -> list[dict[str, str]]:
-    """
-    Extrai passos estruturados do plano de ação.
-
-    Retorna dicts com: titulo, acao, prazo, responsavel, indicador.
-    """
+    """Extrai passos estruturados do plano de ação."""
     if not texto_plano:
         return []
 
@@ -118,7 +110,6 @@ def extrair_passos_detalhados(texto_plano: str) -> list[dict[str, str]]:
                 atual["indicador"] = valor
             continue
 
-        # Linha solta após o título: usa como ação se ainda vazia
         if not atual["acao"] and not s.endswith(":"):
             atual["acao"] = limpar_markdown(s.lstrip("- ").strip())
 
@@ -142,22 +133,14 @@ def extrair_passos_plano(texto_plano: str) -> list[str]:
         for p in detalhados:
             titulo = p.get("titulo") or "Acao"
             acao = p.get("acao")
-            if acao:
-                saida.append(f"{titulo}: {acao}")
-            else:
-                saida.append(titulo)
+            saida.append(f"{titulo}: {acao}" if acao else titulo)
         return saida
 
-    # Fallback legado
     passos = []
     for linha in (texto_plano or "").split("\n"):
         linha = linha.strip()
         if re.match(r"^(\*\*)?Passo\s+\d+", linha, re.I) or re.match(r"^\d+[\.\)]\s+", linha):
             passos.append(re.sub(r"^\d+[\.\)]\s+", "", linha))
-        elif linha.startswith("- O que fazer:") and passos:
-            passos[-1] += f" — {linha}"
-    if not passos and (texto_plano or "").strip():
-        passos = [limpar_markdown(texto_plano)[:300]]
     return [p for p in passos if p and not contem_erro_tecnico(p)][:10]
 
 
@@ -184,7 +167,7 @@ def _extrair_secao(texto: str, titulos: tuple[str, ...]) -> str:
     return "\n".join(buffer).strip()
 
 
-def _bullets_de_texto(texto: str, limite: int = MAX_BULLETS_CONVERSA) -> list[str]:
+def _bullets_de_texto(texto: str, limite: int = MAX_BULLETS) -> list[str]:
     if not texto:
         return []
     itens = []
@@ -197,286 +180,334 @@ def _bullets_de_texto(texto: str, limite: int = MAX_BULLETS_CONVERSA) -> list[st
         else:
             continue
         if item and not contem_erro_tecnico(item) and len(item) > 12:
-            itens.append(truncar_em_frase(item, 180))
+            itens.append(_truncar(item, 140))
         if len(itens) >= limite:
             break
     return itens
 
 
+def _pontos_conversa(resultado) -> list[str]:
+    """Puxa poucos pontos de fala, misturando abertura e perguntas."""
+    comunicacao = resultado.comunicacao or ""
+    consolidado = resultado.relatorio_consolidado or ""
+    fontes = [
+        _extrair_secao(comunicacao, ("Abertura da conversa", "Abertura")),
+        _extrair_secao(comunicacao, ("Perguntas poderosas", "Perguntas")),
+        _extrair_secao(comunicacao, ("Feedback usando SBI", "Feedback")),
+        _extrair_secao(consolidado, ("Como conduzir a conversa", "Roteiro", "Conversa")),
+        comunicacao,
+    ]
+    vistos: set[str] = set()
+    pontos: list[str] = []
+    for fonte in fontes:
+        for item in _bullets_de_texto(fonte, limite=MAX_BULLETS):
+            chave = item.lower()
+            if chave in vistos:
+                continue
+            vistos.add(chave)
+            pontos.append(item)
+            if len(pontos) >= MAX_BULLETS:
+                return pontos
+    return pontos
+
+
 def _resumo_para_pdf(resultado) -> str:
     analise = resultado.analise or {}
     if analise.get("resumo"):
-        return truncar_em_frase(limpar_markdown(analise["resumo"]), LIMITE_RESUMO)
+        return _truncar(limpar_markdown(analise["resumo"]), LIMITE_RESUMO)
 
     parecer = limpar_markdown((resultado.relatorio_consolidado or "").strip())
     secao = _extrair_secao(parecer, ("Parecer executivo", "Resumo", "Diagnostico", "Diagnóstico"))
     if secao and not contem_erro_tecnico(secao):
-        return truncar_em_frase(secao, LIMITE_RESUMO)
+        return _truncar(secao, LIMITE_RESUMO)
     if parecer and not contem_erro_tecnico(parecer):
-        return truncar_em_frase(parecer, LIMITE_RESUMO)
+        return _truncar(parecer, LIMITE_RESUMO)
     return ""
 
 
-def _formatar_passo_pdf(passo: dict[str, str], indice: int) -> tuple[str, str]:
-    titulo = _truncar(passo.get("titulo") or f"Passo {indice}", LIMITE_PASSO_TITULO)
-    partes = []
-    if passo.get("acao"):
-        partes.append(_truncar(passo["acao"], LIMITE_PASSO_ACAO))
-    meta = []
-    if passo.get("prazo"):
-        meta.append(f"Prazo: {passo['prazo']}")
-    if passo.get("responsavel"):
-        meta.append(f"Responsavel: {passo['responsavel']}")
-    if passo.get("indicador"):
-        meta.append(f"Sucesso: {_truncar(passo['indicador'], 120)}")
-    corpo = " ".join(partes)
-    if meta:
-        corpo = (corpo + "\n" if corpo else "") + " | ".join(meta)
-    return titulo, corpo
-
-
 class RelatorioPDF:
-    COR_FUNDO = (255, 255, 255)
-    COR_FUNDO_DESTAQUE = (255, 247, 237)
-    COR_TEXTO = (12, 10, 9)
-    COR_TEXTO_SECUNDARIO = (120, 113, 108)
-    COR_DESTAQUE = (217, 119, 6)
-    COR_BORDA = (214, 211, 209)
-    COR_HEADER = (28, 25, 23)
-    COR_HEADER_TEXTO = (255, 255, 255)
-    COR_META = (68, 64, 60)
+    """Briefing executivo em 1 página (ou 2 se necessário), limpo e apresentável."""
 
-    MARGEM_L = 16
-    MARGEM_R = 16
-    ALTURA_HEADER = 26
-    ALTURA_FOOTER = 14
+    COR_INK = (28, 25, 23)
+    COR_MUTED = (120, 113, 108)
+    COR_LINE = (231, 229, 228)
+    COR_SURFACE = (250, 250, 249)
+    COR_ACCENT = (180, 83, 9)
+    COR_ACCENT_SOFT = (255, 247, 237)
+    COR_WHITE = (255, 255, 255)
+    COR_CHIP_BG = (245, 245, 244)
+    COR_HEADER = (28, 25, 23)
+
+    MARGEM = 16
+    HEADER_H = 26
+    FOOTER_H = 14
 
     def __init__(self):
         from fpdf import FPDF
 
-        self.data_geracao = datetime.now().strftime("%d/%m/%Y %H:%M")
+        self.data_geracao = datetime.now().strftime("%d/%m/%Y")
         self.pdf = FPDF(orientation="P", unit="mm", format="A4")
-        self.pdf.set_auto_page_break(auto=True, margin=self.ALTURA_FOOTER + 6)
-        self.pdf.set_margins(self.MARGEM_L, self.ALTURA_HEADER + 5, self.MARGEM_R)
-        self._largura_util = self.pdf.w - self.MARGEM_L - self.MARGEM_R
+        self.pdf.set_auto_page_break(auto=False)
+        self.pdf.set_margins(self.MARGEM, self.HEADER_H + 6, self.MARGEM)
+        self.largura = self.pdf.w - 2 * self.MARGEM
 
-    def _pintar_fundo(self):
-        self.pdf.set_fill_color(*self.COR_FUNDO)
-        self.pdf.rect(0, 0, self.pdf.w, self.pdf.h, style="F")
-
-    def _desenhar_cabecalho(self):
-        self.pdf.set_fill_color(*self.COR_HEADER)
-        self.pdf.rect(0, 0, self.pdf.w, self.ALTURA_HEADER, style="F")
-        self.pdf.set_fill_color(*self.COR_DESTAQUE)
-        self.pdf.rect(0, self.ALTURA_HEADER - 1.4, self.pdf.w, 1.4, style="F")
-
-        self.pdf.set_xy(self.MARGEM_L, 6)
-        self.pdf.set_font("Helvetica", "B", 12)
-        self.pdf.set_text_color(*self.COR_HEADER_TEXTO)
-        self.pdf.cell(0, 6, _texto_pdf("MENTOR DE GESTAO INDUSTRIAL"), ln=False)
-
-        self.pdf.set_font("Helvetica", "", 8)
-        self.pdf.set_text_color(253, 186, 116)
-        self.pdf.set_xy(self.MARGEM_L, 14.5)
-        self.pdf.cell(
-            self._largura_util,
-            4,
-            _texto_pdf(f"Resumo executivo  |  {self.data_geracao}"),
-            align="R",
-        )
-        self.pdf.set_y(self.ALTURA_HEADER + 6)
-
-    def _desenhar_rodape(self):
-        y = self.pdf.h - self.ALTURA_FOOTER
-        self.pdf.set_draw_color(*self.COR_BORDA)
-        self.pdf.line(self.MARGEM_L, y, self.pdf.w - self.MARGEM_R, y)
-        self.pdf.set_font("Helvetica", "", 7)
-        self.pdf.set_text_color(*self.COR_TEXTO_SECUNDARIO)
-        self.pdf.set_xy(self.MARGEM_L, y + 3)
-        self.pdf.cell(
-            self._largura_util,
-            4,
-            _texto_pdf(
-                f"(c) Eduardo Cardoso - Todos os direitos reservados  |  Pag. {self.pdf.page_no()}"
-            ),
-            align="C",
-        )
+    def _y_limite(self) -> float:
+        return self.pdf.h - self.FOOTER_H - 6
 
     def _nova_pagina(self):
         self.pdf.add_page()
-        self._pintar_fundo()
-        self._desenhar_cabecalho()
+        self.pdf.set_fill_color(*self.COR_WHITE)
+        self.pdf.rect(0, 0, self.pdf.w, self.pdf.h, style="F")
+        self._cabecalho()
+        self.pdf.set_y(self.HEADER_H + 8)
 
-    def _garantir_espaco(self, mm: float = 28):
-        if self.pdf.get_y() > self.pdf.h - self.ALTURA_FOOTER - mm:
+    def _garantir(self, altura: float):
+        if self.pdf.get_y() + altura > self._y_limite():
             self._nova_pagina()
 
-    def _titulo_secao(self, titulo: str):
-        self._garantir_espaco(30)
-        y = self.pdf.get_y()
-        self.pdf.set_fill_color(*self.COR_DESTAQUE)
-        self.pdf.rect(self.MARGEM_L, y + 0.8, 2.2, 6, style="F")
-        self.pdf.set_xy(self.MARGEM_L + 5, y)
-        self.pdf.set_font("Helvetica", "B", 11)
-        self.pdf.set_text_color(*self.COR_TEXTO)
-        self.pdf.cell(0, 7, _texto_pdf(titulo), ln=True)
-        self.pdf.ln(1.2)
+    def _altura_texto(self, texto: str, largura: float, line_h: float, size: float = 9.5) -> float:
+        if not texto:
+            return 0.0
+        self.pdf.set_font("Helvetica", "", size)
+        h = self.pdf.multi_cell(
+            largura,
+            line_h,
+            texto,
+            dry_run=True,
+            output="HEIGHT",
+        )
+        return float(h)
 
-    def _paragrafo(self, texto: str):
+    def _cabecalho(self):
+        self.pdf.set_fill_color(*self.COR_HEADER)
+        self.pdf.rect(0, 0, self.pdf.w, self.HEADER_H, style="F")
+        self.pdf.set_fill_color(*self.COR_ACCENT)
+        self.pdf.rect(0, self.HEADER_H - 1.4, self.pdf.w, 1.4, style="F")
+
+        self.pdf.set_xy(self.MARGEM, 6)
+        self.pdf.set_font("Helvetica", "B", 12.5)
+        self.pdf.set_text_color(*self.COR_WHITE)
+        self.pdf.cell(self.largura * 0.62, 6, _texto_pdf("Mentor de Gestao Industrial"), ln=False)
+
+        self.pdf.set_font("Helvetica", "", 8)
+        self.pdf.set_text_color(253, 186, 116)
+        self.pdf.cell(
+            self.largura * 0.38,
+            6,
+            _texto_pdf(f"Briefing  ·  {self.data_geracao}"),
+            align="R",
+            ln=True,
+        )
+
+        self.pdf.set_xy(self.MARGEM, 14.5)
+        self.pdf.set_font("Helvetica", "", 8)
+        self.pdf.set_text_color(214, 211, 209)
+        self.pdf.cell(0, 5, _texto_pdf("Orientacao objetiva para supervisores de manutencao"), ln=True)
+
+    def _rodape(self):
+        y = self.pdf.h - self.FOOTER_H
+        self.pdf.set_draw_color(*self.COR_LINE)
+        self.pdf.set_line_width(0.2)
+        self.pdf.line(self.MARGEM, y, self.pdf.w - self.MARGEM, y)
+        self.pdf.set_xy(self.MARGEM, y + 2.2)
+        self.pdf.set_font("Helvetica", "", 7)
+        self.pdf.set_text_color(*self.COR_MUTED)
+        self.pdf.cell(
+            self.largura,
+            3.5,
+            _texto_pdf(
+                f"Eduardo Cardoso  ·  Apoio a supervisao  ·  Pag. {self.pdf.page_no()}"
+            ),
+            align="C",
+            ln=True,
+        )
+        self.pdf.set_x(self.MARGEM)
+        self.pdf.cell(
+            self.largura,
+            3.2,
+            _texto_pdf("Adapte prazos ao contexto da planta. Nao substitui norma interna nem NR."),
+            align="C",
+        )
+
+    def _secao(self, titulo: str):
+        self._garantir(12)
+        y = self.pdf.get_y()
+        self.pdf.set_fill_color(*self.COR_ACCENT)
+        self.pdf.rect(self.MARGEM, y + 1.4, 1.6, 4.6, style="F")
+        self.pdf.set_xy(self.MARGEM + 4, y)
+        self.pdf.set_font("Helvetica", "B", 9.5)
+        self.pdf.set_text_color(*self.COR_INK)
+        self.pdf.cell(0, 7, _texto_pdf(titulo.upper()), ln=True)
+        self.pdf.ln(0.2)
+
+    def _texto(self, texto: str, size: float = 9.5, cor=None, altura: float = 4.6):
         if not texto:
             return
-        self._garantir_espaco(16)
-        self.pdf.set_font("Helvetica", "", 10)
-        self.pdf.set_text_color(*self.COR_TEXTO)
-        self.pdf.multi_cell(self._largura_util, 5.2, _texto_pdf(texto))
-        self.pdf.ln(2.2)
+        self.pdf.set_font("Helvetica", "", size)
+        self.pdf.set_text_color(*(cor or self.COR_INK))
+        self.pdf.multi_cell(self.largura, altura, _texto_pdf(texto))
+        self.pdf.ln(1.2)
 
-    def _caixa_destaque(self, titulo: str, conteudo: str):
+    def _chips(self, tipo: str, nivel: str):
+        self._garantir(12)
+        y = self.pdf.get_y()
+        gap = 3.5
+        x = self.MARGEM
+        for label, valor in (("Tema", tipo), ("Nivel", nivel)):
+            valor_t = _texto_pdf(valor or "N/A")
+            label_t = _texto_pdf(label)
+            self.pdf.set_font("Helvetica", "B", 9)
+            w_val = self.pdf.get_string_width(valor_t)
+            self.pdf.set_font("Helvetica", "", 7)
+            w_lab = self.pdf.get_string_width(label_t)
+            chip_w = max(w_val, w_lab) + 10
+            chip_w = max(chip_w, 36)
+
+            self.pdf.set_fill_color(*self.COR_CHIP_BG)
+            self.pdf.set_draw_color(*self.COR_LINE)
+            self.pdf.rect(x, y, chip_w, 9.5, style="DF")
+            self.pdf.set_xy(x + 3, y + 1.1)
+            self.pdf.set_font("Helvetica", "", 7)
+            self.pdf.set_text_color(*self.COR_MUTED)
+            self.pdf.cell(chip_w - 6, 3, label_t, ln=True)
+            self.pdf.set_x(x + 3)
+            self.pdf.set_font("Helvetica", "B", 9)
+            self.pdf.set_text_color(*self.COR_INK)
+            self.pdf.cell(chip_w - 6, 4.2, valor_t, ln=False)
+            x += chip_w + gap
+        self.pdf.set_y(y + 12)
+
+    def _caixa_acao(self, titulo: str, conteudo: str):
         if not conteudo:
             return
-        texto = _texto_pdf(truncar_em_frase(conteudo, LIMITE_PROXIMO_PASSO))
-        # estima altura
-        linhas = max(2, (len(texto) // 78) + 1)
-        altura = 12 + linhas * 5
-        self._garantir_espaco(altura + 6)
+        texto = _texto_pdf(_truncar(conteudo, LIMITE_PROXIMO))
+        texto_h = self._altura_texto(texto, self.largura - 10, 4.6, size=9.5)
+        altura = 10 + texto_h
+        self._garantir(altura + 3)
+
         y0 = self.pdf.get_y()
+        self.pdf.set_fill_color(*self.COR_ACCENT_SOFT)
+        self.pdf.set_draw_color(*self.COR_ACCENT)
+        self.pdf.set_line_width(0.45)
+        self.pdf.rect(self.MARGEM, y0, self.largura, altura, style="DF")
+        self.pdf.set_fill_color(*self.COR_ACCENT)
+        self.pdf.rect(self.MARGEM, y0, 1.8, altura, style="F")
 
-        self.pdf.set_fill_color(*self.COR_FUNDO_DESTAQUE)
-        self.pdf.set_draw_color(*self.COR_DESTAQUE)
-        self.pdf.rect(self.MARGEM_L, y0, self._largura_util, altura, style="DF")
-        self.pdf.set_xy(self.MARGEM_L + 4, y0 + 2.5)
-        self.pdf.set_font("Helvetica", "B", 8)
-        self.pdf.set_text_color(*self.COR_DESTAQUE)
-        self.pdf.cell(0, 4, _texto_pdf(titulo.upper()), ln=True)
-        self.pdf.set_x(self.MARGEM_L + 4)
-        self.pdf.set_font("Helvetica", "", 10)
-        self.pdf.set_text_color(*self.COR_TEXTO)
-        self.pdf.multi_cell(self._largura_util - 8, 5, texto)
-        self.pdf.set_y(y0 + altura + 3.5)
+        self.pdf.set_xy(self.MARGEM + 5, y0 + 2.2)
+        self.pdf.set_font("Helvetica", "B", 7.5)
+        self.pdf.set_text_color(*self.COR_ACCENT)
+        self.pdf.cell(0, 3.8, _texto_pdf(titulo.upper()), ln=True)
+        self.pdf.set_x(self.MARGEM + 5)
+        self.pdf.set_font("Helvetica", "", 9.5)
+        self.pdf.set_text_color(*self.COR_INK)
+        self.pdf.multi_cell(self.largura - 10, 4.6, texto)
+        self.pdf.set_y(y0 + altura + 3.2)
+        self.pdf.set_line_width(0.2)
 
-    def _lista_bullets(self, itens: list[str]):
+    def _passo_card(self, indice: int, titulo: str, acao: str, prazo: str):
+        titulo_t = _texto_pdf(_truncar(titulo, LIMITE_PASSO_TITULO))
+        acao_t = _texto_pdf(_truncar(acao, LIMITE_PASSO_ACAO)) if acao else ""
+        prazo_t = _texto_pdf(_truncar(prazo, 55)) if prazo else ""
+
+        texto_w = self.largura - 14
+        acao_h = self._altura_texto(acao_t, texto_w, 4.1, size=8.5) if acao_t else 0
+        altura = 8.2 + acao_h + (3.4 if prazo_t else 0)
+        altura = max(altura, 11)
+        self._garantir(altura + 2.5)
+
+        y0 = self.pdf.get_y()
+        self.pdf.set_fill_color(*self.COR_SURFACE)
+        self.pdf.set_draw_color(*self.COR_LINE)
+        self.pdf.rect(self.MARGEM, y0, self.largura, altura, style="DF")
+
+        self.pdf.set_fill_color(*self.COR_ACCENT)
+        self.pdf.ellipse(self.MARGEM + 2.4, y0 + 2.6, 5, 5, style="F")
+        self.pdf.set_xy(self.MARGEM + 2.4, y0 + 2.9)
+        self.pdf.set_font("Helvetica", "B", 7)
+        self.pdf.set_text_color(*self.COR_WHITE)
+        self.pdf.cell(5, 4.2, str(indice), align="C", ln=False)
+
+        self.pdf.set_xy(self.MARGEM + 9.5, y0 + 2)
+        self.pdf.set_font("Helvetica", "B", 9)
+        self.pdf.set_text_color(*self.COR_INK)
+        self.pdf.cell(texto_w, 4.4, titulo_t, ln=True)
+
+        if acao_t:
+            self.pdf.set_x(self.MARGEM + 9.5)
+            self.pdf.set_font("Helvetica", "", 8.5)
+            self.pdf.set_text_color(*self.COR_MUTED)
+            self.pdf.multi_cell(texto_w, 4.1, acao_t)
+
+        if prazo_t:
+            self.pdf.set_x(self.MARGEM + 9.5)
+            self.pdf.set_font("Helvetica", "B", 7.5)
+            self.pdf.set_text_color(*self.COR_ACCENT)
+            self.pdf.cell(0, 3.2, _texto_pdf(f"Prazo: {prazo}"), ln=True)
+
+        self.pdf.set_y(y0 + altura + 2.2)
+
+    def _bullets(self, itens: list[str]):
         for item in itens:
-            self._garantir_espaco(12)
-            self.pdf.set_font("Helvetica", "B", 10)
-            self.pdf.set_text_color(*self.COR_DESTAQUE)
-            self.pdf.cell(5, 5, "-", ln=False)
-            self.pdf.set_font("Helvetica", "", 10)
-            self.pdf.set_text_color(*self.COR_TEXTO)
-            self.pdf.multi_cell(self._largura_util - 5, 5.1, _texto_pdf(item))
+            item_t = _texto_pdf(item)
+            h = self._altura_texto(item_t, self.largura - 5, 4.3, size=9)
+            self._garantir(h + 2)
+            y = self.pdf.get_y()
+            self.pdf.set_fill_color(*self.COR_ACCENT)
+            self.pdf.ellipse(self.MARGEM + 1, y + 1.5, 1.5, 1.5, style="F")
+            self.pdf.set_xy(self.MARGEM + 5, y)
+            self.pdf.set_font("Helvetica", "", 9)
+            self.pdf.set_text_color(*self.COR_INK)
+            self.pdf.multi_cell(self.largura - 5, 4.3, item_t)
             self.pdf.ln(0.8)
 
-    def _passo_a_passo(self, passos: list[dict[str, str]]):
-        if not passos:
-            return
-        self._titulo_secao("Passo a passo do processo")
-        self.pdf.set_font("Helvetica", "", 9)
-        self.pdf.set_text_color(*self.COR_TEXTO_SECUNDARIO)
-        self.pdf.multi_cell(
-            self._largura_util,
-            4.6,
-            _texto_pdf(
-                "Sequencia resumida para executar a orientacao. Siga na ordem e "
-                "ajuste prazos conforme a urgencia da planta."
-            ),
-        )
-        self.pdf.ln(2)
-
-        for i, passo in enumerate(passos, start=1):
-            titulo, corpo = _formatar_passo_pdf(passo, i)
-            self._garantir_espaco(22)
-
-            # Número + título
-            self.pdf.set_font("Helvetica", "B", 10)
-            self.pdf.set_text_color(*self.COR_DESTAQUE)
-            self.pdf.cell(8, 5.5, f"{i}.", ln=False)
-            self.pdf.set_text_color(*self.COR_TEXTO)
-            self.pdf.multi_cell(self._largura_util - 8, 5.5, _texto_pdf(titulo))
-
-            if corpo:
-                self.pdf.set_x(self.MARGEM_L + 8)
-                self.pdf.set_font("Helvetica", "", 9.5)
-                self.pdf.set_text_color(*self.COR_META)
-                self.pdf.multi_cell(self._largura_util - 8, 4.8, _texto_pdf(corpo))
-            self.pdf.ln(2.2)
-
     def gerar(self, resultado) -> bytes:
+        from ui.i18n import rotulo_complexidade, rotulo_tipo
+
         analise = resultado.analise or {}
         self._nova_pagina()
 
-        from ui.i18n import rotulo_complexidade, rotulo_tipo
-
-        tipo = _texto_pdf(rotulo_tipo(analise.get("tipo_problema", "")) or "N/A")
-        nivel = _texto_pdf(rotulo_complexidade(analise.get("complexidade", "")) or "N/A")
-        self.pdf.set_font("Helvetica", "B", 10)
-        self.pdf.set_text_color(*self.COR_TEXTO)
-        self.pdf.cell(0, 6, f"Tema: {tipo}   |   Nivel: {nivel}", ln=True)
-        self.pdf.ln(2)
+        tipo = rotulo_tipo(analise.get("tipo_problema", "")) or "N/A"
+        nivel = rotulo_complexidade(analise.get("complexidade", "")) or "N/A"
+        self._chips(tipo, nivel)
 
         resumo = _resumo_para_pdf(resultado)
         if resumo:
-            self._titulo_secao("Resumo da situacao")
-            self._paragrafo(resumo)
-
-        justificativa = limpar_markdown(analise.get("justificativa", ""))
-        if justificativa and len(justificativa) > 20 and not contem_erro_tecnico(justificativa):
-            self._titulo_secao("Parecer tecnico")
-            self._paragrafo(truncar_em_frase(justificativa, 360))
+            self._secao("Situacao")
+            self._texto(resumo)
 
         proximo = extrair_proximo_passo(resultado)
         if proximo:
-            self._caixa_destaque("Proxima acao (24-48h)", proximo)
+            self._caixa_acao("Proxima acao (24h)", proximo)
 
         passos = extrair_passos_detalhados(resultado.plano_acao or "")
         if not passos:
-            # Fallback a partir do parecer ("Plano em 3 passos")
             secao_plano = _extrair_secao(
                 resultado.relatorio_consolidado or "",
                 ("Plano em 3 passos", "Plano de acao", "Plano de ação", "Passo a passo"),
             )
             if secao_plano:
                 passos = extrair_passos_detalhados(secao_plano)
-        self._passo_a_passo(passos)
 
-        # Conversa resumida
-        conversa_fonte = resultado.comunicacao or ""
-        bullets = _bullets_de_texto(
-            _extrair_secao(
-                conversa_fonte,
-                (
-                    "Abertura da conversa",
-                    "Feedback usando SBI",
-                    "Perguntas poderosas",
-                    "Como conduzir a conversa",
-                ),
-            )
-            or conversa_fonte
-        )
-        if not bullets:
-            bullets = _bullets_de_texto(
-                _extrair_secao(
-                    resultado.relatorio_consolidado or "",
-                    ("Como conduzir a conversa", "Roteiro", "Conversacao", "Conversa"),
+        if passos:
+            self._secao("Plano de acao")
+            for i, passo in enumerate(passos[:MAX_PASSOS_PDF], start=1):
+                self._passo_card(
+                    i,
+                    passo.get("titulo") or f"Passo {i}",
+                    passo.get("acao") or "",
+                    passo.get("prazo") or "",
                 )
-            )
+
+        bullets = _pontos_conversa(resultado)
         if bullets:
-            self._titulo_secao("Como conduzir a conversa (resumo)")
-            self._lista_bullets(bullets)
+            self._secao("Conversa (pontos-chave)")
+            self._bullets(bullets[:MAX_BULLETS])
 
-        # Sinais de sucesso
-        sinais = _bullets_de_texto(
-            _extrair_secao(
-                resultado.relatorio_consolidado or "",
-                ("Sinais de que esta funcionando", "Sinais de que está funcionando", "Check-in"),
-            )
-            or _extrair_secao(resultado.plano_acao or "", ("Check-in de acompanhamento", "Riscos e mitigacao", "Riscos e mitigação"))
-        )
-        if sinais:
-            self._titulo_secao("Sinais de que esta funcionando")
-            self._lista_bullets(sinais[:4])
-
-        for pagina in range(1, self.pdf.page_no() + 1):
+        # Rodapé em todas as páginas (uma vez cada)
+        total = self.pdf.page_no()
+        for pagina in range(1, total + 1):
             self.pdf.page = pagina
-            self._desenhar_rodape()
+            self._rodape()
 
         buffer = io.BytesIO()
         self.pdf.output(buffer)

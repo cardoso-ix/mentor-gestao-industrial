@@ -239,3 +239,54 @@ def extrair_proximo_passo(resultado) -> str:
 
 def escapar_html(texto: str) -> str:
     return html.escape(limpar_markdown(texto), quote=True)
+
+
+def extrair_destaques(
+    texto: str,
+    max_itens: int = 5,
+    max_chars_item: int = 160,
+    max_paragrafos: int = 1,
+) -> dict[str, list[str] | str]:
+    """
+    Resume texto longo para UI objetiva: 1 parágrafo curto + poucos bullets.
+    """
+    texto = sanitizar_para_exibicao(texto or "")
+    if not texto:
+        return {"resumo": "", "itens": []}
+
+    paragrafos: list[str] = []
+    itens: list[str] = []
+    for linha in texto.split("\n"):
+        s = linha.strip()
+        if not s:
+            continue
+        if s.startswith("- ") or re.match(r"^\d+[\.\)]\s+", s) or re.match(
+            r"^passo\s+\d+", s, re.I
+        ):
+            item = re.sub(r"^(passo\s+\d+\s*[—\-–:]?\s*)", "", s, flags=re.I)
+            item = re.sub(r"^\d+[\.\)]\s+", "", item)
+            item = item.lstrip("- ").strip()
+            if item and len(item) > 8:
+                itens.append(truncar_em_frase(item, max_chars_item))
+            continue
+        if s.endswith(":") and len(s) < 80:
+            continue
+        if len(s) > 40:
+            paragrafos.append(s)
+
+    resumo = ""
+    if paragrafos:
+        resumo = truncar_em_frase(paragrafos[0], 320)
+        if max_paragrafos > 1 and len(paragrafos) > 1:
+            extra = truncar_em_frase(paragrafos[1], 220)
+            if extra:
+                resumo = f"{resumo} {extra}".strip()
+
+    if not itens and resumo:
+        # Sem bullets: quebra o resumo em frases curtas como destaques
+        frases = re.split(r"(?<=[.!?])\s+", resumo)
+        itens = [truncar_em_frase(f, max_chars_item) for f in frases if len(f) > 20][
+            :max_itens
+        ]
+
+    return {"resumo": resumo, "itens": itens[:max_itens]}
