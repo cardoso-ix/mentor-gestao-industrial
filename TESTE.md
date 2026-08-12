@@ -1,60 +1,69 @@
 # Checklist para testar a demo
 
-Use este roteiro após o deploy no Hugging Face ou ao validar localmente.
-Índice completo: [DOCS.md](DOCS.md).
+Roteiro rápido para validar a demo pública ou o ambiente local.  
+Índice: [DOCS.md](DOCS.md)
 
-## Links
+## Links para testar
 
 | Onde | URL |
 |------|-----|
-| Demo | https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial |
+| **Demo (Hugging Face)** | https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial |
+| **App direto** | https://duzinxd-mentor-gestao-industrial.hf.space |
 | Portfólio | https://cardoso-ix.github.io/Portifolio/ |
 | Código | https://github.com/cardoso-ix/mentor-gestao-industrial |
 
-## Antes de testar (importante)
+## Antes de testar
 
-1. Confirme no HF → **Settings → Secrets** (ou no `.env` local):
+1. No Space, status deve estar **Running** (não Building / Starting).
+2. Secrets no HF (ou `.env` local):
    - `OPENCODE_GO_API_KEY` (obrigatória)
-   - `SERPER_API_KEY` (recomendada; usada em processo/segurança)
+   - `SERPER_API_KEY` (recomendada)
    - `LLM_PROVIDER=opencode_go` (padrão)
    - `OPENCODE_GO_MODEL=deepseek-v4-flash` (padrão)
-2. No painel OpenCode (Workspace → Go), ative **Enable models hosted in China**.
-3. No Hugging Face, o status do Space deve estar **Running** (não Building/Starting).
-4. Remova secrets antigos `OPENROUTER_API_KEY` / `GROQ_API_KEY` se ainda existirem.
+3. No OpenCode (Workspace → Go): **Enable models hosted in China** ativado.
+4. Remova secrets legados `OPENROUTER_API_KEY` / `GROQ_API_KEY` se ainda existirem.
 
-## Passo a passo do teste
+## Teste em 5 passos (público)
 
-1. Abra a demo (ou rode local: `streamlit run main.py`) e aguarde a tela inicial carregar.
-2. (Opcional) Clique em um caso de **Experimente em 1 clique**, ou conte a situação com suas palavras.
-3. Ajuste a urgência. Detalhes opcionais só se quiser.
-4. Clique em **Gerar orientação** **uma vez** e aguarde (1–3 min).
-5. Verifique:
-   - Barra de progresso avança (inclui “Redigindo e validando parecer”)
-   - **Parecer executivo** no topo, com tom de mentor sênior e sem frase cortada
-   - Abas **Diagnóstico**, **Estratégia**, **Conversa**, **Plano** com conteúdo
-   - Sem caixa vermelha de erro
-   - PDF com passo a passo completo
+1. Abra a demo e confirme o hero **Mentor de Gestão Industrial** + bloco **Nota geral**.
+2. Em **Casos modelo**, clique em um exemplo (ex.: resistência a preencher OS) **ou** escolha o tipo e escreva o caso.
+3. Clique em **Gerar briefing** uma vez e aguarde 1–3 min (barra de progresso / “Montando o briefing”).
+4. Confira o resultado:
+   - Faixa **Orientação pronta** / briefing executivo
+   - Prioridade **Faça nas próximas 24 horas**
+   - Síntese objetiva
+   - Abas **Diagnóstico · Estratégia · Conversa · Plano**
+   - Botão **Baixar briefing em PDF**
+5. Abra o PDF: 1 página (ou 2), header, chips Tema/Nível, próxima ação, plano e rodapé.
+
+## Casos sugeridos para demo
+
+| Caso modelo | O que observar |
+|-------------|----------------|
+| Resistência a preencher OS | Desempenho / liderança, plano com prazo |
+| Recusa de EPI / LOTO | Segurança + busca Serper (se configurada) |
+| Conflito entre turnos | Comunicação / conversa SBI |
 
 ## Erros comuns
 
 | Sintoma | O que fazer |
 |---------|-------------|
-| `401 Missing Authentication header` | Confira `OPENCODE_GO_API_KEY` nos secrets/`.env` e reinicie o Space |
-| `RegionError` / China opt-in | Ative **Enable models hosted in China** no OpenCode |
-| Limite / cota OpenCode Go | Aguarde a janela de uso (5h / semana / mês) |
-| Busca web indisponível | Configure `SERPER_API_KEY` (só afeta processo/segurança) |
+| Space Building / erro ao abrir | Aguarde o build; recarregue em alguns minutos |
+| `401 Missing Authentication header` | Confira `OPENCODE_GO_API_KEY` e reinicie o Space |
+| `RegionError` / China | Ative **Enable models hosted in China** no OpenCode |
+| Limite / cota OpenCode | Aguarde a janela de uso (5h / semana / mês) |
+| Limite 10 análises/hora | Aguarde 1h ou teste local |
+| Busca web indisponível | Configure `SERPER_API_KEY` (só processo/segurança) |
 
 ## Teste local
 
 ```bash
-cp .env.example .env   # preencha OPENCODE_GO_API_KEY e SERPER_API_KEY
+cp .env.example .env   # OPENCODE_GO_API_KEY + SERPER_API_KEY
 pip install -r requirements.txt
 streamlit run main.py
 ```
 
 Acesse http://localhost:8501
-
-**Esperado:** análise completa em cerca de 1–3 minutos, com parecer + abas preenchidas e sem erro vermelho.
 
 ### Validação automática (opcional)
 
@@ -72,3 +81,5 @@ r = executar_mentoria(
 print('OK' if not r.erro and r.relatorio_consolidado else r.erro)
 PY
 ```
+
+**Esperado:** análise completa em ~1–3 min, sem erro vermelho, com parecer + abas + PDF.
