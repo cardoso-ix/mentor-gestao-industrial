@@ -1,15 +1,15 @@
-"""Renderização do painel de resultados."""
+"""Renderização compacta e objetiva do painel de resultados."""
 
 from __future__ import annotations
 
 import streamlit as st
 
-from ui.export_utils import extrair_passos_plano, gerar_pdf_relatorio
+from ui.export_utils import extrair_passos_detalhados, gerar_pdf_relatorio
 from ui.i18n import rotulo_complexidade, rotulo_tipo
 from ui.text_utils import (
     escapar_html,
+    extrair_destaques,
     extrair_proximo_passo,
-    formatar_em_blocos,
     limpar_markdown,
     montar_visao_geral_profissional,
     sanitizar_para_exibicao,
@@ -17,9 +17,8 @@ from ui.text_utils import (
 )
 
 
-def _renderizar_metricas(analise: dict, num_agentes: int):
-    tipo_raw = analise.get("tipo_problema", "")
-    tipo = rotulo_tipo(tipo_raw)
+def _renderizar_metricas(analise: dict):
+    tipo = rotulo_tipo(analise.get("tipo_problema", ""))
     complexidade = rotulo_complexidade(analise.get("complexidade", ""))
 
     st.markdown(
@@ -28,57 +27,61 @@ def _renderizar_metricas(analise: dict, num_agentes: int):
         f'<p class="resultado-meta__value">{escapar_html(tipo)}</p></div>'
         f'<div class="resultado-meta__item"><p class="resultado-meta__label">Nível</p>'
         f'<p class="resultado-meta__value">{escapar_html(complexidade)}</p></div>'
-        f'<div class="resultado-meta__item"><p class="resultado-meta__label">Especialistas</p>'
-        f'<p class="resultado-meta__value">{num_agentes}</p></div>'
         "</div>",
         unsafe_allow_html=True,
     )
 
 
-def _renderizar_blocos(texto: str):
-    """Renderiza conteúdo dos agentes com formatação profissional."""
-    blocos = formatar_em_blocos(texto)
-    if not blocos:
-        st.write(sanitizar_para_exibicao(texto) or "Conteúdo não disponível.")
-        return
-
-    for bloco in blocos:
-        if bloco["tipo"] == "titulo":
-            st.markdown(f"**{bloco['texto']}**")
-        elif bloco["tipo"] == "item":
-            st.markdown(f"- {bloco['texto']}")
-        elif bloco["tipo"] == "paragrafo":
-            for linha in bloco["texto"].split("\n"):
-                if linha.strip():
-                    st.write(linha.strip())
+def _renderizar_destaques(texto: str, max_itens: int = 5, vazio: str = "Conteúdo não disponível."):
+    """Mostra só o essencial: resumo curto + poucos bullets."""
+    dados = extrair_destaques(texto, max_itens=max_itens, max_chars_item=170)
+    if dados["resumo"]:
+        st.write(dados["resumo"])
+    if dados["itens"]:
+        for item in dados["itens"]:
+            st.markdown(f"- {item}")
+    if not dados["resumo"] and not dados["itens"]:
+        st.write(vazio)
 
 
-def _renderizar_checklist(plano_texto: str):
-    passos = extrair_passos_plano(plano_texto)
+def _renderizar_plano_compacto(plano_texto: str):
+    passos = extrair_passos_detalhados(plano_texto)
     if not passos:
+        _renderizar_destaques(plano_texto, vazio="Plano não disponível.")
         return
 
-    st.markdown("#### Acompanhe a execução")
-    if "checklist_plano" not in st.session_state:
-        st.session_state.checklist_plano = {}
+    for i, passo in enumerate(passos[:4], start=1):
+        titulo = truncar_em_frase(passo.get("titulo") or f"Passo {i}", 80)
+        acao = truncar_em_frase(passo.get("acao") or "", 130)
+        prazo = (passo.get("prazo") or "").strip()
+        linha = f"**{i}. {titulo}**"
+        if acao:
+            linha += f" — {acao}"
+        if prazo:
+            linha += f" · _{prazo}_"
+        st.markdown(linha)
 
-    for i, passo in enumerate(passos):
-        chave = f"passo_{i}"
-        texto = truncar_em_frase(limpar_markdown(passo), 250)
-        st.session_state.checklist_plano[chave] = st.checkbox(
-            texto,
-            value=st.session_state.checklist_plano.get(chave, False),
-            key=f"check_{chave}_{st.session_state.get('form_key', 0)}",
+
+def _parecer_curto(resultado) -> str:
+    parecer = sanitizar_para_exibicao(
+        getattr(resultado, "relatorio_consolidado", "") or ""
+    )
+    if not parecer:
+        parecer = montar_visao_geral_profissional(
+            resultado.analise or {},
+            resultado.plano_acao or "",
+            resultado.estrategia or "",
         )
+    return truncar_em_frase(parecer.replace("\n\n", " ").replace("\n", " "), 360)
 
 
 def _renderizar_exportacao(resultado):
     try:
         pdf_bytes = gerar_pdf_relatorio(resultado)
         st.download_button(
-            "Baixar resumo executivo (PDF)",
+            "Baixar briefing em PDF",
             data=pdf_bytes,
-            file_name="mentor_gestao_resumo.pdf",
+            file_name="mentor_gestao_briefing.pdf",
             mime="application/pdf",
             use_container_width=True,
             type="primary",
@@ -93,76 +96,77 @@ def renderizar_resultado(resultado):
         return
 
     analise = resultado.analise or {}
-    num_agentes = len(resultado.agentes_acionados)
 
-    st.markdown('<div class="resultado-shell-marker" aria-hidden="true"></div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="resultado-shell-marker" aria-hidden="true"></div>',
+        unsafe_allow_html=True,
+    )
     with st.container(border=True):
         st.markdown(
             '<div class="resultado-shell__header">'
-            '<p class="resultado-shell__titulo">Parecer pronto</p>'
-            f'<span class="resultado-shell__meta">{num_agentes} especialistas</span>'
+            '<p class="resultado-shell__titulo">Orientação pronta</p>'
+            '<span class="resultado-shell__meta">Briefing executivo</span>'
             "</div>",
             unsafe_allow_html=True,
         )
-        _renderizar_metricas(analise, num_agentes)
+        st.markdown(
+            '<p class="resultado-nota">'
+            "Leitura recomendada: priorize a ação das próximas 24h, "
+            "use o roteiro na conversa e adapte o plano ao turno e à planta."
+            "</p>",
+            unsafe_allow_html=True,
+        )
+        _renderizar_metricas(analise)
 
         proximo = extrair_proximo_passo(resultado)
         if proximo:
             st.markdown(
                 '<div class="proximo-passo-card">'
-                "<strong>Prioridade nas próximas 24 horas</strong>"
+                "<strong>Faça nas próximas 24 horas</strong>"
                 f"<p>{escapar_html(proximo)}</p></div>",
                 unsafe_allow_html=True,
             )
 
-        parecer = sanitizar_para_exibicao(
-            getattr(resultado, "relatorio_consolidado", "") or ""
-        )
-        if not parecer:
-            parecer = montar_visao_geral_profissional(
-                analise,
-                resultado.plano_acao or "",
-                resultado.estrategia or "",
+        parecer = _parecer_curto(resultado)
+        if parecer:
+            st.markdown(
+                '<p class="section-heading section-heading--inline">Em síntese</p>',
+                unsafe_allow_html=True,
             )
-        with st.expander("Parecer executivo", expanded=True):
-            if parecer:
-                _renderizar_blocos(parecer)
-            else:
-                st.write("Parecer indisponível para este caso.")
+            st.write(parecer)
+        else:
+            st.write("Parecer indisponível para este caso.")
 
         _renderizar_exportacao(resultado)
 
-    st.divider()
+    abas = st.tabs(["Diagnóstico", "Estratégia", "Conversa", "Plano"])
 
-    col_esq, col_dir = st.columns([1, 1])
+    with abas[0]:
+        st.write(
+            truncar_em_frase(
+                limpar_markdown(analise.get("resumo", "Informação não disponível.")),
+                300,
+            )
+        )
+        if analise.get("justificativa"):
+            st.caption(
+                truncar_em_frase(limpar_markdown(analise["justificativa"]), 160)
+            )
 
-    with col_esq:
-        abas_esq = st.tabs(["Diagnóstico", "Estratégia"])
-        with abas_esq[0]:
-            st.markdown('<p class="section-heading">Diagnóstico da situação</p>', unsafe_allow_html=True)
-            st.write(limpar_markdown(analise.get("resumo", "Informação não disponível.")))
-            if analise.get("justificativa"):
-                st.markdown("**Fundamentação**")
-                st.write(limpar_markdown(analise["justificativa"]))
-        with abas_esq[1]:
-            st.markdown('<p class="section-heading">Estratégia de condução</p>', unsafe_allow_html=True)
-            if resultado.estrategia:
-                _renderizar_blocos(resultado.estrategia)
-            else:
-                st.info("Não foi necessário aprofundar a estratégia neste caso.")
+    with abas[1]:
+        if resultado.estrategia:
+            _renderizar_destaques(resultado.estrategia)
+        else:
+            st.info("Estratégia não foi necessária neste caso.")
 
-    with col_dir:
-        abas_dir = st.tabs(["Conversa", "Plano"])
-        with abas_dir[0]:
-            st.markdown('<p class="section-heading">Roteiro de conversa (SBI)</p>', unsafe_allow_html=True)
-            if resultado.comunicacao:
-                _renderizar_blocos(resultado.comunicacao)
-            else:
-                st.info("Não foi necessário montar roteiro de conversa.")
-        with abas_dir[1]:
-            st.markdown('<p class="section-heading">Plano de ação</p>', unsafe_allow_html=True)
-            if resultado.plano_acao:
-                _renderizar_blocos(resultado.plano_acao)
-                _renderizar_checklist(resultado.plano_acao)
-            else:
-                st.info("Não foi necessário gerar plano detalhado.")
+    with abas[2]:
+        if resultado.comunicacao:
+            _renderizar_destaques(resultado.comunicacao, max_itens=4)
+        else:
+            st.info("Roteiro de conversa não foi necessário neste caso.")
+
+    with abas[3]:
+        if resultado.plano_acao:
+            _renderizar_plano_compacto(resultado.plano_acao)
+        else:
+            st.info("Plano detalhado não foi necessário neste caso.")
