@@ -10,11 +10,30 @@ pinned: false
 
 # Mentor Virtual de Gestão Industrial
 
-Sistema multi-agente que ajuda técnicos e supervisores de **manutenção industrial** a desenvolver habilidades de gestão de pessoas e equipes técnicas.
+Sistema multi-agente que ajuda **supervisores de manutenção industrial** a conduzir liderança, segurança e desempenho no chão de fábrica.
 
-Quando você descreve uma situação de liderança em linguagem natural, quatro agentes especializados analisam o caso e entregam orientação prática: estratégia de gestão, roteiro de conversa (modelo SBI) e plano de ação com prazos e indicadores.
+Você descreve a situação → o mentor entrega um **briefing executivo**: diagnóstico, roteiro de conversa (SBI) e plano de ação com prazos.
 
-**Demo** · [Hugging Face](https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial) · [Portfólio](https://cardoso-ix.github.io/Portifolio/) · [Documentação](DOCS.md)
+## Teste agora (demo pública)
+
+| | |
+|---|---|
+| **Demo ao vivo** | https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial |
+| **App direto** | https://duzinxd-mentor-gestao-industrial.hf.space |
+| **Portfólio** | https://cardoso-ix.github.io/Portifolio/ |
+| **Código** | https://github.com/cardoso-ix/mentor-gestao-industrial |
+
+### Como testar em 1 minuto
+
+1. Abra a [demo](https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial) e aguarde o status **Running**.
+2. Clique em um **caso modelo** (ex.: resistência a preencher OS) **ou** escolha o tipo e descreva o caso.
+3. Clique em **Gerar briefing** e aguarde 1–3 minutos.
+4. Leia a prioridade das próximas 24h, a síntese e as abas **Diagnóstico · Estratégia · Conversa · Plano**.
+5. Baixe o **briefing em PDF**.
+
+Checklist completo: [TESTE.md](TESTE.md) · Índice: [DOCS.md](DOCS.md)
+
+> Limite público: 10 análises/hora. Use fatos concretos (turno, OS, o que já tentou) para uma orientação melhor.
 
 ## Tecnologias
 
@@ -25,7 +44,7 @@ Quando você descreve uma situação de liderança em linguagem natural, quatro 
 | Busca web | Serper API (processo e segurança) |
 | Interface | Streamlit |
 | Base de conhecimento | ChromaDB + PDFs locais |
-| Embeddings | sentence-transformers (local, gratuito) |
+| Embeddings | sentence-transformers (local) |
 | Deploy | Hugging Face Spaces (Docker) · VPS (docker-compose) |
 
 ## Arquitetura dos agentes
@@ -46,7 +65,6 @@ Orquestrador (orchestrator.py)
        ├── 2. Estrategista de Gestão (conforme necessidade)
        ├── 3. Especialista em Comunicação (conforme necessidade)
        ├── 4. Gerador de Plano de Ação (conforme necessidade)
-       │      (playbooks por tipo guiam a estrutura, sem custo extra)
        │
        └── 5. Editor de Parecer Executivo (consolidação final)
 ```
@@ -55,47 +73,38 @@ Orquestrador (orchestrator.py)
 
 ```
 mentor-gestao-industrial/
-├── agents/                 # Sub-agentes CrewAI (analista, estrategista, etc.)
-├── ui/                     # Componentes Streamlit (wizard, resultado, estilos)
-├── knowledge_base/         # PDFs por categoria (gestao, normas, processos)
-├── data/chroma/            # Índice ChromaDB (gerado automaticamente)
+├── agents/                 # Sub-agentes CrewAI
+├── ui/                     # Streamlit (wizard, resultado, PDF, estilos)
+├── knowledge_base/         # PDFs (gestao, normas, processos)
+├── data/chroma/            # Índice ChromaDB
 ├── tools/                  # Busca web Serper
-├── .github/workflows/      # Sync automático GitHub → Hugging Face
-├── config.py               # Configurações centralizadas
-├── rag.py                  # Ingestão e consulta RAG
-├── orchestrator.py         # Orquestrador multi-agente
-├── llm_utils.py            # LLM OpenCode Go / OpenRouter compatível com CrewAI
+├── .github/workflows/      # Sync GitHub → Hugging Face
+├── config.py
+├── rag.py
+├── orchestrator.py
+├── llm_utils.py
 ├── main.py                 # Interface Streamlit
-├── requirements.txt        # Dependências locais / VPS
-├── requirements-hf.txt     # Dependências otimizadas para Hugging Face
+├── requirements.txt
+├── requirements-hf.txt
 ├── Dockerfile
 ├── docker-compose.yml
-├── DEPLOY.md               # Guia de publicação
-├── TESTE.md                # Checklist de validação
-└── DOCS.md                 # Índice da documentação
+├── DEPLOY.md
+├── TESTE.md
+└── DOCS.md
 ```
 
-## Pré-requisitos
+## Pré-requisitos (local)
 
-- **Python 3.11 ou 3.12** (desenvolvimento local — o CrewAI ainda não suporta Python 3.14)
-- Conta na [OpenCode Go](https://opencode.ai) (API key do plano Go — DeepSeek V4 Flash)
-- Conta na [Serper](https://serper.dev) (busca web — plano gratuito disponível)
-- Docker e Docker Compose (deploy na VPS — **recomendado também no Windows** se você tiver Python 3.14)
+- **Python 3.11 ou 3.12**
+- Conta [OpenCode Go](https://opencode.ai) (API key)
+- Conta [Serper](https://serper.dev) (plano gratuito disponível)
+- Docker (opcional; recomendado no Windows com Python 3.14)
 
-## Configuração
-
-### 1. Clone o repositório
+## Configuração local
 
 ```bash
 git clone https://github.com/cardoso-ix/mentor-gestao-industrial.git
 cd mentor-gestao-industrial
-```
-
-### 2. Configure as chaves de API
-
-Copie o modelo e edite com suas chaves:
-
-```bash
 cp .env.example .env
 ```
 
@@ -103,138 +112,71 @@ cp .env.example .env
 LLM_PROVIDER=opencode_go
 OPENCODE_GO_API_KEY=sua_chave_opencode_go_aqui
 OPENCODE_GO_MODEL=deepseek-v4-flash
-SERPER_API_KEY=sua_chave_serper_real_aqui
+SERPER_API_KEY=sua_chave_serper_aqui
 ```
 
-**Onde obter as chaves:**
-- OpenCode Go: https://opencode.ai → Workspace → Go / API Keys
-- Serper: https://serper.dev → Dashboard → API Key
+**Chaves:** [opencode.ai](https://opencode.ai) → Workspace → Go / API Keys · [serper.dev](https://serper.dev) → API Key  
 
-**Opt-in China (obrigatório para DeepSeek V4 Flash no Go):** no painel do OpenCode, ative **Enable models hosted in China** em Workspace → Go. Sem isso a API responde `RegionError` (HTTP 403).
+**Opt-in China (obrigatório para DeepSeek V4 Flash):** no painel OpenCode, ative **Enable models hosted in China**.
 
-> Alternativa legada: `LLM_PROVIDER=openrouter` + `OPENROUTER_API_KEY` (modelos `:free`).
-
-### 3. Adicione PDFs à base de conhecimento
-
-Coloque arquivos `.pdf` na pasta `knowledge_base/`. Exemplos úteis:
-
-- Manuais de liderança situacional
-- Procedimentos internos de manutenção
-- Normas de segurança (NR-10, NR-12, etc.)
-- Materiais sobre comunicação e feedback
-
-Os PDFs são indexados na **primeira análise** (quando você clica em **Gerar orientação**), não na abertura da página.
+> Alternativa legada: `LLM_PROVIDER=openrouter` + `OPENROUTER_API_KEY`.
 
 ## Executar localmente
 
-> **Windows com Python 3.14:** use Docker (seção abaixo) ou instale [Python 3.12](https://www.python.org/downloads/) e crie o venv com `py -3.12 -m venv venv`.
-
 ```bash
-# Criar ambiente virtual (recomendado)
 python -m venv venv
 source venv/bin/activate        # Linux/Mac
 # ou: venv\Scripts\activate     # Windows
-
-# Instalar dependências
 pip install -r requirements.txt
-
-# Iniciar interface
 streamlit run main.py
 ```
 
 Acesse: http://localhost:8501
 
-## Demo pública
-
-**URL:** https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial
+## Demo pública e deploy
 
 | Opção | Quando usar |
 |-------|-------------|
 | [Hugging Face Spaces](https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial) | Demo pública (ativa) |
-| [Docker na VPS](DEPLOY.md#opção-2--vps-com-docker-produção-estável) | Produção estável, mais RAM |
+| [Docker na VPS](DEPLOY.md#opção-2--vps-com-docker) | Produção estável |
 | [Streamlit Cloud](STREAMLIT_CLOUD.md) | Não recomendado |
 
-Deploy e sincronização: ver [DEPLOY.md](DEPLOY.md).
-
-**Checklist de teste:** [TESTE.md](TESTE.md)
-
-## Deploy na VPS (Docker)
-
-```bash
-# Na VPS Linux, dentro da pasta do projeto:
-docker compose up -d --build
-
-# Ver logs
-docker compose logs -f
-
-# Parar
-docker compose down
-```
-
-Acesse: `http://IP_DA_SUA_VPS:8501`
-
-### Requisitos da VPS
-
-- **Mínimo:** 2 GB RAM
-- **Recomendado:** 4 GB RAM (embeddings locais + Streamlit)
-- Porta 8501 liberada no firewall
+Push em `master` dispara o sync automático para o Space. Detalhes: [DEPLOY.md](DEPLOY.md).
 
 ## Como usar
 
-1. (Opcional) Escolha um caso em **Experimente em 1 clique**, ou selecione o tipo da situação
-2. Conte o caso com suas palavras e ajuste a urgência
-3. Clique em **Gerar orientação** (aguarde 1–3 min)
-4. Leia o **Parecer executivo** no topo
-5. Explore as abas: **Diagnóstico** | **Estratégia** | **Conversa** | **Plano**
-6. Use **Limpar formulário** para analisar outro caso
+1. (Opcional) Carregue um **caso modelo**, ou selecione o **tipo da situação**.
+2. Descreva o caso com fatos (nomes, OS, turno, o que já tentou).
+3. Ajuste urgência/equipe e clique em **Gerar briefing** (1–3 min).
+4. Leia a ação das próximas 24h e a síntese.
+5. Explore as abas e baixe o **briefing em PDF**.
 
-Cada análise é independente — o sistema não mantém histórico de conversas.
+Cada análise é independente — sem histórico de conversas.
 
-## Base de conhecimento (RAG)
+## Limitações
 
-- PDFs ficam em `knowledge_base/` (subpastas: `gestao/`, `normas/`, `processos/`).
-- A indexação roda na primeira análise ou quando um PDF novo/alterado é detectado.
-- O índice persiste em `data/chroma/` entre reinicializações.
+- **Cota OpenCode Go:** várias chamadas LLM por análise; o orquestrador faz pausa e retry.
+- **App público:** sem autenticação; monitore uso no OpenCode e na Serper.
+- **Embeddings:** primeira indexação de PDFs pode demorar; as seguintes são rápidas.
 
-## Limitações e avisos
+## Exemplo
 
-### Cota do OpenCode Go
+**Entrada:**  
+> Técnico sênior da elétrica se recusa a preencher OS. Outros começaram a copiar.
 
-Cada análise faz **várias chamadas** ao LLM (Analista + agentes especializados). O plano Go tem limites em valor de uso (janela de 5h / semana / mês). O orquestrador faz **pausa entre agentes** e **retry automático**; se ainda falhar, aguarde e tente de novo.
-
-### App público
-
-Por padrão o sistema não tem autenticação. Qualquer pessoa com o link pode usar suas APIs. Monitore o uso no painel do OpenCode e da Serper.
-
-### Embeddings locais
-
-A primeira indexação de muitos PDFs pode demorar alguns minutos. Indexações seguintes são rápidas (só processa arquivos novos ou alterados).
-
-### Modelo LLM
-
-O projeto usa **DeepSeek V4 Flash** via **OpenCode Go** (`deepseek-v4-flash`). Para o caminho legado OpenRouter, defina `LLM_PROVIDER=openrouter` e um modelo `:free`.
-
-## Exemplo de uso
-
-**Entrada:**
-> Um técnico experiente da minha equipe de manutenção elétrica se recusa a preencher a ordem de serviço após concluir intervenções. Diz que é perda de tempo. Outros técnicos começaram a copiar o comportamento.
-
-**Saída esperada:**
-- Análise: tipo `desempenho`, complexidade `média`
-- Estratégia: liderança situacional para técnico competente mas desmotivado
-- Comunicação: roteiro SBI com frases para conversa 1:1
-- Plano: passos com prazos e indicador "100% OS preenchidas em 2 semanas"
+**Saída esperada:**  
+tipo `desempenho` · prioridade 24h · roteiro SBI · plano com prazos · PDF.
 
 ## Documentação
 
 | Documento | Descrição |
 |-----------|-----------|
-| [DOCS.md](DOCS.md) | Índice completo |
-| [DEPLOY.md](DEPLOY.md) | Publicar no Hugging Face ou VPS |
-| [TESTE.md](TESTE.md) | Validar a demo após deploy |
-| [PRODUCT.md](PRODUCT.md) | Propósito e princípios do produto |
-| [DESIGN.md](DESIGN.md) | Paleta e tipografia |
+| [DOCS.md](DOCS.md) | Índice |
+| [TESTE.md](TESTE.md) | Checklist da demo |
+| [DEPLOY.md](DEPLOY.md) | Publicar no HF / VPS |
+| [PRODUCT.md](PRODUCT.md) | Propósito e princípios |
+| [DESIGN.md](DESIGN.md) | Visual |
 
 ## Licença
 
-Projeto de uso educacional e interno. Adapte conforme sua necessidade.
+Uso educacional e interno. Adapte conforme sua necessidade.

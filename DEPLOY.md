@@ -1,8 +1,13 @@
 # Deploy da demo online
 
-A demo oficial está no **Hugging Face Spaces**. O Streamlit Cloud não é recomendado para este projeto.
+A demo oficial está no **Hugging Face Spaces** e está aberta para teste público.
 
-**Demo ativa:** https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial
+| Link | URL |
+|------|-----|
+| **Demo** | https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial |
+| **App direto** | https://duzinxd-mentor-gestao-industrial.hf.space |
+| Portfólio | https://cardoso-ix.github.io/Portifolio/ |
+| Checklist | [TESTE.md](TESTE.md) |
 
 ---
 
@@ -38,7 +43,7 @@ Remova secrets antigos (`OPENROUTER_API_KEY`, `GROQ_API_KEY`) para evitar confus
 git push origin master
 ```
 
-O workflow **Sync to Hugging Face Hub** envia o código ao Space. Build leva 5–15 min na primeira vez.
+O workflow **Sync to Hugging Face Hub** envia o código ao Space. Build leva alguns minutos.
 
 Sincronização manual: [Actions → Run workflow](https://github.com/cardoso-ix/mentor-gestao-industrial/actions/workflows/sync-to-hub.yml).
 
@@ -46,7 +51,8 @@ Depois do sync: no Space, use **Factory reboot** se a análise ainda falhar com 
 
 ### Portfólio
 
-O link **Ver demo** em [cardoso-ix.github.io/Portifolio](https://cardoso-ix.github.io/Portifolio/) já aponta para o Space.
+O card **Mentor de Gestão Industrial** em [cardoso-ix.github.io/Portifolio](https://cardoso-ix.github.io/Portifolio/) aponta para a demo.  
+Texto/stack do card: aplique [docs/PORTFOLIO-SYNC.md](docs/PORTFOLIO-SYNC.md) no repo `Portifolio` (este agente não tem push lá).
 
 ---
 
@@ -79,8 +85,10 @@ Consulte [STREAMLIT_CLOUD.md](STREAMLIT_CLOUD.md) apenas se precisar tentar.
 ## Checklist pós-deploy
 
 - [x] Demo no Hugging Face publicada
-- [x] Link no portfólio atualizado
-- [ ] Secrets OpenCode Go (`OPENCODE_GO_API_KEY`) e Serper configurados no Space
-- [ ] Opt-in **Enable models hosted in China** ativado no OpenCode (DeepSeek V4 Flash)
-- [ ] Análise de teste concluída — ver [TESTE.md](TESTE.md)
+- [x] Sync GitHub → HF ativo
+- [ ] Secrets OpenCode Go + Serper no Space
+- [ ] Opt-in **Enable models hosted in China** no OpenCode
+- [ ] Análise de teste ok — ver [TESTE.md](TESTE.md)
+- [ ] Card do portfólio com stack OpenCode Go / DeepSeek (ver [PORTFOLIO-SYNC.md](docs/PORTFOLIO-SYNC.md))
+- [ ] Description do repositório GitHub alinhada (sem citar Groq)
 - [ ] Uso das APIs monitorado em [opencode.ai](https://opencode.ai) e [serper.dev](https://serper.dev)
