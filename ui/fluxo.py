@@ -14,7 +14,7 @@ def renderizar_passos_wizard(tipo_selecionado: str) -> None:
     else:
         estados = ("active", "pending", "pending")
 
-    labels = ("Tipo", "Seu relato", "Detalhes opcionais")
+    labels = ("Tipo", "Relato", "Detalhes")
     partes = ['<div class="fluxo-passos" role="list">']
     for i, (estado, label) in enumerate(zip(estados, labels), start=1):
         partes.append(
@@ -32,7 +32,7 @@ def renderizar_painel_analise(percentual: float, etapa: str) -> None:
     etapa_txt = etapa or "Iniciando análise..."
     st.markdown(
         '<div class="progresso-painel" role="status" aria-live="polite" aria-busy="true">'
-        '<p class="progresso-painel__titulo">Gerando orientação</p>'
+        '<p class="progresso-painel__titulo">Montando o briefing</p>'
         f'<p class="progresso-painel__etapa">{etapa_txt}</p>'
         f'<p class="progresso-painel__pct">{pct}% concluído</p>'
         "</div>",

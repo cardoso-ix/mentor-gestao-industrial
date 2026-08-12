@@ -49,23 +49,25 @@ def _inicializar_sessao():
 
 
 def _renderizar_hero():
-    """Hero full-bleed com marca dominante e contraste alto."""
+    """Hero full-bleed: marca dominante + proposta clara."""
     st.markdown(
         '<section class="hero-bleed" aria-label="Apresentação">'
         '<div class="hero-glow" aria-hidden="true"></div>'
         '<div class="hero-grid" aria-hidden="true"></div>'
         '<div class="hero-inner">'
         '<div class="hero-copy">'
-        '<p class="hero-kicker">Manutenção industrial</p>'
+        '<p class="hero-kicker">Mentoria para supervisão industrial</p>'
         '<h1 class="hero-brand">Mentor de Gestão Industrial</h1>'
-        '<p class="hero-lede">Parecer, conversa e plano acionável para supervisores '
-        "decidirem com clareza no chão de fábrica.</p>"
-        '<p class="hero-cta-hint">Comece pela situação abaixo</p>'
+        '<p class="hero-lede">Orientação objetiva para conduzir liderança, '
+        "segurança e desempenho no chão de fábrica — com diagnóstico, "
+        "conversa e plano acionável.</p>"
+        '<p class="hero-cta-hint">Descreva a situação abaixo</p>'
         "</div>"
-        '<div class="hero-aside" aria-hidden="true">'
+        '<div class="hero-aside" aria-label="O que você recebe">'
+        '<p class="hero-aside__label">Entrega</p>'
         '<span class="hero-aside__item">Diagnóstico</span>'
-        '<span class="hero-aside__item">Conversa</span>'
-        '<span class="hero-aside__item">Plano</span>'
+        '<span class="hero-aside__item">Roteiro de conversa</span>'
+        '<span class="hero-aside__item">Plano de ação</span>'
         "</div>"
         "</div>"
         "</section>",
@@ -73,9 +75,32 @@ def _renderizar_hero():
     )
 
 
+def _renderizar_nota_geral():
+    """Nota editorial do produto — caracterização profissional, sem card de marketing."""
+    st.markdown(
+        '<aside class="nota-geral" aria-label="Nota do produto">'
+        '<p class="nota-geral__rotulo">Nota geral</p>'
+        '<p class="nota-geral__texto">'
+        "<strong>Ferramenta de apoio à decisão</strong> para supervisores de manutenção. "
+        "Use fatos concretos do seu caso (turno, OS, nomes, o que já tentou). "
+        "A orientação é um briefing executivo — adapte prazos e tom ao contexto da planta; "
+        "não substitui norma interna, NR aplicável nem procedimento oficial."
+        "</p>"
+        "</aside>",
+        unsafe_allow_html=True,
+    )
+
+
 def _renderizar_sidebar():
-    """Barra lateral com progresso e casos modelo."""
+    """Barra lateral com identidade, progresso e casos modelo."""
     with st.sidebar:
+        st.markdown(
+            '<div class="sidebar-brand">'
+            '<p class="sidebar-brand__nome">Mentor Industrial</p>'
+            '<p class="sidebar-brand__desc">Apoio à supervisão de manutenção</p>'
+            "</div>",
+            unsafe_allow_html=True,
+        )
         st.markdown("### Andamento")
         renderizar_timeline(
             st.session_state.get("timeline_pct", 0),
@@ -85,17 +110,27 @@ def _renderizar_sidebar():
         renderizar_playbooks_sidebar()
         st.divider()
         st.markdown(
-            '<div class="aviso-publico">Uso público — limite de 10 análises por hora.</div>',
+            '<div class="aviso-publico">'
+            "<strong>Uso público</strong> — limite de 10 análises por hora. "
+            "Ideal para demo e casos reais curtos."
+            "</div>",
             unsafe_allow_html=True,
         )
 
 
 def _renderizar_rodape():
-    """Rodapé com direitos autorais."""
+    """Rodapé com caracterização profissional."""
     ano = datetime.now().year
     st.markdown(
         '<footer class="rodape-app">'
-        f'<p class="rodape-copy">© {ano} Eduardo Cardoso — Todos os direitos reservados.</p>'
+        '<div class="rodape-app__inner">'
+        '<p class="rodape-app__linha">'
+        f"© {ano} Eduardo Cardoso · Mentor de Gestão Industrial"
+        "</p>"
+        '<p class="rodape-app__linha rodape-app__linha--muted">'
+        "Briefing para supervisores de manutenção · Diagnóstico · Conversa · Plano"
+        "</p>"
+        "</div>"
         "</footer>",
         unsafe_allow_html=True,
     )
@@ -107,6 +142,7 @@ def main():
     injetar_estilos()
     _renderizar_sidebar()
     _renderizar_hero()
+    _renderizar_nota_geral()
 
     if not config.llm_configurado():
         if config.LLM_PROVIDER == "opencode_go":
@@ -158,7 +194,7 @@ def main():
         placeholder_progresso.empty()
 
     if st.session_state.resultado:
-        st.divider()
+        st.markdown('<div class="secao-resultado-sep" aria-hidden="true"></div>', unsafe_allow_html=True)
         renderizar_resultado(st.session_state.resultado)
 
     _renderizar_rodape()

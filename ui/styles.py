@@ -238,23 +238,131 @@ div[data-testid="stDecoration"] {
 .hero-aside {
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.7rem;
     justify-content: flex-end;
     padding-bottom: 0.25rem;
     border-left: 1px solid rgba(255, 255, 255, 0.14);
     padding-left: 1.35rem;
 }
+.hero-aside__label {
+    font-size: 0.72rem !important;
+    font-weight: 650 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: rgba(253, 186, 116, 0.9) !important;
+    margin: 0 0 0.35rem 0 !important;
+    max-width: none !important;
+}
 .hero-aside__item {
     font-family: var(--font-display);
     color: rgba(255, 255, 255, 0.78);
-    font-size: clamp(1.35rem, 2.4vw, 1.75rem);
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
     font-weight: 600;
     letter-spacing: -0.03em;
-    line-height: 1.1;
+    line-height: 1.15;
 }
-.hero-aside__item:nth-child(1) { color: #ffffff; }
-.hero-aside__item:nth-child(2) { color: rgba(255, 255, 255, 0.72); }
-.hero-aside__item:nth-child(3) { color: #fdba74; }
+.hero-aside__item:nth-child(2) { color: #ffffff; }
+.hero-aside__item:nth-child(3) { color: rgba(255, 255, 255, 0.78); }
+.hero-aside__item:nth-child(4) { color: #fdba74; }
+
+/* Nota geral — caracterização profissional do produto */
+.nota-geral {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.85rem 1.25rem;
+    align-items: start;
+    margin: 0 0 1.65rem 0;
+    padding: 0.15rem 0 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    animation: nota-geral-entra var(--dur-moderate) var(--ease-out-expo) both;
+}
+.nota-geral__rotulo {
+    font-family: var(--font-display) !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: var(--color-primary-deep) !important;
+    margin: 0.15rem 0 0 0 !important;
+    max-width: none !important;
+    white-space: nowrap;
+}
+.nota-geral__texto {
+    color: var(--color-ink-body) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.55 !important;
+    margin: 0 !important;
+    max-width: 68ch !important;
+}
+.nota-geral__texto strong {
+    color: var(--color-ink) !important;
+    font-weight: 650 !important;
+}
+
+/* Intro do wizard */
+.wizard-intro {
+    margin: 0 0 1.1rem 0;
+}
+.wizard-intro__titulo {
+    font-family: var(--font-display) !important;
+    color: var(--color-ink) !important;
+    font-size: clamp(1.2rem, 2vw, 1.4rem) !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.03em !important;
+    margin: 0 0 0.35rem 0 !important;
+}
+.wizard-intro__texto {
+    color: var(--color-ink-muted) !important;
+    font-size: 0.95rem !important;
+    margin: 0 !important;
+    max-width: 52ch !important;
+}
+
+.sidebar-brand {
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--color-border);
+}
+.sidebar-brand__nome {
+    font-family: var(--font-display) !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    color: var(--color-ink) !important;
+    margin: 0 0 0.2rem 0 !important;
+    max-width: none !important;
+}
+.sidebar-brand__desc {
+    font-size: 0.8rem !important;
+    color: var(--color-ink-muted) !important;
+    margin: 0 !important;
+    max-width: none !important;
+    line-height: 1.4 !important;
+}
+
+.resultado-nota {
+    color: var(--color-ink-muted) !important;
+    font-size: 0.88rem !important;
+    line-height: 1.45 !important;
+    margin: 0 0 0.85rem 0 !important;
+    max-width: 62ch !important;
+}
+.section-heading--inline {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+    margin-bottom: 0.45rem !important;
+    font-size: 0.78rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.07em !important;
+    color: var(--color-ink-caption) !important;
+    font-weight: 700 !important;
+}
+
+.secao-resultado-sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-border) 12%, var(--color-border) 88%, transparent);
+    margin: 1.75rem 0 1.25rem;
+}
 
 /* Compatibilidade com markup antigo */
 .hero-container {
@@ -610,16 +718,40 @@ div[data-testid="stDecoration"] {
 .timeline-pending { background: var(--color-surface-muted); color: var(--color-ink-caption); }
 
 .aviso-publico {
-    background: var(--color-warning-bg);
-    color: var(--color-warning-ink);
-    border: 1px solid var(--color-warning-border);
-    padding: 0.75rem 0.9rem;
-    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-ink-body);
+    border: none;
+    border-left: 2px solid var(--color-primary);
+    padding: 0.15rem 0 0.15rem 0.85rem;
+    border-radius: 0;
     font-size: 0.82rem;
     line-height: 1.45;
 }
+.aviso-publico strong {
+    color: var(--color-ink);
+    font-weight: 650;
+}
 
-.rodape-app { width: 100%; margin-top: var(--space-xl); text-align: center; }
+.rodape-app {
+    width: 100%;
+    margin-top: var(--space-xl);
+}
+.rodape-app__inner {
+    border-top: 1px solid var(--color-border);
+    padding: var(--space-lg) 0 var(--space-md);
+    text-align: center;
+}
+.rodape-app__linha {
+    font-size: 0.8rem !important;
+    color: var(--color-ink-muted) !important;
+    margin: 0 auto 0.35rem !important;
+    max-width: none !important;
+}
+.rodape-app__linha--muted {
+    font-size: 0.74rem !important;
+    color: var(--color-ink-caption) !important;
+    margin: 0 auto !important;
+}
 .rodape-copy {
     font-size: 0.78rem;
     color: var(--color-ink-caption) !important;
@@ -783,6 +915,10 @@ label[data-testid="stWidgetLabel"] + div [role="checkbox"][aria-checked="true"] 
     from { opacity: 0.86; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+@keyframes nota-geral-entra {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 @keyframes hint-bounce {
     0%, 100% { transform: translateY(0); opacity: 1; }
     50% { transform: translateY(3px); opacity: 0.75; }
@@ -833,8 +969,16 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
         padding-left: 0;
         padding-top: 1rem;
     }
+    .hero-aside__label {
+        width: 100%;
+        margin-bottom: 0 !important;
+    }
     .hero-aside__item {
         font-size: 1.05rem;
+    }
+    .nota-geral {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
     }
 }
 

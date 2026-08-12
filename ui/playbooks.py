@@ -196,10 +196,10 @@ def _aplicar_caso(caso: CasoExemplo) -> None:
 def renderizar_casos_um_clique() -> None:
     """Grade de casos prontos na área principal."""
     st.markdown(
-        '<p class="wizard-secao-titulo">Experimente em 1 clique</p>',
+        '<p class="wizard-secao-titulo">Casos modelo</p>',
         unsafe_allow_html=True,
     )
-    st.caption("Carrega um caso modelo completo. Depois você pode editar e gerar a orientação.")
+    st.caption("Carregue um exemplo pronto para avaliar o briefing — depois edite com o seu caso.")
 
     cols = st.columns(3)
     for idx, caso in enumerate(CASOS_EXEMPLO):

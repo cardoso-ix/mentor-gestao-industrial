@@ -120,10 +120,10 @@ def _inicializar_wizard():
 def renderizar_selecao_tipo() -> str:
     """Renderiza grid de seleção do tipo de problema."""
     st.markdown(
-        '<p class="wizard-secao-titulo">1. Qual é o tipo da situação?</p>',
+        '<p class="wizard-secao-titulo">1. Tipo da situação</p>',
         unsafe_allow_html=True,
     )
-    st.caption("Escolha o que mais se parece com o seu caso — pode ajustar depois.")
+    st.caption("Selecione o enquadramento mais próximo do caso.")
     cols = st.columns(3)
     tipo_atual = st.session_state.get("tipo_wizard", "")
 
@@ -255,11 +255,11 @@ def montar_situacao_do_wizard(
 def renderizar_narrativa_principal(tipo: str) -> str:
     """Campo principal: contar o caso com as próprias palavras."""
     st.markdown(
-        '<p class="wizard-secao-titulo">2. Conte o que está acontecendo</p>',
+        '<p class="wizard-secao-titulo">2. Relato do caso</p>',
         unsafe_allow_html=True,
     )
     st.caption(
-        "Pode escrever como fala no dia a dia. Quanto mais concreto (nomes, OS, turno, o que já tentou), melhor a orientação."
+        "Seja concreto: nomes, OS, turno, impacto e o que já foi tentado."
     )
 
     placeholder = (
@@ -292,7 +292,7 @@ def renderizar_narrativa_principal(tipo: str) -> str:
 def renderizar_urgencia_equipe() -> tuple[str, str]:
     """Campos rápidos de urgência e tamanho."""
     st.markdown(
-        '<p class="wizard-secao-titulo">3. Quão urgente é?</p>',
+        '<p class="wizard-secao-titulo">3. Urgência e equipe</p>',
         unsafe_allow_html=True,
     )
     col1, col2 = st.columns(2)
@@ -344,6 +344,15 @@ def renderizar_wizard() -> dict | None:
 
     st.markdown('<div class="wizard-panel-marker" aria-hidden="true"></div>', unsafe_allow_html=True)
     with st.container():
+        st.markdown(
+            '<div class="wizard-intro">'
+            '<p class="wizard-intro__titulo">Caso da supervisão</p>'
+            '<p class="wizard-intro__texto">'
+            "Escolha o tipo, descreva o fato com clareza e gere um briefing para agir."
+            "</p>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
         renderizar_casos_um_clique()
         st.markdown('<div class="wizard-divider" aria-hidden="true"></div>', unsafe_allow_html=True)
         renderizar_passos_wizard(st.session_state.get("tipo_wizard", ""))
@@ -351,8 +360,8 @@ def renderizar_wizard() -> dict | None:
         tipo = renderizar_selecao_tipo()
         if not tipo:
             st.markdown(
-                '<div class="wizard-hint">Escolha um tipo acima para começar. '
-                "Depois é só contar o caso com suas palavras.</div>",
+                '<div class="wizard-hint">Selecione o tipo da situação para começar. '
+                "Em seguida, descreva o caso com fatos do turno e da planta.</div>",
                 unsafe_allow_html=True,
             )
 
@@ -373,11 +382,14 @@ def renderizar_wizard() -> dict | None:
             tipo, respostas, situacao_livre, contexto_planta
         )
 
-        st.markdown('<div class="wizard-acoes-hint">Pronto? Gere a orientação.</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="wizard-acoes-hint">Pronto para o briefing? Gere a orientação.</div>',
+            unsafe_allow_html=True,
+        )
         col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
             analisar = st.button(
-                "Gerar orientação",
+                "Gerar briefing",
                 type="primary",
                 use_container_width=True,
                 disabled=not bool(tipo and situacao_livre.strip()),

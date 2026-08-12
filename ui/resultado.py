@@ -72,7 +72,6 @@ def _parecer_curto(resultado) -> str:
             resultado.plano_acao or "",
             resultado.estrategia or "",
         )
-    # Mantém só o começo objetivo do parecer
     return truncar_em_frase(parecer.replace("\n\n", " ").replace("\n", " "), 360)
 
 
@@ -106,8 +105,15 @@ def renderizar_resultado(resultado):
         st.markdown(
             '<div class="resultado-shell__header">'
             '<p class="resultado-shell__titulo">Orientação pronta</p>'
-            '<span class="resultado-shell__meta">Briefing objetivo</span>'
+            '<span class="resultado-shell__meta">Briefing executivo</span>'
             "</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            '<p class="resultado-nota">'
+            "Leitura recomendada: priorize a ação das próximas 24h, "
+            "use o roteiro na conversa e adapte o plano ao turno e à planta."
+            "</p>",
             unsafe_allow_html=True,
         )
         _renderizar_metricas(analise)
@@ -123,7 +129,10 @@ def renderizar_resultado(resultado):
 
         parecer = _parecer_curto(resultado)
         if parecer:
-            st.markdown("**Em síntese**")
+            st.markdown(
+                '<p class="section-heading section-heading--inline">Em síntese</p>',
+                unsafe_allow_html=True,
+            )
             st.write(parecer)
         else:
             st.write("Parecer indisponível para este caso.")
