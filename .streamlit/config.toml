@@ -10,7 +10,7 @@ toolbarMode = "viewer"
 showSidebarNavigation = false
 
 [server]
-port = 3000
+port = 5000
 headless = true
 enableCORS = false
 enableXsrfProtection = false

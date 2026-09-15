@@ -131,7 +131,7 @@ pip install -r requirements.txt
 streamlit run main.py
 ```
 
-Acesse: http://localhost:3000
+Acesse: http://localhost:5000
 
 ## Demo pública e deploy
 
