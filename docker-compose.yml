@@ -3,11 +3,11 @@ services:
     build: .
     container_name: mentor-gestao-industrial
     ports:
-      - "8501:8501"
+      - "3000:3000"
     env_file:
       - .env
     environment:
-      - PORT=8501
+      - PORT=3000
     volumes:
       # PDFs adicionados manualmente pelo usuário
       - ./knowledge_base:/app/knowledge_base
