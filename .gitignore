@@ -22,3 +22,4 @@ data/chroma/*
 
 # Streamlit
 .streamlit/secrets.toml
+*.log
