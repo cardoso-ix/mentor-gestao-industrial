@@ -13,8 +13,8 @@ services:
       - key: OPENCODE_GO_API_KEY
         sync: false
       - key: OPENCODE_GO_MODEL
-        value: deepseek-v4-flash
+        value: deepseek-v4.1-flash
       - key: SERPER_API_KEY
         sync: false
       - key: PORT
-        value: "6000"
+        value: "8501"

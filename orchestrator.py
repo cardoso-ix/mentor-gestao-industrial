@@ -91,30 +91,24 @@ def _executar_crew_com_retry(crew: Crew, pausar_antes: bool = True):
 
 
 def _mensagem_rate_limit() -> str:
-    if config.LLM_PROVIDER == "opencode_go":
-        return (
-            "Limite de uso da API OpenCode Go atingido. "
-            "Aguarde a janela de cota (5h / semana / mês) e tente de novo. "
-            "Cada análise usa várias chamadas ao modelo."
-        )
     return (
-        "Limite de requisições da API OpenRouter atingido (modelos free). "
-        "Sem créditos: cerca de 50 req/dia e 20/min. Aguarde e tente de novo. "
-        "Cada análise usa várias chamadas ao modelo."
+        "Limite de uso da API OpenCode Go atingido. "
+        "Aguarde a janela de cota e tente novamente. "
+        "Cada análise executa várias etapas especializadas de agentes."
     )
 
 
 def _mensagem_regiao_china(exc: BaseException) -> str | None:
-    """Detecta opt-in de modelos hospedados na China (DeepSeek no OpenCode Go)."""
+    """Detecta necessidade de opt-in para modelos hospedados na China (DeepSeek no OpenCode Go)."""
     texto = str(exc)
     baixo = texto.lower()
     if "regionerror" not in baixo and "hosted in china" not in baixo:
         return None
     return (
-        "O modelo DeepSeek V4 Flash no OpenCode Go exige opt-in para "
+        "O modelo DeepSeek no OpenCode Go exige opt-in para "
         "modelos hospedados na China. No painel do OpenCode, ative "
         "\"Enable models hosted in China\" e tente novamente. "
-        "Link típico: https://opencode.ai (Workspace → Go)."
+        "Acesse: https://opencode.ai (Workspace → Go)."
     )
 
 
@@ -131,18 +125,12 @@ def _mensagem_auth(exc: BaseException) -> str | None:
         or "invalid api key" in baixo
     ):
         return None
-    if config.LLM_PROVIDER == "opencode_go":
-        return (
-            "Falha de autenticação no OpenCode Go (401). "
-            "Confirme o secret `OPENCODE_GO_API_KEY` no `.env` ou no Hugging Face "
-            "(Settings → Secrets), reinicie o Space e tente de novo. "
-            "Não use chave da OpenRouter neste modo."
-        )
     return (
-        "Falha de autenticação na OpenRouter (401). "
-        "Confirme o secret `OPENROUTER_API_KEY` ou alterne para "
-        "`LLM_PROVIDER=opencode_go` com `OPENCODE_GO_API_KEY`."
+        "Falha de autenticação no OpenCode Go (401). "
+        "Confirme o secret `OPENCODE_GO_API_KEY` no `.env` ou nos secrets do deploy "
+        "(Hugging Face / Render) e tente novamente."
     )
+
 
 def _limitar_contexto(texto: str, limite: int = 3500) -> str:
     """Evita estourar contexto entre agentes sem cortar no meio de palavra."""
@@ -153,14 +141,12 @@ def _limitar_contexto(texto: str, limite: int = 3500) -> str:
 
 
 def _validar_chaves() -> str | None:
-    """Verifica se as chaves de API obrigatórias estão configuradas."""
+    """Verifica se a chave de API do OpenCode Go está configurada."""
     if not config.llm_configurado():
-        if config.LLM_PROVIDER == "opencode_go":
-            return (
-                "OPENCODE_GO_API_KEY não configurada. "
-                "Adicione no arquivo .env (ou nos secrets do Hugging Face)."
-            )
-        return "OPENROUTER_API_KEY não configurada. Adicione no arquivo .env"
+        return (
+            "OPENCODE_GO_API_KEY não configurada. "
+            "Adicione no arquivo .env ou nos secrets do deploy."
+        )
     return None
 
 

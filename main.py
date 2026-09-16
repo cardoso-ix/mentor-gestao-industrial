@@ -49,28 +49,46 @@ def _inicializar_sessao():
 
 
 def _renderizar_hero():
-    """Hero full-bleed: marca dominante + proposta clara."""
+    """Hero full-bleed de comando industrial moderno."""
+    modelo_atual = config.OPENCODE_GO_MODEL
     st.markdown(
-        '<section class="hero-bleed" aria-label="Apresentação">'
-        '<div class="hero-glow" aria-hidden="true"></div>'
-        '<div class="hero-grid" aria-hidden="true"></div>'
-        '<div class="hero-inner">'
-        '<div class="hero-copy">'
-        '<p class="hero-kicker">Mentoria para supervisão industrial</p>'
-        '<h1 class="hero-brand">Mentor de Gestão Industrial</h1>'
-        '<p class="hero-lede">Orientação objetiva para conduzir liderança, '
-        "segurança e desempenho no chão de fábrica — com diagnóstico, "
-        "conversa e plano acionável.</p>"
-        '<p class="hero-cta-hint">Descreva a situação abaixo</p>'
-        "</div>"
-        '<div class="hero-aside" aria-label="O que você recebe">'
-        '<p class="hero-aside__label">Entrega</p>'
-        '<span class="hero-aside__item">Diagnóstico</span>'
-        '<span class="hero-aside__item">Roteiro de conversa</span>'
-        '<span class="hero-aside__item">Plano de ação</span>'
-        "</div>"
-        "</div>"
-        "</section>",
+        f"""
+        <section class="hero-bleed" aria-label="Apresentação">
+            <div class="hero-glow" aria-hidden="true"></div>
+            <div class="hero-grid" aria-hidden="true"></div>
+            <div class="hero-inner">
+                <div class="hero-copy">
+                    <div class="hero-badge">
+                        <span class="hero-badge__dot"></span>
+                        <span>MOTOR: {modelo_atual.upper()} // OPENCODE GO</span>
+                    </div>
+                    <p class="hero-kicker">CENTRO DE INTELIGÊNCIA EM SUPERVISÃO</p>
+                    <h1 class="hero-brand">Mentor de Gestão Industrial</h1>
+                    <p class="hero-lede">
+                        Inteligência artificial multi-agente para <strong>supervisores e líderes de manutenção</strong>.
+                        Transforme atritos de turno, recusa de OS/EPI e baixa produtividade em diagnóstico executivo, roteiro SBI de diálogo e plano de ação imediato.
+                    </p>
+                    <div class="hero-quick-chips">
+                        <span class="hero-quick-chip">⚡ Diagnóstico RAG</span>
+                        <span class="hero-quick-chip">💬 Roteiro SBI</span>
+                        <span class="hero-quick-chip">⏱️ Ação Prioritária 24h</span>
+                        <span class="hero-quick-chip">📥 Briefing PDF</span>
+                    </div>
+                </div>
+                <div class="hero-aside" aria-label="O que você recebe">
+                    <p class="hero-aside__label">PAINEL DE DECISÃO</p>
+                    <div class="hero-stat-card">
+                        <span class="hero-stat-card__val">24h</span>
+                        <span class="hero-stat-card__desc">Prazo crítico da 1ª intervenção</span>
+                    </div>
+                    <div class="hero-stat-card">
+                        <span class="hero-stat-card__val">SBI</span>
+                        <span class="hero-stat-card__desc">Situação · Comportamento · Impacto</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        """,
         unsafe_allow_html=True,
     )
 
@@ -92,7 +110,7 @@ def _renderizar_nota_geral():
 
 
 def _renderizar_sidebar():
-    """Barra lateral com identidade, progresso e casos modelo."""
+    """Barra lateral com identidade, status do OpenCode Go, seletor de modelo e playbooks."""
     with st.sidebar:
         st.markdown(
             '<div class="sidebar-brand">'
@@ -101,6 +119,69 @@ def _renderizar_sidebar():
             "</div>",
             unsafe_allow_html=True,
         )
+
+        # Status do provedor OpenCode Go
+        conectado = config.llm_configurado()
+        status_cls = "badge-status-on" if conectado else "badge-status-off"
+        status_txt = "OpenCode Go Conectado" if conectado else "Aguardando OPENCODE_GO_API_KEY"
+        st.markdown(
+            f'<div class="status-panel {status_cls}">'
+            f'<span class="status-dot"></span>'
+            f'<span>{status_txt}</span>'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+        if not conectado:
+            st.caption("Insira sua chave para ativar a mentoria:")
+            chave_digitada = st.text_input(
+                "Chave OpenCode Go",
+                type="password",
+                placeholder="Cole sua chave aqui...",
+                key="input_chave_opencode",
+                label_visibility="collapsed",
+            )
+            if chave_digitada and chave_digitada.strip():
+                chave_limpa = chave_digitada.strip()
+                config.OPENCODE_GO_API_KEY = chave_limpa
+                config.LLM_API_KEY = chave_limpa
+                import os
+
+                os.environ["OPENCODE_GO_API_KEY"] = chave_limpa
+                os.environ["OPENAI_API_KEY"] = chave_limpa
+                st.success("Chave ativa!")
+                st.rerun()
+
+        # Painel inteligente de seleção de modelos do OpenCode Go
+        with st.expander("⚙️ Modelo & Motor IA", expanded=False):
+            opcoes_modelos = [m["id"] for m in config.MODELOS_OPENCODE_DISPONIVEIS]
+            nomes_modelos = {m["id"]: m["nome"] for m in config.MODELOS_OPENCODE_DISPONIVEIS}
+
+            modelo_atual = config.OPENCODE_GO_MODEL
+            idx_modelo = opcoes_modelos.index(modelo_atual) if modelo_atual in opcoes_modelos else 0
+
+            selecao = st.selectbox(
+                "Modelo OpenCode Go",
+                options=opcoes_modelos,
+                format_func=lambda x: nomes_modelos.get(x, x),
+                index=idx_modelo,
+                key="seletor_modelo_llm",
+            )
+            if selecao != config.OPENCODE_GO_MODEL:
+                config.definir_modelo_ativo(selecao)
+                st.toast(f"Modelo alterado para {selecao}", icon="⚡")
+
+            st.caption(
+                "**Endpoint:** `https://opencode.ai/zen/go/v1`\n\n"
+                "Compatível com todos os modelos disponíveis na assinatura OpenCode Go."
+            )
+
+        if st.button("🔄 Novo Briefing / Limpar", use_container_width=True):
+            from ui.wizard import _limpar_wizard
+
+            _limpar_wizard()
+            st.rerun()
+
         st.markdown("### Andamento")
         renderizar_timeline(
             st.session_state.get("timeline_pct", 0),
@@ -111,8 +192,7 @@ def _renderizar_sidebar():
         st.divider()
         st.markdown(
             '<div class="aviso-publico">'
-            "<strong>Uso público</strong> — limite de 10 análises por hora. "
-            "Ideal para demo e casos reais curtos."
+            "<strong>⚡ DeepSeek V4.1 Flash</strong> — alta velocidade e síntese precisa para tomada de decisão no chão de fábrica."
             "</div>",
             unsafe_allow_html=True,
         )
@@ -145,21 +225,21 @@ def main():
     _renderizar_nota_geral()
 
     if not config.llm_configurado():
-        if config.LLM_PROVIDER == "opencode_go":
-            st.error(
-                "Chave do OpenCode Go não configurada. Defina `OPENCODE_GO_API_KEY` "
-                "no arquivo `.env` ou nos secrets do Hugging Face / Streamlit Cloud."
-            )
-        else:
-            st.error(
-                "Chave da OpenRouter não configurada. Defina `OPENROUTER_API_KEY` no "
-                "arquivo `.env` ou nos secrets do Hugging Face / Streamlit Cloud."
-            )
-        return
+        st.warning(
+            "⚠️ **Chave do OpenCode Go necessária para gerar relatórios**: "
+            "Insira sua `OPENCODE_GO_API_KEY` na barra lateral à esquerda ou no arquivo `.env` para executar análises."
+        )
 
     dados = renderizar_wizard()
 
     if dados and dados["situacao"].strip():
+        if not config.llm_configurado():
+            st.error(
+                "Não foi possível iniciar a análise: adicione a sua chave `OPENCODE_GO_API_KEY` "
+                "na barra lateral à esquerda ou no arquivo `.env`."
+            )
+            return
+
         permitido, msg_limite = pode_analisar()
         if not permitido:
             st.warning(msg_limite)

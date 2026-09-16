@@ -194,37 +194,74 @@ def _aplicar_caso(caso: CasoExemplo) -> None:
 
 
 def renderizar_casos_um_clique() -> None:
-    """Grade de casos prontos na área principal."""
+    """Grade de casos prontos na área principal com opção de análise em 1 clique."""
     st.markdown(
-        '<p class="wizard-secao-titulo">Casos modelo</p>',
+        '<p class="wizard-secao-titulo">⚡ Casos modelo (Automação 1-Clique)</p>',
         unsafe_allow_html=True,
     )
-    st.caption("Carregue um exemplo pronto para avaliar o briefing — depois edite com o seu caso.")
+    st.caption("Carregue um exemplo pronto ou execute a análise diretamente em um clique para ver o resultado do DeepSeek V4.1.")
+
+    icones_tipo = {
+        "desempenho": "📈",
+        "seguranca": "🛡️",
+        "conflito": "⚡",
+        "processo": "📋",
+        "lideranca": "🎯",
+        "comunicacao": "💬",
+    }
 
     cols = st.columns(3)
     for idx, caso in enumerate(CASOS_EXEMPLO):
         with cols[idx % 3]:
             ativo = st.session_state.get("playbook_ativo") == caso.id
-            if st.button(
-                caso.titulo,
-                key=f"caso_exemplo_{caso.id}",
-                use_container_width=True,
-                type="primary" if ativo else "secondary",
-                help=f"Tipo: {caso.tipo}",
-            ):
-                _aplicar_caso(caso)
-                st.rerun()
+            ico = icones_tipo.get(caso.tipo, "📌")
+            st.markdown(
+                f'<div class="playbook-mini-card {"playbook-mini-card--ativo" if ativo else ""}">'
+                f'<span class="playbook-mini-card__tag">{ico} {caso.tipo.upper()}</span>'
+                f'<p class="playbook-mini-card__title">{caso.titulo}</p>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            col_btn1, col_btn2 = st.columns([1, 1])
+            with col_btn1:
+                if st.button(
+                    "Carregar",
+                    key=f"load_caso_{caso.id}",
+                    use_container_width=True,
+                    type="secondary",
+                    help="Preenche o formulário para você editar antes de analisar.",
+                ):
+                    _aplicar_caso(caso)
+                    st.rerun()
+            with col_btn2:
+                if st.button(
+                    "⚡ Analisar",
+                    key=f"run_caso_{caso.id}",
+                    use_container_width=True,
+                    type="primary" if ativo else "secondary",
+                    help="Dispara a análise imediatamente com este caso modelo.",
+                ):
+                    _aplicar_caso(caso)
+                    st.session_state["auto_executar"] = True
+                    st.rerun()
 
 
 # Compatibilidade com imports antigos
 def renderizar_playbooks_sidebar() -> None:
-    """Sidebar opcional com os mesmos casos."""
-    st.markdown("#### Casos modelo")
-    st.caption("Clique para carregar um exemplo")
+    """Sidebar com casos rápidos e execução em 1 clique."""
+    st.markdown("#### ⚡ Casos Modelo")
+    st.caption("Análise instantânea com DeepSeek V4.1")
     for caso in CASOS_EXEMPLO:
-        if st.button(caso.titulo, key=f"playbook_side_{caso.id}", use_container_width=True):
-            _aplicar_caso(caso)
-            st.rerun()
+        c1, c2 = st.columns([2, 1])
+        with c1:
+            if st.button(caso.titulo, key=f"playbook_side_{caso.id}", use_container_width=True):
+                _aplicar_caso(caso)
+                st.rerun()
+        with c2:
+            if st.button("⚡ Agir", key=f"playbook_side_run_{caso.id}", use_container_width=True, help="Executar briefing agora"):
+                _aplicar_caso(caso)
+                st.session_state["auto_executar"] = True
+                st.rerun()
 
 
 def obter_playbook_por_id(playbook_id: str) -> CasoExemplo | None:

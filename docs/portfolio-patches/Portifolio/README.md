@@ -66,7 +66,7 @@ Inventário completo: [docs/PROJETOS-GITHUB.md](docs/PROJETOS-GITHUB.md).
 |---------|------|--------|
 | Automação LinkedIn com IA | [LinkedIn](https://www.linkedin.com/in/eduardo-cardoso-213a02267) | [GitHub](https://github.com/cardoso-ix/linkedin-automacao-ia) — Hermes + DeepSeek-V4-Flash + replies automáticos |
 | PC Dashboard | — (Windows · Tauri v1.4) | [GitHub](https://github.com/cardoso-ix/pc-dashboard) |
-| Mentor de Gestão Industrial | [Testar demo](https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial) | [GitHub](https://github.com/cardoso-ix/mentor-gestao-industrial) — CrewAI · OpenCode Go · DeepSeek V4 Flash · RAG |
+| Mentor de Gestão Industrial | [Testar demo](https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial) | [GitHub](https://github.com/cardoso-ix/mentor-gestao-industrial) — CrewAI · OpenCode Go (DeepSeek V4.1 Flash) · RAG · Mobile |
 | Conversor de Unidades | [GitHub Pages](https://cardoso-ix.github.io/Portifolio/conversor-unidades/) | [GitHub](https://github.com/cardoso-ix/conversor-unidades) |
 
 Outros repos públicos: `cardoso-ix` (README do perfil).

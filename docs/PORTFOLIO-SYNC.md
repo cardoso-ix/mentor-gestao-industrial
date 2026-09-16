@@ -5,7 +5,7 @@ Para atualizar o site [Portifolio](https://github.com/cardoso-ix/Portifolio) e o
 
 ## Objetivo
 
-Deixar o Mentor fácil de testar: CTA **Demo** visível, stack correta (**OpenCode Go · DeepSeek V4 Flash · CrewAI · RAG · Streamlit**) e links oficiais.
+Deixar o Mentor fácil de testar: CTA **Demo** visível, stack correta (**OpenCode Go · DeepSeek V4.1 Flash · CrewAI · RAG · Streamlit Mobile**) e links oficiais.
 
 ## Links canônicos
 
@@ -24,12 +24,12 @@ Substitua o bloco do card por:
 ```html
             <article class="project-card project-card--compact fade-in">
               <div class="project-card__image">
-                <img src="assets/images/mentor-gestao-preview.png?v=6" alt="Preview do Mentor de Gestão Industrial" class="project-card__thumb" width="640" height="360" loading="lazy">
+                <img src="assets/images/mentor-gestao-preview.png?v=7" alt="Preview do Mentor de Gestão Industrial" class="project-card__thumb" width="640" height="360" loading="lazy">
               </div>
               <div class="project-card__body">
                 <h3 class="project-card__title">Mentor de Gestão Industrial</h3>
-                <p class="project-card__lead">Demo pública: briefing executivo para supervisores de manutenção — diagnóstico, conversa SBI e plano 24h. Clique em Demo para testar.</p>
-                <p class="project-card__note">CrewAI · OpenCode Go · DeepSeek V4 Flash · RAG · Streamlit</p>
+                <p class="project-card__lead">Demo pública: briefing executivo para supervisores de manutenção — diagnóstico multi-agente, roteiro SBI de diálogo, plano tático 24h e ditado por voz. Interface moderna com total suporte mobile.</p>
+                <p class="project-card__note">CrewAI · OpenCode Go (DeepSeek V4.1 Flash) · RAG · Streamlit Mobile</p>
                 <div class="project-card__links">
                   <a href="https://huggingface.co/spaces/duzinxd/mentor-gestao-industrial" class="project-card__link" target="_blank" rel="noopener noreferrer">Testar demo</a>
                   <a href="https://github.com/cardoso-ix/mentor-gestao-industrial" class="project-card__link" target="_blank" rel="noopener noreferrer">GitHub</a>

@@ -51,40 +51,28 @@ spacing:
 
 ## Overview
 
-Interface Streamlit com direção **industrial moderna**: tipografia expressiva, neutros frios, acento cobre e hero full-bleed. Menos caixas, mais hierarquia tipográfica. Continua ferramenta de planta — não landing de marketing genérica.
+Interface Streamlit com direção **industrial moderna e executiva**: tipografia expressiva (Space Grotesk + DM Sans), neutros frios, acentos cobre/âmbar (`#f59e0b`/`#d97706`), hero full-bleed de alto contraste e **total responsividade mobile**. Ferramenta projetada para supervisores operarem confortavelmente no computador ou direto no celular/tablet durante rondas no chão de fábrica.
 
 ## Colors
 
 - Base: stone frio (`#fafaf9` → `#f5f5f4`)
 - Texto: quase preto (`#0c0a09`) e corpo `#44403c`
-- Acento/CTA: cobre `#d97706`
-- Hero: grafite `#1c1917` → `#44403c` com trama diagonal sutil
-
-Evitar roxo, neon, cream+terracota clássico de templates de IA.
+- Acento/CTA: cobre industrial `#d97706` e âmbar `#f59e0b`
+- Hero & Sidebar: grafite profundo `#0c0a09` / `#12100e` / `#1c1917` com trama diagonal sutil e brilho âmbar
+- Chips & Badges: vidro fosco com tipografia clara de alto contraste (`#fffbeb` / `#fef08a`)
+- Telemetria de Agentes: esmeralda `#10b981` (pulso ativo) e âmbar (varredura laser)
 
 ## Typography
 
-- Display/marca: **Space Grotesk**
-- Corpo/UI: **DM Sans**
-- Marca no hero é o sinal dominante; subtítulo curto, sem competir
+- Display/marca/métricas: **Space Grotesk**
+- Corpo/briefing: **DM Sans**
+- Hierarquia nítida com títulos curtos, balanceados e leitura confortável em telas pequenas
 
-## Layout principles
+## Layout principles & Mobile-First
 
-- Hero full-bleed com atmosfera (gradiente + trama), não flat
-- Wizard sem card pesado; seções por tipografia
-- Métricas como meta strip (sem cards)
-- Prioridade 24h como destaque tipográfico com filete lateral
-- Motion sutil: entrada do hero, revelação do resultado, pulso da etapa ativa
-
-## Do's and Don'ts
-
-**Do**
-- Manter marca no hero em tamanho display
-- Usar cobre só em CTA e ênfase
-- Preservar fluxo wizard → progresso → parecer
-
-**Don't**
-- Dark mode agressivo
-- Grid infinito de cards
-- Emojis como decoração de categoria
-- Sombras em múltiplas camadas / glow
+- **Mobile-First Responsivo:** Breakpoints dedicados para 768px e 480px; sem transbordamento horizontal (`overflow-x: hidden`), grids com colapso fluído de 1 a 2 colunas.
+- **Ergonomia de Toque:** Botões e seletores com altura mínima de 44px-48px para acionamento ágil com uma mão.
+- **Sidebar Estável:** Fundo *glassmorphic dark slate* com recolhimento nativo do Streamlit (sem hover acidental que fechava em touchscreens).
+- **Agent Telemetry Radar:** HUD de processamento em tempo real com pulso de radar e varredura gradiente durante a mentoria.
+- **Ditado de Campo:** Container de áudio (`st.audio_input`) projetado para gravação rápida de ocorrências por voz.
+- **Dossiê Executivo:** Deck de KPIs em cards táteis, callout 24h de alta prioridade, roteiro estruturado SBI e checklist interativo de campo.

@@ -40,9 +40,9 @@ Checklist completo: [TESTE.md](TESTE.md) · Índice: [DOCS.md](DOCS.md)
 | Componente | Tecnologia |
 |------------|------------|
 | Orquestração multi-agente | CrewAI |
-| LLM | OpenCode Go — DeepSeek V4 Flash (`deepseek-v4-flash`) |
+| LLM | OpenCode Go — DeepSeek V4.1 Flash (`deepseek-v4.1-flash`) |
 | Busca web | Serper API (processo e segurança) |
-| Interface | Streamlit |
+| Interface | Streamlit (com áudio/voz e automação 1-clique) |
 | Base de conhecimento | ChromaDB + PDFs locais |
 | Embeddings | sentence-transformers (local) |
 | Deploy | Hugging Face Spaces (Docker) · VPS (docker-compose) |
@@ -111,15 +111,13 @@ cp .env.example .env
 ```env
 LLM_PROVIDER=opencode_go
 OPENCODE_GO_API_KEY=sua_chave_opencode_go_aqui
-OPENCODE_GO_MODEL=deepseek-v4-flash
+OPENCODE_GO_MODEL=deepseek-v4.1-flash
 SERPER_API_KEY=sua_chave_serper_aqui
 ```
 
 **Chaves:** [opencode.ai](https://opencode.ai) → Workspace → Go / API Keys · [serper.dev](https://serper.dev) → API Key  
 
-**Opt-in China (obrigatório para DeepSeek V4 Flash):** no painel OpenCode, ative **Enable models hosted in China**.
-
-> Alternativa legada: `LLM_PROVIDER=openrouter` + `OPENROUTER_API_KEY`.
+**Opt-in China (obrigatório para modelos DeepSeek):** no painel OpenCode, ative **Enable models hosted in China**.
 
 ## Executar localmente
 
@@ -131,7 +129,7 @@ pip install -r requirements.txt
 streamlit run main.py
 ```
 
-Acesse: http://localhost:6000
+Acesse: http://localhost:8501
 
 ## Demo pública e deploy
 

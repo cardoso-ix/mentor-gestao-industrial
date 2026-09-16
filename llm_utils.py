@@ -1,16 +1,14 @@
 """
 Factory do LLM compatível com a versão atual do CrewAI.
 
-Provedor padrão: OpenCode Go (DeepSeek V4 Flash) via endpoint OpenAI-compatible.
-Alternativa: OpenRouter (modelos :free) via prefixo openrouter/.
+Provedor exclusivo: OpenCode Go via endpoint OpenAI-compatible (https://opencode.ai/zen/go/v1).
+Modelo padrão: DeepSeek V4.1 Flash (deepseek-v4.1-flash).
 
-O CrewAI não aceita mais wrappers LangChain diretamente no parâmetro llm.
-Usamos crewai.LLM (LiteLLM por baixo).
-
-Correções:
+Compatibilidade e Correções:
 - Remove cache_breakpoint (rejeitado por vários provedores).
 - OpenCode Go / DeepSeek: desliga thinking e remove tool_choice incompatível.
-- Sempre injeta api_key + api_base (evita 401 Missing Authentication header).
+- Sempre injeta api_key + api_base + header Bearer (evita 401 Missing Authentication header).
+- Permite alternar dinamicamente qualquer modelo do catálogo OpenCode Go.
 """
 
 from __future__ import annotations
@@ -36,29 +34,24 @@ _LITELLM_PATCH_APLICADO = False
 
 
 def _sincronizar_env_llm(api_key: str) -> None:
-    """Espelha a chave/base no ambiente para LiteLLM, instructor e SDKs."""
+    """Espelha a chave/base no ambiente para LiteLLM e SDKs."""
     if not api_key:
         return
     os.environ["OPENAI_API_KEY"] = api_key
-    if config.LLM_PROVIDER == "opencode_go":
-        os.environ["OPENAI_API_BASE"] = config.LLM_BASE_URL
-        os.environ["OPENAI_BASE_URL"] = config.LLM_BASE_URL
-        os.environ["OPENCODE_GO_API_KEY"] = api_key
-    else:
-        os.environ["OPENROUTER_API_KEY"] = api_key
+    os.environ["OPENAI_API_BASE"] = config.LLM_BASE_URL
+    os.environ["OPENAI_BASE_URL"] = config.LLM_BASE_URL
+    os.environ["OPENCODE_GO_API_KEY"] = api_key
 
 
 def _chave_efetiva(kwargs: dict[str, Any] | None = None) -> str:
-    """Resolve a chave a usar na chamada, com vários fallbacks."""
+    """Resolve a chave OpenCode Go a usar na chamada com fallbacks seguros."""
     kwargs = kwargs or {}
     candidatos = [
         kwargs.get("api_key"),
         config.LLM_API_KEY,
-        os.environ.get("OPENAI_API_KEY"),
         os.environ.get("OPENCODE_GO_API_KEY"),
-        os.environ.get("OPENROUTER_API_KEY"),
+        os.environ.get("OPENAI_API_KEY"),
         config.OPENCODE_GO_API_KEY,
-        config.OPENROUTER_API_KEY,
     ]
     for valor in candidatos:
         if not valor:
@@ -72,7 +65,7 @@ def _chave_efetiva(kwargs: dict[str, Any] | None = None) -> str:
 def _aplicar_patch_litellm_opencode() -> None:
     """Garante api_key + api_base + thinking disabled em todas as chamadas LiteLLM."""
     global _LITELLM_PATCH_APLICADO
-    if _LITELLM_PATCH_APLICADO or config.LLM_PROVIDER != "opencode_go":
+    if _LITELLM_PATCH_APLICADO:
         return
     try:
         import litellm
@@ -90,7 +83,7 @@ def _aplicar_patch_litellm_opencode() -> None:
         api_key = _chave_efetiva(kwargs)
         if not api_key:
             raise ValueError(
-                "Chave do LLM ausente na chamada (OPENCODE_GO_API_KEY). "
+                "Chave do LLM ausente (OPENCODE_GO_API_KEY). "
                 "Configure no .env ou nos secrets do Hugging Face."
             )
         kwargs["api_key"] = api_key
@@ -106,13 +99,14 @@ def _aplicar_patch_litellm_opencode() -> None:
             kwargs["api_base"] = base
             kwargs["base_url"] = base
 
-        # Authorization explícito — evita 401 Missing Authentication header
+        # Authorization e x-opencode-session explícitos exigidos pelo OpenCode Go
         headers = dict(kwargs.get("extra_headers") or kwargs.get("headers") or {})
         headers["Authorization"] = f"Bearer {api_key}"
+        headers["x-opencode-session"] = os.getenv("OPENCODE_SESSION_ID", "mentor-gestao-industrial")
         kwargs["extra_headers"] = headers
 
+        # DeepSeek V4 / V4.1 no OpenCode Go: desativa modo thinking na geração de relatórios
         kwargs["thinking"] = {"type": "disabled"}
-        # Structured output via tools/tool_choice quebra o DeepSeek em thinking mode.
         if kwargs.get("tools") or kwargs.get("tool_choice"):
             kwargs.pop("tools", None)
             kwargs.pop("tool_choice", None)
@@ -124,13 +118,13 @@ def _aplicar_patch_litellm_opencode() -> None:
 
 
 class MentorLLM(LLM):
-    """LLM que remove campos incompatíveis injetados pelo CrewAI."""
+    """LLM customizado para compatibilização total com o OpenCode Go e CrewAI."""
 
     @staticmethod
     def _remover_cache_breakpoint(
         messages: str | list[LLMMessage],
     ) -> str | list[LLMMessage]:
-        """Remove cache_breakpoint das mensagens (não suportado por vários provedores)."""
+        """Remove cache_breakpoint das mensagens."""
         if isinstance(messages, str):
             return messages
 
@@ -150,7 +144,7 @@ class MentorLLM(LLM):
         tools: list | None = None,
         skip_file_processing: bool = False,
     ) -> dict[str, Any]:
-        """Prepara parâmetros da chamada removendo campos rejeitados pelo provedor."""
+        """Prepara parâmetros da chamada removendo campos rejeitados."""
         params = super()._prepare_completion_params(
             self._remover_cache_breakpoint(messages),
             tools=tools,
@@ -162,94 +156,79 @@ class MentorLLM(LLM):
             params["api_key"] = api_key
             _sincronizar_env_llm(api_key)
 
-        base = params.get("api_base") or params.get("base_url") or getattr(
-            self, "api_base", None
-        ) or getattr(self, "base_url", None)
+        base = (
+            params.get("api_base")
+            or params.get("base_url")
+            or getattr(self, "api_base", None)
+            or getattr(self, "base_url", None)
+            or config.LLM_BASE_URL
+        )
         if base:
             params["api_base"] = base
             params["base_url"] = base
 
-        if config.LLM_PROVIDER == "opencode_go":
-            params["thinking"] = {"type": "disabled"}
-            params.pop("tools", None)
-            params.pop("tool_choice", None)
-            if api_key:
-                headers = dict(params.get("extra_headers") or {})
-                headers["Authorization"] = f"Bearer {api_key}"
-                params["extra_headers"] = headers
+        params["thinking"] = {"type": "disabled"}
+        params.pop("tools", None)
+        params.pop("tool_choice", None)
+        if api_key:
+            headers = dict(params.get("extra_headers") or {})
+            headers["Authorization"] = f"Bearer {api_key}"
+            headers["x-opencode-session"] = os.getenv("OPENCODE_SESSION_ID", "mentor-gestao-industrial")
+            params["extra_headers"] = headers
 
         return params
 
 
-# Alias legado
-OpenRouterLLM = MentorLLM
-
-
-def _modelo_opencode_go(modelo: str) -> str:
-    """Normaliza o ID do modelo para o provedor OpenAI-compatible do CrewAI/LiteLLM."""
-    modelo = (modelo or "").strip()
-    if not modelo:
-        modelo = "deepseek-v4-flash"
-    # Prefixo opencode-go/ é do config do app OpenCode; na API REST o id é limpo
-    if modelo.startswith("opencode-go/"):
-        modelo = modelo.split("/", 1)[1]
-    if not modelo.startswith("openai/"):
-        modelo = f"openai/{modelo}"
-    return modelo
-
-
-def _modelo_openrouter(modelo: str) -> str:
-    """Normaliza o ID do modelo para o roteamento OpenRouter via LiteLLM."""
-    modelo = (modelo or "").strip()
-    if not modelo:
-        modelo = "google/gemma-4-26b-a4b-it:free"
-    if not modelo.startswith("openrouter/"):
-        modelo = f"openrouter/{modelo}"
-    return modelo
-
-
-def criar_llm(temperature: float = 0.3) -> MentorLLM:
+def _modelo_opencode_go(modelo: str | None = None) -> str:
     """
-    Cria instância do LLM para uso nos agentes CrewAI.
+    Normaliza o ID do modelo para o provedor OpenAI-compatible do LiteLLM.
+    Exemplos:
+      'deepseek-v4.1-flash' -> 'openai/deepseek-v4.1-flash'
+      'opencode-go/deepseek-chat' -> 'openai/deepseek-chat'
+    """
+    m = (modelo or config.LLM_MODEL or "deepseek-v4.1-flash").strip()
+    if m.startswith("opencode-go/"):
+        m = m.split("/", 1)[1]
+    if not m.startswith("openai/"):
+        m = f"openai/{m}"
+    return m
 
-    Por padrão usa OpenCode Go + DeepSeek V4 Flash.
-    Defina LLM_PROVIDER=openrouter para o caminho legado.
+
+def criar_llm(temperature: float = 0.3, modelo: str | None = None) -> MentorLLM:
+    """
+    Cria instância do LLM para uso nos agentes CrewAI através do OpenCode Go.
 
     Args:
         temperature: Criatividade das respostas (0.0 = mais determinístico).
+        modelo: ID do modelo específico (opcional; padrão usa config.LLM_MODEL).
 
     Returns:
         Instância MentorLLM configurada.
     """
-    # Streamlit/HF podem liberar secrets depois do import inicial
     config.refresh_secrets()
 
     if not config.llm_configurado():
         raise ValueError(
-            "Chave do LLM não configurada. Defina OPENCODE_GO_API_KEY "
-            "(ou OPENROUTER_API_KEY) no arquivo .env / secrets do Hugging Face."
+            "Chave do OpenCode Go não configurada. Defina OPENCODE_GO_API_KEY "
+            "no arquivo .env ou nos secrets do Hugging Face."
         )
 
-    provedor = config.LLM_PROVIDER
     api_key = config.LLM_API_KEY
     _sincronizar_env_llm(api_key)
+    _aplicar_patch_litellm_opencode()
 
-    if provedor == "opencode_go":
-        _aplicar_patch_litellm_opencode()
-        return MentorLLM(
-            model=_modelo_opencode_go(config.LLM_MODEL),
-            api_key=api_key,
-            base_url=config.LLM_BASE_URL,
-            api_base=config.LLM_BASE_URL,
-            temperature=temperature,
-            max_tokens=config.LLM_MAX_TOKENS,
-            additional_params={"thinking": {"type": "disabled"}},
-        )
+    modelo_final = _modelo_opencode_go(modelo)
 
-    # OpenRouter (legado)
     return MentorLLM(
-        model=_modelo_openrouter(config.LLM_MODEL),
+        model=modelo_final,
         api_key=api_key,
+        base_url=config.LLM_BASE_URL,
+        api_base=config.LLM_BASE_URL,
         temperature=temperature,
         max_tokens=config.LLM_MAX_TOKENS,
+        additional_params={"thinking": {"type": "disabled"}},
+        extra_headers={
+            "Authorization": f"Bearer {api_key}",
+            "x-opencode-session": os.getenv("OPENCODE_SESSION_ID", "mentor-gestao-industrial"),
+        },
     )

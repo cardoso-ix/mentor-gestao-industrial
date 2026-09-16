@@ -33,7 +33,7 @@ Fluxo rápido: caso modelo → **Gerar briefing** → prioridade 24h + abas + PD
 | [.env.example](.env.example) | Variáveis locais |
 | [.streamlit/secrets.toml.example](.streamlit/secrets.toml.example) | Modelo de secrets |
 | [config.py](config.py) | Config central |
-| [llm_utils.py](llm_utils.py) | LLM OpenCode Go / OpenRouter |
+| [llm_utils.py](llm_utils.py) | LLM OpenCode Go (DeepSeek V4.1) |
 
 ## Stack
 
@@ -41,9 +41,9 @@ Fluxo rápido: caso modelo → **Gerar briefing** → prioridade 24h + abas + PD
 |--------|----------------|
 | Python | 3.11 (Docker / HF) ou 3.11–3.12 (local) |
 | CrewAI | 1.15.x |
-| Streamlit | 1.x |
+| Streamlit | 1.x (com suporte a áudio e 1-clique) |
 | ChromaDB | ~1.1 |
-| LLM | OpenCode Go — DeepSeek V4 Flash (`deepseek-v4-flash`) |
+| LLM | OpenCode Go — DeepSeek V4.1 Flash (`deepseek-v4.1-flash`) |
 | Busca web | Serper API |
 
 ## Secrets (Hugging Face Space)
@@ -53,7 +53,7 @@ Fluxo rápido: caso modelo → **Gerar briefing** → prioridade 24h + abas + PD
 | `OPENCODE_GO_API_KEY` | Sim | https://opencode.ai |
 | `SERPER_API_KEY` | Recomendado | Processo / segurança |
 | `LLM_PROVIDER` | Não | Padrão: `opencode_go` |
-| `OPENCODE_GO_MODEL` | Não | Padrão: `deepseek-v4-flash` |
+| `OPENCODE_GO_MODEL` | Não | Padrão: `deepseek-v4.1-flash` |
 | `OPENCODE_GO_BASE_URL` | Não | Padrão: `https://opencode.ai/zen/go/v1` |
 
 No OpenCode (Workspace → Go), ative **Enable models hosted in China**.

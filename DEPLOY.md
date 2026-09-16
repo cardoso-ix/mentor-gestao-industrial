@@ -30,10 +30,10 @@ Em **Settings → Secrets** do Space:
 |------|--------|
 | `OPENCODE_GO_API_KEY` | Chave do [OpenCode Go](https://opencode.ai) |
 | `SERPER_API_KEY` | Chave da [Serper](https://serper.dev) |
-| `OPENCODE_GO_MODEL` | `deepseek-v4-flash` (opcional; já é o padrão) |
+| `OPENCODE_GO_MODEL` | `deepseek-v4.1-flash` (opcional; já é o padrão) |
 | `LLM_PROVIDER` | `opencode_go` (opcional; já é o padrão) |
 
-No painel OpenCode, ative **Enable models hosted in China** para o DeepSeek V4 Flash.
+No painel OpenCode, ative **Enable models hosted in China** para os modelos DeepSeek.
 
 Remova secrets antigos (`OPENROUTER_API_KEY`, `GROQ_API_KEY`) para evitar confusão.
 
@@ -60,7 +60,7 @@ Texto/stack do card: aplique [docs/PORTFOLIO-SYNC.md](docs/PORTFOLIO-SYNC.md) no
 
 Para produção com mais RAM e controle total.
 
-**Requisitos:** Linux, 2–4 GB RAM, porta 6000 liberada.
+**Requisitos:** Linux, 2–4 GB RAM, porta 8501 liberada.
 
 ```bash
 git clone https://github.com/cardoso-ix/mentor-gestao-industrial.git
@@ -70,7 +70,7 @@ docker compose up -d --build
 docker compose logs -f
 ```
 
-Acesse: `http://IP_DA_VPS:6000`
+Acesse: `http://IP_DA_VPS:8501`
 
 ---
 

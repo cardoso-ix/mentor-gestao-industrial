@@ -1,0 +1,43 @@
+name: CI Quality & Validation
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate Code & Configs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-hf.txt
+
+      - name: Syntax & Compilation Check
+        run: |
+          python -m py_compile config.py llm_utils.py orchestrator.py main.py rag.py
+          python -m py_compile ui/styles.py ui/wizard.py ui/playbooks.py ui/resultado.py ui/export_utils.py
+
+      - name: Test OpenCode Go Model Normalization
+        run: |
+          python -c "
+          import config
+          from llm_utils import _modelo_opencode_go
+          assert _modelo_opencode_go('deepseek-v4.1-flash') == 'openai/deepseek-v4.1-flash'
+          assert _modelo_opencode_go('opencode-go/deepseek-chat') == 'openai/deepseek-chat'
+          print('OpenCode Go models normalized successfully!')
+          "

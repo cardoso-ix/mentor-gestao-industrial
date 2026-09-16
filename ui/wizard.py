@@ -11,6 +11,7 @@ from ui.playbooks import renderizar_casos_um_clique
 
 TIPOS_PROBLEMA = {
     "lideranca": {
+        "icone": "🎯",
         "label": "Liderança",
         "desc": "Autoridade, motivação ou transição de técnico para gestor",
         "exemplo": (
@@ -19,6 +20,7 @@ TIPOS_PROBLEMA = {
         ),
     },
     "comunicacao": {
+        "icone": "💬",
         "label": "Comunicação",
         "desc": "Alinhamento, feedback ou informação que não chega",
         "exemplo": (
@@ -27,6 +29,7 @@ TIPOS_PROBLEMA = {
         ),
     },
     "conflito": {
+        "icone": "⚡",
         "label": "Conflito",
         "desc": "Atrito entre pessoas ou resistência na equipe",
         "exemplo": (
@@ -35,6 +38,7 @@ TIPOS_PROBLEMA = {
         ),
     },
     "desempenho": {
+        "icone": "📈",
         "label": "Desempenho",
         "desc": "Produtividade, qualidade ou tarefa que não é cumprida",
         "exemplo": (
@@ -43,6 +47,7 @@ TIPOS_PROBLEMA = {
         ),
     },
     "processo": {
+        "icone": "📋",
         "label": "Processo",
         "desc": "OS, PCM, procedimento ou fluxo que não é seguido",
         "exemplo": (
@@ -51,8 +56,9 @@ TIPOS_PROBLEMA = {
         ),
     },
     "seguranca": {
+        "icone": "🛡️",
         "label": "Segurança",
-        "desc": "EPI, NR, lockout ou permissão de trabalho",
+        "desc": "EPI, NR-10/NR-06, lockout (LOTO) ou permissão de trabalho",
         "exemplo": (
             "Um eletricista insiste em entrar em painel sem LOTO completo. Alega "
             "pressa da produção. Quase-acidente na semana passada."
@@ -131,8 +137,9 @@ def renderizar_selecao_tipo() -> str:
         with cols[idx % 3]:
             selecionado = tipo_atual == tipo_id
             tipo_btn = "primary" if selecionado else "secondary"
+            texto_botao = f"{info.get('icone', '📌')} {info['label']}"
             if st.button(
-                info["label"],
+                texto_botao,
                 key=f"tipo_{tipo_id}",
                 use_container_width=True,
                 type=tipo_btn,
@@ -277,6 +284,30 @@ def renderizar_narrativa_principal(tipo: str) -> str:
     with col_b:
         st.caption("O exemplo só ajuda a começar — edite com o seu caso real.")
 
+    # Suporte nativo a ditado/áudio no chão de fábrica e mobile
+    if hasattr(st, "audio_input"):
+        st.markdown(
+            """
+            <div class="audio-recorder-box">
+                <div class="audio-recorder-box__header">
+                    <span class="audio-recorder-box__icon">🎙️</span>
+                    <span class="audio-recorder-box__title">Gravação Ágil no Chão de Fábrica (Voz / Mobile)</span>
+                </div>
+                <p class="audio-recorder-box__desc">
+                    Toque no microfone abaixo para ditar o relato durante a ronda ou passagem de turno:
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        gravacao = st.audio_input(
+            "Gravar áudio da ocorrência",
+            key=f"audio_input_{st.session_state.get('form_key', 0)}",
+            label_visibility="collapsed",
+        )
+        if gravacao is not None:
+            st.success("✅ Áudio capturado! Você pode complementar ou detalhar o caso no campo abaixo:")
+
     situacao_livre = st.text_area(
         "Sua situação",
         value=st.session_state.get("situacao_wizard", ""),
@@ -381,6 +412,18 @@ def renderizar_wizard() -> dict | None:
         situacao_final = montar_situacao_do_wizard(
             tipo, respostas, situacao_livre, contexto_planta
         )
+
+        # Automação 1-clique disparada pelos playbooks/casos modelo
+        if st.session_state.pop("auto_executar", False):
+            if tipo and situacao_livre.strip():
+                return {
+                    "situacao": situacao_final,
+                    "tamanho_equipe": tamanho,
+                    "urgencia": urgencia,
+                    "tipo_hint": tipo,
+                    "contexto_planta": contexto_planta,
+                    "categoria_rag": _mapa_categoria_rag(tipo),
+                }
 
         st.markdown(
             '<div class="wizard-acoes-hint">Pronto para o briefing? Gere a orientação.</div>',
