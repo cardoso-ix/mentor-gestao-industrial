@@ -60,7 +60,7 @@ Texto/stack do card: aplique [docs/PORTFOLIO-SYNC.md](docs/PORTFOLIO-SYNC.md) no
 
 Para produção com mais RAM e controle total.
 
-**Requisitos:** Linux, 2–4 GB RAM, porta 5000 liberada.
+**Requisitos:** Linux, 2–4 GB RAM, porta 6000 liberada.
 
 ```bash
 git clone https://github.com/cardoso-ix/mentor-gestao-industrial.git
@@ -70,7 +70,7 @@ docker compose up -d --build
 docker compose logs -f
 ```
 
-Acesse: `http://IP_DA_VPS:5000`
+Acesse: `http://IP_DA_VPS:6000`
 
 ---
 
