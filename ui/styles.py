@@ -140,14 +140,17 @@ div[data-testid="stDecoration"] {
     isolation: isolate;
     color-scheme: dark;
     background:
-        linear-gradient(115deg, #0c0a09 0%, #1c1917 42%, #292524 72%, #7c2d12 120%);
+        linear-gradient(120deg, #09090b 0%, #151413 40%, #201d1a 75%, #181614 100%);
     animation: hero-entra var(--dur-moderate) var(--ease-out-expo) both;
 }
-.hero-bleed span,
-.hero-bleed p,
-.hero-bleed strong,
-.hero-bleed div {
-    color: #e7e5e4;
+.hero-bleed,
+.hero-bleed *,
+.stApp .hero-bleed p,
+.stApp .hero-bleed span,
+.stApp .hero-bleed strong,
+.stApp .hero-bleed div,
+.stApp .hero-bleed h1 {
+    color: #ffffff !important;
 }
 .hero-glow {
     position: absolute;
@@ -156,7 +159,7 @@ div[data-testid="stDecoration"] {
     width: min(58vw, 620px);
     height: min(58vw, 620px);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.08) 42%, transparent 70%);
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.06) 42%, transparent 70%);
     pointer-events: none;
     z-index: 0;
 }
@@ -194,7 +197,7 @@ div[data-testid="stDecoration"] {
 .hero-copy { max-width: 34rem; }
 .stApp .hero-bleed .hero-kicker,
 .hero-bleed .hero-kicker {
-    color: #fdba74 !important;
+    color: #fde68a !important;
     font-size: 0.8rem !important;
     font-weight: 650 !important;
     letter-spacing: 0.14em !important;
@@ -217,7 +220,7 @@ div[data-testid="stDecoration"] {
 }
 .stApp .hero-bleed .hero-lede,
 .hero-bleed .hero-lede {
-    color: #e7e5e4 !important;
+    color: #f5f5f4 !important;
     font-size: clamp(1.02rem, 1.6vw, 1.18rem) !important;
     line-height: 1.55 !important;
     margin: 0 0 1.35rem 0 !important;
@@ -234,7 +237,7 @@ div[data-testid="stDecoration"] {
     font-weight: 600 !important;
     margin: 0 !important;
     max-width: none !important;
-    opacity: 0.92;
+    opacity: 0.95;
 }
 .hero-cta-hint::after {
     content: "↓";
@@ -248,7 +251,7 @@ div[data-testid="stDecoration"] {
     gap: 0.7rem;
     justify-content: flex-end;
     padding-bottom: 0.25rem;
-    border-left: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 1px solid rgba(255, 255, 255, 0.2) !important;
     padding-left: 1.35rem;
 }
 .hero-aside__label {
@@ -256,21 +259,22 @@ div[data-testid="stDecoration"] {
     font-weight: 650 !important;
     letter-spacing: 0.12em !important;
     text-transform: uppercase !important;
-    color: rgba(253, 186, 116, 0.9) !important;
+    color: #fde68a !important;
     margin: 0 0 0.35rem 0 !important;
     max-width: none !important;
 }
 .hero-aside__item {
-    font-family: var(--font-display);
-    color: rgba(255, 255, 255, 0.78);
+    font-family: var(--font-display) !important;
+    color: #ffffff !important;
     font-size: clamp(1.2rem, 2.2vw, 1.55rem);
     font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1.15;
 }
-.hero-aside__item:nth-child(2) { color: #ffffff; }
-.hero-aside__item:nth-child(3) { color: rgba(255, 255, 255, 0.78); }
-.hero-aside__item:nth-child(4) { color: #fdba74; }
+.hero-aside__item:nth-child(2) { color: #ffffff !important; }
+.hero-aside__item:nth-child(3) { color: #f5f5f4 !important; }
+.hero-aside__item:nth-child(4) { color: #fde68a !important; }
+
 
 /* Nota geral — caracterização profissional do produto */
 .nota-geral {
@@ -724,19 +728,25 @@ div[data-testid="stDecoration"] {
 }
 .timeline-pending { background: var(--color-surface-muted); color: var(--color-ink-caption); }
 
-.aviso-publico {
-    background: transparent;
-    color: var(--color-ink-body);
-    border: none;
-    border-left: 2px solid var(--color-primary);
-    padding: 0.15rem 0 0.15rem 0.85rem;
-    border-radius: 0;
-    font-size: 0.82rem;
-    line-height: 1.45;
+.aviso-publico,
+section[data-testid="stSidebar"] .aviso-publico {
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: 1px solid rgba(245, 158, 11, 0.35) !important;
+    border-left: 4px solid #f59e0b !important;
+    padding: 0.65rem 0.85rem !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
+    color: #ffffff !important;
 }
-.aviso-publico strong {
-    color: var(--color-ink);
-    font-weight: 650;
+.aviso-publico *,
+section[data-testid="stSidebar"] .aviso-publico * {
+    color: #ffffff !important;
+}
+.aviso-publico strong,
+section[data-testid="stSidebar"] .aviso-publico strong {
+    color: #fde68a !important;
+    font-weight: 700 !important;
 }
 
 .rodape-app {
@@ -771,40 +781,101 @@ div[data-testid="stDecoration"] {
     border-top: 1px solid var(--color-border);
 }
 
-/* Sidebar — Glassmorphic industrial estável e responsivo (sem hover-slide frágil) */
+/* Sidebar — Glassmorphic industrial de alto contraste com tipografia branca */
 section[data-testid="stSidebar"] {
     background: #12100e !important;
-    border-right: 1px solid rgba(253, 186, 116, 0.15) !important;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25) !important;
+    border-right: 1px solid rgba(253, 186, 116, 0.18) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3) !important;
     backdrop-filter: blur(12px) !important;
 }
 section[data-testid="stSidebar"] > div,
 div[data-testid="stSidebarContent"] {
     background: #12100e !important;
-    color: #e7e5e4 !important;
+    color: #ffffff !important;
     padding-top: 1rem !important;
+}
+section[data-testid="stSidebar"],
+section[data-testid="stSidebar"] * {
+    color: #ffffff;
 }
 section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] span,
 section[data-testid="stSidebar"] label,
-section[data-testid="stSidebar"] .stCaption {
+section[data-testid="stSidebar"] div,
+section[data-testid="stSidebar"] li,
+section[data-testid="stSidebar"] .stCaption,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+    color: #ffffff !important;
+}
+section[data-testid="stSidebar"] .stCaption,
+section[data-testid="stSidebar"] .stCaption p {
     color: #d6d3d1 !important;
 }
 section[data-testid="stSidebar"] h1,
 section[data-testid="stSidebar"] h2,
 section[data-testid="stSidebar"] h3,
-section[data-testid="stSidebar"] h4 {
+section[data-testid="stSidebar"] h4,
+section[data-testid="stSidebar"] h5,
+section[data-testid="stSidebar"] h6 {
     color: #ffffff !important;
     font-family: var(--font-display) !important;
 }
+section[data-testid="stSidebar"] strong {
+    color: #fde68a !important;
+}
 section[data-testid="stSidebar"] .sidebar-brand {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 section[data-testid="stSidebar"] .sidebar-brand__nome {
     color: #ffffff !important;
 }
 section[data-testid="stSidebar"] .sidebar-brand__desc {
-    color: #fdba74 !important;
+    color: #fde68a !important;
+}
+/* Botões na sidebar com contraste impecável */
+section[data-testid="stSidebar"] .stButton > button {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(253, 186, 116, 0.3) !important;
+    color: #ffffff !important;
+}
+section[data-testid="stSidebar"] .stButton > button p,
+section[data-testid="stSidebar"] .stButton > button span,
+section[data-testid="stSidebar"] .stButton > button div {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+section[data-testid="stSidebar"] .stButton > button:hover {
+    background: rgba(245, 158, 11, 0.22) !important;
+    border-color: #f59e0b !important;
+    color: #ffffff !important;
+}
+section[data-testid="stSidebar"] .stButton > button:hover p,
+section[data-testid="stSidebar"] .stButton > button:hover span {
+    color: #ffffff !important;
+}
+/* Timeline na sidebar */
+section[data-testid="stSidebar"] .timeline-step {
+    border-radius: var(--radius-sm) !important;
+    margin: 0.25rem 0 !important;
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+}
+section[data-testid="stSidebar"] .timeline-step.timeline-done {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #6ee7b7 !important;
+    border: 1px solid rgba(16, 185, 129, 0.45) !important;
+}
+section[data-testid="stSidebar"] .timeline-step.timeline-active {
+    background: rgba(245, 158, 11, 0.28) !important;
+    color: #ffffff !important;
+    border: 1px solid #f59e0b !important;
+    font-weight: 700 !important;
+}
+section[data-testid="stSidebar"] .timeline-step.timeline-pending {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #a8a29e !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 /* Botão de colapso da sidebar */
 [data-testid="stSidebarCollapseButton"] button {
@@ -1207,7 +1278,7 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
     border-radius: 9999px !important;
     background: rgba(245, 158, 11, 0.16) !important;
     border: 1px solid rgba(253, 186, 116, 0.5) !important;
-    color: #fffbeb !important; /* Branco marfim brilhante (nunca preto) */
+    color: #ffffff !important;
     font-size: 0.8rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.02em !important;
@@ -1218,7 +1289,7 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
 .stApp .hero-bleed .hero-quick-chip:hover,
 .hero-bleed .hero-quick-chip:hover,
 .hero-quick-chip:hover {
-    background: rgba(245, 158, 11, 0.3) !important;
+    background: rgba(245, 158, 11, 0.35) !important;
     border-color: #f59e0b !important;
     color: #ffffff !important;
     transform: translateY(-2px) !important;
@@ -1227,8 +1298,8 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
 .stApp .hero-bleed .hero-stat-card,
 .hero-bleed .hero-stat-card,
 .hero-stat-card {
-    background: rgba(255, 255, 255, 0.07) !important;
-    border: 1px solid rgba(253, 186, 116, 0.3) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(253, 186, 116, 0.35) !important;
     border-radius: var(--radius-md) !important;
     padding: 0.75rem 1rem !important;
     backdrop-filter: blur(10px) !important;
@@ -1240,7 +1311,7 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
     font-family: var(--font-display) !important;
     font-size: 1.5rem !important;
     font-weight: 800 !important;
-    color: #fdba74 !important; /* Cobre luminoso */
+    color: #fde68a !important; /* Dourado industrial */
     line-height: 1 !important;
 }
 .stApp .hero-bleed .hero-stat-card__desc,
@@ -1248,9 +1319,9 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
 .hero-stat-card__desc {
     display: block !important;
     font-size: 0.78rem !important;
-    color: #e7e5e4 !important; /* Branco claro */
+    color: #ffffff !important; /* Branco puro */
     margin-top: 0.3rem !important;
-    font-weight: 500 !important;
+    font-weight: 550 !important;
 }
 
 /* Dossiê Executivo de Resultados */
@@ -1336,45 +1407,50 @@ hr { border-color: var(--color-border) !important; opacity: 0.7; }
     font-weight: 700;
     width: fit-content;
 }
-.pill-alta { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-.pill-media { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-.pill-baixa { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+.pill-alta { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-weight: 700; }
+.pill-media { background: #fef3c7; color: #78350f; border: 1px solid #fde68a; font-weight: 700; }
+.pill-baixa { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; font-weight: 700; }
 
-/* Callout Prioridade 24 Horas */
+/* Callout Prioridade 24 Horas — Cartão executivo escuro com tipografia 100% branca e luminosa */
 .callout-24h {
     display: flex;
-    background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
-    border: 1px solid #fde68a;
-    border-left: 5px solid var(--color-primary);
-    border-radius: var(--radius-md);
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 16px rgba(217, 119, 6, 0.08);
+    background: linear-gradient(135deg, #151312 0%, #24201c 100%) !important;
+    border: 1px solid rgba(245, 158, 11, 0.45) !important;
+    border-left: 5px solid #f59e0b !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 1.5rem !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28) !important;
     overflow: hidden;
 }
+.callout-24h,
+.callout-24h * {
+    color: #ffffff !important;
+}
 .callout-24h__content {
-    padding: 1rem 1.25rem;
-    width: 100%;
+    padding: 1.1rem 1.35rem !important;
+    width: 100% !important;
 }
 .callout-24h__header {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    margin-bottom: 0.45rem;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 .callout-24h__icon {
-    font-size: 1.1rem;
+    font-size: 1.2rem !important;
 }
 .callout-24h__title {
-    font-size: 0.78rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: var(--color-primary-deep);
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.08em !important;
+    color: #fde68a !important;
+    text-transform: uppercase !important;
 }
 .callout-24h__text {
-    font-size: 1.05rem !important;
+    font-size: 1.08rem !important;
     font-weight: 600 !important;
-    color: #451a03 !important;
-    line-height: 1.45 !important;
+    color: #ffffff !important;
+    line-height: 1.5 !important;
     margin: 0 !important;
 }
 
@@ -1541,16 +1617,23 @@ button[data-baseweb="tab"][aria-selected="true"] {
    AGENT TELEMETRY RADAR (HUD DE ANÁLISE EM TEMPO REAL)
    ========================================================================= */
 .agent-telemetry-hud {
-    background: linear-gradient(135deg, #100e0d 0%, #1c1917 55%, #292524 100%);
-    border: 1px solid rgba(245, 158, 11, 0.4);
-    border-radius: var(--radius-lg);
-    padding: 1.35rem 1.5rem;
-    margin: 1rem 0 1.25rem;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), 0 0 20px rgba(217, 119, 6, 0.18);
+    background: linear-gradient(135deg, #12100f 0%, #1e1b18 55%, #27231f 100%) !important;
+    border: 1px solid rgba(245, 158, 11, 0.45) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 1.35rem 1.5rem !important;
+    margin: 1rem 0 1.25rem !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), 0 0 20px rgba(217, 119, 6, 0.18) !important;
     position: relative;
     overflow: hidden;
-    color: #ffffff;
+    color: #ffffff !important;
     animation: painel-progresso-entra var(--dur-normal) var(--ease-out-quart) both;
+}
+.agent-telemetry-hud,
+.agent-telemetry-hud *,
+.agent-telemetry-hud p,
+.agent-telemetry-hud span,
+.agent-telemetry-hud div {
+    color: #ffffff !important;
 }
 .agent-telemetry-hud::before {
     content: "";
@@ -1611,52 +1694,60 @@ button[data-baseweb="tab"][aria-selected="true"] {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(253, 186, 116, 0.35);
-    padding: 0.22rem 0.65rem;
-    border-radius: 9999px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #fde68a;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(253, 186, 116, 0.4) !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    color: #fde68a !important;
     backdrop-filter: blur(4px);
 }
 .agent-telemetry-step {
-    font-size: 0.96rem;
-    color: #e7e5e4;
-    margin-bottom: 0.65rem;
-    font-weight: 550;
+    font-size: 0.96rem !important;
+    color: #ffffff !important;
+    margin-bottom: 0.65rem !important;
+    font-weight: 550 !important;
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 .agent-telemetry-step__badge {
-    background: rgba(217, 119, 6, 0.25);
-    border: 1px solid #d97706;
-    color: #fdba74;
-    padding: 0.15rem 0.45rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.72rem;
-    font-weight: 700;
+    background: rgba(217, 119, 6, 0.25) !important;
+    border: 1px solid #f59e0b !important;
+    color: #fde68a !important;
+    padding: 0.15rem 0.5rem !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: 0.72rem !important;
+    font-weight: 750 !important;
 }
 .agent-telemetry-metrics {
     display: flex;
     justify-content: space-between;
-    font-size: 0.76rem;
-    color: #fdba74;
-    font-weight: 600;
-    margin-top: 0.55rem;
+    font-size: 0.76rem !important;
+    color: #fde68a !important;
+    font-weight: 600 !important;
+    margin-top: 0.55rem !important;
 }
 
 /* =========================================================================
    GRAVADOR DE ÁUDIO NO CHÃO DE FÁBRICA (MOBILE & FACTORY FLOOR)
    ========================================================================= */
 .audio-recorder-box {
-    background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
-    border: 1px dashed rgba(245, 158, 11, 0.45);
-    border-radius: var(--radius-md);
-    padding: 0.85rem 1rem;
-    margin-bottom: 0.85rem;
-    color: #ffffff;
+    background: linear-gradient(135deg, #151312 0%, #24201c 100%) !important;
+    border: 1px dashed rgba(245, 158, 11, 0.5) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.95rem 1.15rem !important;
+    margin-bottom: 0.85rem !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+}
+.audio-recorder-box,
+.audio-recorder-box *,
+.audio-recorder-box p,
+.audio-recorder-box span,
+.audio-recorder-box div {
+    color: #ffffff !important;
 }
 .audio-recorder-box__header {
     display: flex;
@@ -1665,21 +1756,21 @@ button[data-baseweb="tab"][aria-selected="true"] {
     margin-bottom: 0.35rem;
 }
 .audio-recorder-box__icon {
-    font-size: 1.1rem;
+    font-size: 1.15rem !important;
 }
 .audio-recorder-box__title {
-    font-size: 0.8rem;
-    font-weight: 750;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #fdba74;
-    margin: 0;
+    font-size: 0.82rem !important;
+    font-weight: 750 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    color: #fde68a !important;
+    margin: 0 !important;
 }
 .audio-recorder-box__desc {
-    font-size: 0.78rem;
-    color: #d6d3d1;
-    margin-bottom: 0.55rem;
-    line-height: 1.4;
+    font-size: 0.82rem !important;
+    color: #f5f5f4 !important;
+    margin-bottom: 0.55rem !important;
+    line-height: 1.45 !important;
 }
 
 /* =========================================================================
@@ -1705,6 +1796,22 @@ button[data-baseweb="tab"][aria-selected="true"] {
     border-color: var(--color-complete-border);
     text-decoration: line-through;
     opacity: 0.75;
+}
+
+/* Regra de Alto Contraste Global: qualquer elemento em superfície escura recebe tipografia 100% branca */
+.hero-bleed [data-testid="stMarkdownContainer"] *,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] *,
+.callout-24h [data-testid="stMarkdownContainer"] *,
+.agent-telemetry-hud [data-testid="stMarkdownContainer"] *,
+.audio-recorder-box [data-testid="stMarkdownContainer"] * {
+    color: #ffffff !important;
+}
+.hero-bleed [data-testid="stMarkdownContainer"] strong,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] strong,
+.callout-24h [data-testid="stMarkdownContainer"] strong,
+.agent-telemetry-hud [data-testid="stMarkdownContainer"] strong,
+.audio-recorder-box [data-testid="stMarkdownContainer"] strong {
+    color: #fde68a !important;
 }
 </style>
 """
