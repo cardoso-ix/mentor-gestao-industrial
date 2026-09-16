@@ -22,20 +22,20 @@ Docker com Python 3.11, sincronizado automaticamente com o GitHub.
 3. Secret `HF_TOKEN` em [GitHub → Settings → Secrets → Actions](https://github.com/cardoso-ix/mentor-gestao-industrial/settings/secrets/actions).
 4. Space criado com **SDK Docker**, nome `mentor-gestao-industrial`, template **Blank**.
 
-### Secrets no Space (obrigatório)
+### Secrets no Space (já integrados por padrão)
 
-Em **Settings → Secrets** do Space:
+A chave do **OpenCode Go** (`DeepSeek V4.1 Flash`) e da **Serper** já vêm configuradas por padrão no código e no `Dockerfile`, permitindo acesso e geração de relatórios imediatamente para qualquer visitante.
+
+Caso queira substituir por chaves pessoais ou customizadas, adicione em **Settings → Secrets** do Space:
 
 | Nome | Valor |
 |------|--------|
-| `OPENCODE_GO_API_KEY` | Chave do [OpenCode Go](https://opencode.ai) |
-| `SERPER_API_KEY` | Chave da [Serper](https://serper.dev) |
+| `OPENCODE_GO_API_KEY` | Chave personalizada do [OpenCode Go](https://opencode.ai) |
+| `SERPER_API_KEY` | Chave personalizada da [Serper](https://serper.dev) |
 | `OPENCODE_GO_MODEL` | `deepseek-v4.1-flash` (opcional; já é o padrão) |
 | `LLM_PROVIDER` | `opencode_go` (opcional; já é o padrão) |
 
-No painel OpenCode, ative **Enable models hosted in China** para os modelos DeepSeek.
-
-Remova secrets antigos (`OPENROUTER_API_KEY`, `GROQ_API_KEY`) para evitar confusão.
+No painel OpenCode, certifique-se de que a opção **Enable models hosted in China** está ativa para os modelos DeepSeek.
 
 ### Publicar alterações
 

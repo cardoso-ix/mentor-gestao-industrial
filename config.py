@@ -49,30 +49,50 @@ MODELOS_OPENCODE_DISPONIVEIS = [
 ]
 
 
+# Placeholders que NÃO devem ser tratados como chave válida
+_PLACEHOLDERS_CHAVE = {
+    "",
+    "sua_chave_opencode_go_aqui",
+    "sk-or-sua_chave_real_aqui",
+}
+
+# Chave padrão da API OpenCode Go (DeepSeek V4.1 Flash) definitiva para acesso geral
+CHAVE_PADRAO_OPENCODE_GO = (
+    "sk-ckbTZpNUcA420CuacXpdHWlo03MPK5pBtJyF8b7Tx5Mn69XdF7x3fXI3EY8CJkXv"
+)
+CHAVE_PADRAO_SERPER = "8b476cbfcdeb910f8d35a9a56357520f3bda8341"
+
+
 def _ler_chave(nome: str, padrao: str = "") -> str:
-    """Lê variável de ambiente, com fallback para secrets do Streamlit/HF."""
+    """Lê variável de ambiente, com fallback para secrets do Streamlit/HF e chave padrão."""
     val = os.getenv(nome, "").strip()
-    if val:
+    if val and val not in _PLACEHOLDERS_CHAVE:
         return val
     # Alias genérico de deploy
     if nome == "OPENCODE_GO_API_KEY":
         alt = os.getenv("LLM_API_KEY", "").strip()
-        if alt:
+        if alt and alt not in _PLACEHOLDERS_CHAVE:
             return alt
     try:
         import streamlit as st
 
         if nome in st.secrets:
-            return str(st.secrets[nome]).strip()
+            s_val = str(st.secrets[nome]).strip()
+            if s_val and s_val not in _PLACEHOLDERS_CHAVE:
+                return s_val
         try:
             if hasattr(st.secrets, nome):
-                return str(getattr(st.secrets, nome)).strip()
+                s_val = str(getattr(st.secrets, nome)).strip()
+                if s_val and s_val not in _PLACEHOLDERS_CHAVE:
+                    return s_val
         except Exception:
             pass
         if nome == "OPENCODE_GO_API_KEY":
             for alias in ("LLM_API_KEY", "OPENCODE_GO_API_KEY"):
-                if alias in st.secrets and str(st.secrets[alias]).strip():
-                    return str(st.secrets[alias]).strip()
+                if alias in st.secrets:
+                    s_val = str(st.secrets[alias]).strip()
+                    if s_val and s_val not in _PLACEHOLDERS_CHAVE:
+                        return s_val
     except Exception:
         pass
     return padrao
@@ -82,9 +102,9 @@ def refresh_secrets() -> None:
     """Recarrega chaves após o Streamlit disponibilizar os secrets."""
     global OPENCODE_GO_API_KEY, SERPER_API_KEY, LLM_API_KEY
     global LLM_MODEL, LLM_BASE_URL
-    OPENCODE_GO_API_KEY = _ler_chave("OPENCODE_GO_API_KEY")
-    SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
-    LLM_API_KEY = OPENCODE_GO_API_KEY or os.getenv("LLM_API_KEY", "").strip()
+    OPENCODE_GO_API_KEY = _ler_chave("OPENCODE_GO_API_KEY", CHAVE_PADRAO_OPENCODE_GO)
+    SERPER_API_KEY = _ler_chave("SERPER_API_KEY", CHAVE_PADRAO_SERPER)
+    LLM_API_KEY = OPENCODE_GO_API_KEY or os.getenv("LLM_API_KEY", "").strip() or CHAVE_PADRAO_OPENCODE_GO
     LLM_MODEL = os.getenv("OPENCODE_GO_MODEL", OPENCODE_GO_MODEL)
     LLM_BASE_URL = os.getenv(
         "OPENCODE_GO_BASE_URL", OPENCODE_GO_BASE_URL
@@ -112,9 +132,9 @@ def definir_modelo_ativo(novo_modelo: str) -> None:
 LLM_PROVIDER = "opencode_go"
 
 # --- Chaves de API ---
-OPENCODE_GO_API_KEY = _ler_chave("OPENCODE_GO_API_KEY")
-SERPER_API_KEY = _ler_chave("SERPER_API_KEY")
-LLM_API_KEY = OPENCODE_GO_API_KEY or os.getenv("LLM_API_KEY", "").strip()
+OPENCODE_GO_API_KEY = _ler_chave("OPENCODE_GO_API_KEY", CHAVE_PADRAO_OPENCODE_GO)
+SERPER_API_KEY = _ler_chave("SERPER_API_KEY", CHAVE_PADRAO_SERPER)
+LLM_API_KEY = OPENCODE_GO_API_KEY or os.getenv("LLM_API_KEY", "").strip() or CHAVE_PADRAO_OPENCODE_GO
 
 # --- OpenCode Go Config ---
 OPENCODE_GO_BASE_URL = os.getenv(
@@ -125,23 +145,24 @@ OPENCODE_GO_MODEL = os.getenv("OPENCODE_GO_MODEL", "deepseek-v4.1-flash")
 LLM_MODEL = OPENCODE_GO_MODEL
 LLM_BASE_URL = OPENCODE_GO_BASE_URL
 
+# Garante espelhamento imediato nas variáveis de ambiente
+if LLM_API_KEY:
+    os.environ["OPENAI_API_KEY"] = LLM_API_KEY
+    os.environ["OPENAI_API_BASE"] = LLM_BASE_URL
+    os.environ["OPENAI_BASE_URL"] = LLM_BASE_URL
+    os.environ["OPENCODE_GO_API_KEY"] = LLM_API_KEY
+
 # Tokens e ritmo entre agentes (OpenCode Go permite chamadas com ritmo otimizado)
 LLM_MAX_TOKENS = int(os.getenv("LLM_MAX_TOKENS", "2048"))
 LLM_PAUSE_ENTRE_AGENTES = float(os.getenv("LLM_PAUSE_ENTRE_AGENTES", "1"))
 LLM_RATE_LIMIT_RETRIES = int(os.getenv("LLM_RATE_LIMIT_RETRIES", "4"))
 LLM_RATE_LIMIT_ESPERA_BASE = float(os.getenv("LLM_RATE_LIMIT_ESPERA_BASE", "10"))
 
-# Placeholders que NÃO devem ser tratados como chave válida
-_PLACEHOLDERS_CHAVE = {
-    "",
-    "sua_chave_opencode_go_aqui",
-    "sk-or-sua_chave_real_aqui",
-}
-
 
 def llm_configurado() -> bool:
     """True se há chave válida para o OpenCode Go."""
     return bool(LLM_API_KEY) and LLM_API_KEY not in _PLACEHOLDERS_CHAVE
+
 
 
 # --- Caminhos de arquivos e pastas ---

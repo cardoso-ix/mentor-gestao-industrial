@@ -179,6 +179,23 @@ def _renderizar_sidebar():
                 "Compatível com todos os modelos disponíveis na assinatura OpenCode Go."
             )
 
+            chave_custom = st.text_input(
+                "Substituir Chave API (opcional)",
+                type="password",
+                placeholder="Chave padrão ativa e conectada",
+                key="input_chave_custom",
+                help="A chave padrão já está ativa para todos. Preencha aqui apenas se quiser usar uma chave pessoal.",
+            )
+            if chave_custom and chave_custom.strip():
+                chave_limpa = chave_custom.strip()
+                if chave_limpa != config.LLM_API_KEY:
+                    config.OPENCODE_GO_API_KEY = chave_limpa
+                    config.LLM_API_KEY = chave_limpa
+                    os.environ["OPENCODE_GO_API_KEY"] = chave_limpa
+                    os.environ["OPENAI_API_KEY"] = chave_limpa
+                    llm_utils._aplicar_patch_litellm_opencode()
+                    st.success("Chave personalizada ativa!")
+
         if st.button("🔄 Novo Briefing / Limpar", use_container_width=True):
             from ui.wizard import _limpar_wizard
 

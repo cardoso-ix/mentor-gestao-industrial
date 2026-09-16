@@ -52,6 +52,7 @@ def _chave_efetiva(kwargs: dict[str, Any] | None = None) -> str:
         os.environ.get("OPENCODE_GO_API_KEY"),
         os.environ.get("OPENAI_API_KEY"),
         config.OPENCODE_GO_API_KEY,
+        getattr(config, "CHAVE_PADRAO_OPENCODE_GO", None),
     ]
     for valor in candidatos:
         if not valor:
@@ -59,7 +60,7 @@ def _chave_efetiva(kwargs: dict[str, Any] | None = None) -> str:
         texto = str(valor).strip()
         if texto and texto not in config._PLACEHOLDERS_CHAVE:
             return texto
-    return ""
+    return getattr(config, "CHAVE_PADRAO_OPENCODE_GO", "")
 
 
 def _preparar_kwargs_opencode(kwargs: dict[str, Any]) -> dict[str, Any]:

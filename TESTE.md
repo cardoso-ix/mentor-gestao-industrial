@@ -15,13 +15,12 @@ Roteiro rápido para validar a demo pública ou o ambiente local.
 ## Antes de testar
 
 1. No Space, status deve estar **Running** (não Building / Starting).
-2. Secrets no HF (ou `.env` local):
-   - `OPENCODE_GO_API_KEY` (obrigatória)
-   - `SERPER_API_KEY` (recomendada)
+2. Credenciais integradas por padrão:
+   - `OPENCODE_GO_API_KEY` (já configurada de forma definitiva com DeepSeek V4.1 Flash)
+   - `SERPER_API_KEY` (já configurada de forma definitiva)
    - `LLM_PROVIDER=opencode_go` (padrão)
-   - `OPENCODE_GO_MODEL=deepseek-v4-flash` (padrão)
-3. No OpenCode (Workspace → Go): **Enable models hosted in China** ativado.
-4. Remova secrets legados `OPENROUTER_API_KEY` / `GROQ_API_KEY` se ainda existirem.
+   - `OPENCODE_GO_MODEL=deepseek-v4.1-flash` (padrão)
+3. No OpenCode (Workspace → Go): **Enable models hosted in China** ativado para DeepSeek.
 
 ## Teste em 5 passos (público)
 
