@@ -62,59 +62,100 @@ def _chave_efetiva(kwargs: dict[str, Any] | None = None) -> str:
     return ""
 
 
+def _preparar_kwargs_opencode(kwargs: dict[str, Any]) -> dict[str, Any]:
+    """Injeta parâmetros obrigatórios do OpenCode Go (headers de sessão, auth e base_url)."""
+    kwargs = dict(kwargs)
+    api_key = _chave_efetiva(kwargs)
+    if not api_key:
+        api_key = config.LLM_API_KEY
+    if api_key:
+        kwargs["api_key"] = api_key
+        _sincronizar_env_llm(api_key)
+
+    base = (
+        kwargs.get("api_base")
+        or kwargs.get("base_url")
+        or config.LLM_BASE_URL
+        or os.environ.get("OPENAI_API_BASE")
+        or "https://opencode.ai/zen/go/v1"
+    )
+    if base:
+        kwargs["api_base"] = base
+        kwargs["base_url"] = base
+
+    session_id = os.getenv("OPENCODE_SESSION_ID", "mentor-gestao-industrial")
+    headers = dict(kwargs.get("extra_headers") or kwargs.get("headers") or {})
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    headers["x-opencode-session"] = session_id
+    
+    # Injeta em ambas as propriedades aceitas pelo LiteLLM
+    kwargs["extra_headers"] = dict(headers)
+    kwargs["headers"] = dict(headers)
+
+    # Garante também no litellm.headers global
+    try:
+        import litellm
+        lit_headers = dict(getattr(litellm, "headers", None) or {})
+        lit_headers["x-opencode-session"] = session_id
+        if api_key:
+            lit_headers["Authorization"] = f"Bearer {api_key}"
+        litellm.headers = lit_headers
+    except Exception:
+        pass
+
+    # DeepSeek V4 / V4.1 no OpenCode Go: desativa modo thinking na geração de relatórios
+    kwargs["thinking"] = {"type": "disabled"}
+    if kwargs.get("tools") or kwargs.get("tool_choice"):
+        kwargs.pop("tools", None)
+        kwargs.pop("tool_choice", None)
+    return kwargs
+
+
 def _aplicar_patch_litellm_opencode() -> None:
-    """Garante api_key + api_base + thinking disabled em todas as chamadas LiteLLM."""
+    """Garante x-opencode-session + api_key + thinking disabled em TODAS as chamadas LiteLLM."""
     global _LITELLM_PATCH_APLICADO
-    if _LITELLM_PATCH_APLICADO:
-        return
     try:
         import litellm
     except ImportError:
         return
 
-    if getattr(litellm.completion, "_mentor_opencode_patched", False):
+    # Injeta sessão globalmente no LiteLLM
+    session_id = os.getenv("OPENCODE_SESSION_ID", "mentor-gestao-industrial")
+    api_key = _chave_efetiva()
+    lit_headers = dict(getattr(litellm, "headers", None) or {})
+    lit_headers["x-opencode-session"] = session_id
+    if api_key:
+        lit_headers["Authorization"] = f"Bearer {api_key}"
+    litellm.headers = lit_headers
+
+    if _LITELLM_PATCH_APLICADO or getattr(litellm.completion, "_mentor_opencode_patched", False):
         _LITELLM_PATCH_APLICADO = True
         return
 
-    original = litellm.completion
+    original_completion = litellm.completion
+    original_acompletion = getattr(litellm, "acompletion", None)
 
     def completion_patched(*args: Any, **kwargs: Any):
-        kwargs = dict(kwargs)
-        api_key = _chave_efetiva(kwargs)
-        if not api_key:
-            raise ValueError(
-                "Chave do LLM ausente (OPENCODE_GO_API_KEY). "
-                "Configure no .env ou nos secrets do Hugging Face."
-            )
-        kwargs["api_key"] = api_key
-        _sincronizar_env_llm(api_key)
+        kwargs = _preparar_kwargs_opencode(kwargs)
+        return original_completion(*args, **kwargs)
 
-        base = (
-            kwargs.get("api_base")
-            or kwargs.get("base_url")
-            or config.LLM_BASE_URL
-            or os.environ.get("OPENAI_API_BASE")
-        )
-        if base:
-            kwargs["api_base"] = base
-            kwargs["base_url"] = base
-
-        # Authorization e x-opencode-session explícitos exigidos pelo OpenCode Go
-        headers = dict(kwargs.get("extra_headers") or kwargs.get("headers") or {})
-        headers["Authorization"] = f"Bearer {api_key}"
-        headers["x-opencode-session"] = os.getenv("OPENCODE_SESSION_ID", "mentor-gestao-industrial")
-        kwargs["extra_headers"] = headers
-
-        # DeepSeek V4 / V4.1 no OpenCode Go: desativa modo thinking na geração de relatórios
-        kwargs["thinking"] = {"type": "disabled"}
-        if kwargs.get("tools") or kwargs.get("tool_choice"):
-            kwargs.pop("tools", None)
-            kwargs.pop("tool_choice", None)
-        return original(*args, **kwargs)
+    async def acompletion_patched(*args: Any, **kwargs: Any):
+        kwargs = _preparar_kwargs_opencode(kwargs)
+        if original_acompletion:
+            return await original_acompletion(*args, **kwargs)
+        return original_completion(*args, **kwargs)
 
     completion_patched._mentor_opencode_patched = True  # type: ignore[attr-defined]
     litellm.completion = completion_patched
+    if original_acompletion:
+        litellm.acompletion = acompletion_patched
     _LITELLM_PATCH_APLICADO = True
+
+
+# Aplica o patch global de imediato ao importar o módulo
+_aplicar_patch_litellm_opencode()
+
 
 
 class MentorLLM(LLM):

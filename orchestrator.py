@@ -16,6 +16,10 @@ from typing import Callable
 from crewai import Crew, Process, Task
 
 import config
+import llm_utils
+
+llm_utils._aplicar_patch_litellm_opencode()
+
 from agents.analista import criar_agente_analista, criar_task_analista
 from agents.comunicacao import criar_agente_comunicacao, criar_task_comunicacao
 from agents.editor import criar_agente_editor, criar_task_editor
@@ -368,6 +372,7 @@ def executar_mentoria(
 
     # Validação inicial
     config.refresh_secrets()
+    llm_utils._aplicar_patch_litellm_opencode()
     erro_config = _validar_chaves()
     if erro_config:
         resultado.erro = erro_config

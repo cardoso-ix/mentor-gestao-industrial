@@ -22,8 +22,10 @@ st.set_page_config(
 from datetime import datetime
 
 import config
+import llm_utils
 
 config.refresh_secrets()
+llm_utils._aplicar_patch_litellm_opencode()
 
 from ui.playbooks import renderizar_playbooks_sidebar
 from ui.rate_limit import pode_analisar, registrar_analise
@@ -149,6 +151,7 @@ def _renderizar_sidebar():
 
                 os.environ["OPENCODE_GO_API_KEY"] = chave_limpa
                 os.environ["OPENAI_API_KEY"] = chave_limpa
+                llm_utils._aplicar_patch_litellm_opencode()
                 st.success("Chave ativa!")
                 st.rerun()
 
